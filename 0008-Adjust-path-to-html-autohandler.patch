@@ -1,7 +1,7 @@
-From 775af7e4827e723ba8b4ccc210dc0eaa876ab797 Mon Sep 17 00:00:00 2001
+From 20ae18d6de75fd426eff2e33ab4bfd84dfdcdfaa Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Fri, 23 Jan 2015 04:38:35 +0100
-Subject: [PATCH 7/7] Adjust path to html/autohandler.
+Subject: [PATCH 8/8] Adjust path to html/autohandler.
 
 ---
  t/web/query_log.t | 2 +-

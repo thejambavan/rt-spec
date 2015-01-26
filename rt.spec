@@ -52,10 +52,11 @@
 %global RT_LOGDIR		%{_localstatedir}/log/%{name}
 %global RT_CACHEDIR		%{_localstatedir}/cache/%{name}
 %global RT_LOCALSTATEDIR	%{_localstatedir}/lib/%{name}
+%global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.0.22
-Release:	3%{?dist}
+Version:	4.2.9
+Release:	1%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -71,13 +72,15 @@ Source3:	README.fedora.in
 # rt's logrotate configuration
 Source4:	rt.logrotate.in
 
-Patch1: 0001-Add-Fedora-configuration.patch
-Patch2: 0002-Broken-test-dependencies.patch
-Patch3: 0003-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
-Patch4: 0004-Remove-fixperms-font-install.patch
-Patch5: 0005-Fix-permissions.patch
-Patch6: 0006-Remove-configure-time-generated-files.patch
-Patch7: 0007-Adjust-path-to-html-autohandler.patch
+Patch1: 0001-Remove-configure-time-generated-files.patch
+Patch2: 0002-Add-Fedora-configuration.patch
+Patch3: 0003-Broken-test-dependencies.patch
+Patch4: 0004-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
+Patch5:	0005-Remove-fixperms-font-install.patch
+Patch6: 0006-Fix-permissions.patch
+Patch7: 0007-Fix-translation.patch
+Patch8: 0008-Adjust-path-to-html-autohandler.patch
+Patch9: 0009-Work-around-testsuite-failure.patch
 
 BuildArch:	noarch
 
@@ -94,16 +97,20 @@ BuildRequires: perl(CGI::Emulate::PSGI)
 BuildRequires: perl(Class::ReturnValue) >= 0.40
 BuildRequires: perl(Convert::Color)
 BuildRequires: perl(CPAN)
+BuildRequires: perl(Crypt::Eksblowfish)
+BuildRequires: perl(Crypt::SSLeay)
+BuildRequires: perl(Crypt::X509)
 BuildRequires: perl(CSS::Squish) >= 0.06
+BuildRequires: perl(Data::GUID)
 BuildRequires: perl(Data::ICal)
+BuildRequires: perl(Date::Extract) >= 0.02
+BuildRequires: perl(Date::Manip)
+BuildRequires: perl(DateTime::Format::Natural) >= 0.67
 BuildRequires: perl(Date::Format)
 BuildRequires: perl(DateTime) >= 0.44
 BuildRequires: perl(DateTime::Locale) >= 0.40
 %{?with_mysql:BuildRequires: perl(DBD::mysql) >= 2.1018}
-# This should be: BuildRequires: perl(DBD::Pg) != 3.3.0
-# cf. RHBZ#1138926
-%{?with_pg:BuildConflicts: perl(DBD::Pg) == 3.3.0}
-%{?with_pg:BuildRequires: perl(DBD::Pg)}
+%{?with_pg:BuildRequires: perl(DBD::Pg) >= 1.43}
 BuildRequires: perl(DBI) >= 1.37
 BuildRequires: perl(DBIx::SearchBuilder) >= 1.59
 BuildRequires: perl(Devel::StackTrace) >= 1.19
@@ -111,6 +118,7 @@ BuildRequires: perl(Devel::GlobalDestruction)
 BuildRequires: perl(Digest::base)
 BuildRequires: perl(Digest::MD5) >= 2.27
 BuildRequires: perl(Email::Address)
+BuildRequires: perl(Email::Address::List) >= 0.02
 BuildRequires: perl(Encode) >= 2.39
 BuildRequires: perl(Errno)
 %{?with_devel_mode:BuildRequires: perl(File::Find)}
@@ -118,8 +126,9 @@ BuildRequires: perl(File::Glob)
 BuildRequires: perl(File::ShareDir)
 BuildRequires: perl(File::Spec) >= 0.8
 BuildRequires: perl(File::Temp) >= 0.19
+BuildRequires: perl(File::Which)
 %{?with_gd:BuildRequires: perl(GD)}
-%{?with_gd:BuildRequires: perl(GD::Graph)}
+%{?with_gd:BuildRequires: perl(GD::Graph) >= 1.47}
 %{?with_gd:BuildRequires: perl(GD::Text)}
 %{?with_gpg:BuildRequires: perl(GnuPG::Interface)}
 %{?with_graphviz:BuildRequires: perl(GraphViz)}
@@ -127,6 +136,8 @@ BuildRequires: perl(Getopt::Long) >= 2.24
 BuildRequires: perl(HTML::Entities)
 %{?with_devel_mode:BuildRequires: perl(HTML::Form)}
 BuildRequires: perl(HTML::FormatText)
+BuildRequires: perl(HTML::FormatText::WithLinks) >= 0.14
+BuildRequires: perl(HTML::FormatText::WithLinks::AndTables)
 BuildRequires: perl(HTML::Mason) >= 1.43
 BuildRequires: perl(HTML::Mason::PSGIHandler)
 BuildRequires: perl(HTML::Quoted)
@@ -136,10 +147,6 @@ BuildRequires: perl(HTML::TreeBuilder)
 BuildRequires: perl(HTTP::Request::Common)
 BuildRequires: perl(HTTP::Server::Simple) >= 0.34
 BuildRequires: perl(HTTP::Server::Simple::Mason) >= 0.09
-BuildRequires: perl(Imager)
-BuildRequires: perl(Imager::File::GIF)
-BuildRequires: perl(Imager::File::PNG)
-BuildRequires: perl(Imager::File::JPEG)
 %{?with_graphviz:BuildRequires: perl(IPC::Run)}
 BuildRequires: perl(IPC::Run3)
 %{?with_graphviz:BuildRequires: perl(IPC::Run::SafeHandles)}
@@ -147,22 +154,26 @@ BuildRequires: perl(JSON)
 BuildRequires: perl(JavaScript::Minifier)
 BuildRequires: perl(List::MoreUtils)
 BuildRequires: perl(Locale::Maketext) >= 1.06
-BuildRequires: perl(Locale::Maketext::Fuzzy)
+BuildRequires: perl(Locale::Maketext::Fuzzy) >= 0.11
 BuildRequires: perl(Locale::Maketext::Lexicon) >= 0.32
 BuildRequires: perl(Locale::PO)
 BuildRequires: perl(Log::Dispatch) >= 2.23
 %{?with_devel_mode:BuildRequires: perl(Log::Dispatch::Perl)}
 BuildRequires: perl(LWP)
 BuildRequires: perl(LWP::UserAgent)
+BuildRequires: perl(LWP::Protocol::https)
 BuildRequires: perl(Mail::Mailer) >= 1.57
 BuildRequires: perl(MIME::Entity) >= 5.425
 BuildRequires: perl(MIME::Types)
 %{?with_devel_mode:BuildRequires: perl(Module::Refresh) >= 0.03}
 BuildRequires: perl(Module::Versions::Report) >= 1.05
+BuildRequires: perl(Mozilla::CA)
+BuildRequires: perl(Mojo::DOM)
 BuildRequires: perl(Net::CIDR)
 BuildRequires: perl(Net::Server)
 BuildRequires: perl(Net::Server::PreFork)
 BuildRequires: perl(Net::SMTP)
+BuildRequires: perl(Net::SSL)
 %{?with_gpg:BuildRequires: perl(PerlIO::eol)}
 BuildRequires: perl(Pod::Usage)
 BuildRequires: perl(Plack)
@@ -171,20 +182,22 @@ BuildRequires: perl(Plack::Handler::Starlet)
 BuildRequires: perl(Regexp::Common)
 BuildRequires: perl(Regexp::Common::net::CIDR)
 BuildRequires: perl(Regexp::IPv6)
+BuildRequires: perl(Role::Basic) >= 0.12
 BuildRequires: perl(Scalar::Util)
+BuildRequires: perl(Set::Tiny)
 BuildRequires: perl(Storable) >= 2.08
 %{?with_devel_mode:BuildRequires: perl(String::ShellQuote)}
+BuildRequires: perl(Symbol::Global::Name) >= 0.04
 BuildRequires: perl(Term::ReadKey)
 BuildRequires: perl(Term::ReadLine)
-BuildRequires: perl(Term::EditorEdit)
 %{?with_devel_mode:BuildRequires: perl(Test::Builder) >= 0.77}
 %{?with_devel_mode:BuildRequires: perl(Test::Deep)}
 %{?with_devel_mode:BuildRequires: perl(Test::Email)}
 %{?with_devel_mode:BuildRequires: perl(Email::Abstract)}
 %{?with_devel_mode:BuildRequires: perl(Test::Expect) >= 0.31}
-%{?with_devel_mode:BuildRequires: perl(Test::HTTP::Server::Simple) >= 0.09}
 %{?with_devel_mode:BuildRequires: perl(Test::MockTime)}
 %{?with_devel_mode:BuildRequires: perl(Test::NoWarnings)}
+%{?with_devel_mode:BuildRequires: perl(Test::Pod) >= 1.14}
 %{?with_devel_mode:BuildRequires: perl(Test::Warn)}
 %{?with_devel_mode:BuildRequires: perl(Test::WWW::Mechanize)}
 %{?with_devel_mode:BuildRequires: perl(Test::WWW::Mechanize::PSGI)}
@@ -198,7 +211,6 @@ BuildRequires: perl(Time::HiRes)
 BuildRequires: perl(Time::ParseDate)
 BuildRequires: perl(Tree::Simple) >= 1.04
 BuildRequires: perl(UNIVERSAL::require)
-%{?with_devel_mode:BuildRequires: perl(Web::Scraper)}
 %{?with_devel_mode:BuildRequires: perl(WWW::Mechanize)}
 BuildRequires: perl(XML::RSS) >= 1.05
 %{?with_devel_mode:BuildRequires: perl(XML::Simple)}
@@ -207,10 +219,8 @@ BuildRequires: perl(XML::RSS) >= 1.05
 %{?with_runtests:BuildRequires: perl(Test::Warn)}
 %{?with_runtests:BuildRequires: perl(Test::MockTime)}
 %{?with_runtests:BuildRequires: perl(String::ShellQuote)}
-%{?with_runtests:BuildRequires: perl(Test::Pod) >= 1.14}
 %{?with_runtests:BuildRequires: perl(PerlIO::eol)}
 %{?with_runtests:BuildRequires: perl(Test::Expect)}
-BuildRequires:	perl(Test::Pod) >= 1.14
 
 BuildRequires:	/usr/bin/pod2man
 BuildRequires:	/usr/sbin/apachectl
@@ -279,7 +289,6 @@ Requires: rt-mailgate
 # Filter bogus provides
 %global __provides_exclude %{?__provides_exclude:%__provides_exclude|}^perl\\(HTML::Mason
 %global __provides_exclude %{?__provides_exclude:%__provides_exclude|}^perl\\(IO::Handle::CRLF\\)$
-%global __provides_exclude %{?__provides_exclude:%__provides_exclude|}^perl\\(Log::Dispatch\\)$
 
 
 %description
@@ -317,11 +326,12 @@ Requires:	perl(GnuPG::Interface)
 Requires:	perl(GraphViz)
 Requires:	perl(PerlIO::eol)
 Requires:	perl(Plack::Handler::Apache2)
-Requires:	perl(String::ShellQuote)
-Requires:	perl(Test::Deep)
-Requires:	perl(Test::Expect)
+Requires:       perl(Set::Tiny)
+Requires:       perl(String::ShellQuote)
+Requires:       perl(Test::Deep)
+Requires:       perl(Test::Expect)
 Requires:	perl(Test::MockTime)
-Requires:	perl(Test::Warn)
+Requires:       perl(Test::Warn)
 
 Obsoletes:	rt3-tests < %{version}-%{release}
 Provides:	rt3-tests = %{version}-%{release}
@@ -345,6 +355,7 @@ Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
 # rpm doesn't catch these:
 Requires:	perl(Test::WWW::Mechanize::PSGI)
+Requires:	perl(Mojo::DOM)
 
 %description -n perl-RT-Test
 %{summary}
@@ -366,6 +377,8 @@ sed -e 's,@RT_LOGDIR@,%{RT_LOGDIR},' %{SOURCE4} \
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
+%patch9 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -381,6 +394,7 @@ cat << \EOF >> config.layout
   localstatedir:	%{RT_LOCALSTATEDIR}
   htmldir:		%{RT_WWWDIR}
   fontdir:		%{RT_FONTSDIR}
+  staticdir:            %{RT_STATICDIR}
   logfiledir:		%{RT_LOGDIR}
   masonstatedir:	%{RT_CACHEDIR}/mason_data
   sessionstatedir:	%{RT_CACHEDIR}/session_data
@@ -465,7 +479,10 @@ for file in bin/*.1 sbin/*.1; do
 install -m 0644 $file ${RPM_BUILD_ROOT}%{_mandir}/man1
 done
 
+# missed by "make install"
 install -d -m755 ${RPM_BUILD_ROOT}%{RT_LOGDIR}
+# missed by "make install"
+install -d -m755 ${RPM_BUILD_ROOT}%{RT_LOCALSTATEDIR}
 
 # install log rotation stuff
 mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d
@@ -487,14 +504,16 @@ cp -R devel/tools ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/devel
 cp %{SOURCE1} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}
 install -d -m755 ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/share
 ln -s %{RT_WWWDIR} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/share/html
+ln -s %{RT_STATICDIR} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/share/static
 ln -s %{_bindir} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/bin
 ln -s %{_sbindir} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/sbin
 ln -s %{_sysconfdir}/%{name} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/etc
 ln -s %{RT_LIBDIR} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/lib
 
 
-# This file should not be installed
+# These files should not be installed
 rm ${RPM_BUILD_ROOT}%{RT_LEXDIR}/*.pot
+rm ${RPM_BUILD_ROOT}%{RT_LIBDIR}/RT/Generated.pm.in
 
 # Fix permissions
 find ${RPM_BUILD_ROOT}%{RT_WWWDIR} \
@@ -510,7 +529,9 @@ ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/split-out-cf-categories \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/4.0-customfield-checkbox-extension \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/vulnerable-passwords \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/upgrade-mysql-schema.pl \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/shrink_cgm_table.pl
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/shrink_cgm_table.pl \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/switch-templates-to \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/time-worked-history.pl
 
 %check
 # The tests don't work in buildroots, they
@@ -536,6 +557,7 @@ fi
 %{RT_LIBDIR}/*
 %exclude %{RT_LIBDIR}/RT/Test*
 %attr(0700,apache,apache) %{RT_LOGDIR}
+%attr(0760,apache,apache) %{RT_LOCALSTATEDIR}
 
 %dir %{_sysconfdir}/%{name}
 %attr(-,root,root)%{_datadir}/%{name}/upgrade
@@ -559,6 +581,7 @@ fi
 %{RT_WWWDIR}
 %{RT_LEXDIR}
 %{RT_FONTSDIR}
+%{RT_STATICDIR}
 
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
 
@@ -587,38 +610,5 @@ fi
 %endif
 
 %changelog
-* Fri Jan 23 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.0.22-3
-- Fix testsuite failure (Add 0007-Adjust-path-to-html-autohandler.patch)
-  (From Jason Tibbitts).
-
-* Thu Jan 22 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.0.22-2
-- Misc. cosmetical changes.
-- Rework --with mysql/pg processing.
-- Filter out P: perl(Log::Dispatch).
-- Add R: %%{_sysconfdir}/httpd/conf.d.
-- Add note on SELinux to README.fedora.
-
-* Wed Oct 08 2014 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.0.22-1
-- Upstream update.
-- Reflect rt-server being installed to %%{_sbindir}.
-- Add BuildConflicts/Conflicts: perl(DBD::Pg) == 3.3.0.
-- Install updates into %%{_datadir}.
-- Various misc. cosmetic fixes.
-
-* Sun Sep 07 2014 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.0.21-4
-- Remove artefacts of installation outside of %%{_bindir}.
-- Add optional support for pg.
-- Introduce RT_FONTSDIR.
-- Require: perl(DBD::Pg) and perl(DBD::mysql).
-- Exclude unsupported upgrade files.
-
-* Wed Aug 20 2014 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.0.21-3
-- Add rt-attributes-editor.
-
-* Tue Jul 22 2014 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.0.21-2
-- Address misc. cosmetical issues.
-- Own %%{perl_testdir}.
-- Add COPYING to perl-RT-Tests.
-
-* Mon Jul 21 2014 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.0.21-1
-- Fedora submission.
+* Mon Jan 26 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.9-1
+- Update to rt-4.2.9.
