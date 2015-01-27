@@ -4,27 +4,10 @@
 # package are under the same license as the package itself.
 #
 
-# Supported rpmbuild options:
-#
-# --with gd/--without gd 
-#	enable/disable gd support
-#	Default: enabled (had been default in rt < 3.8.0)
-%bcond_without gd 
-
-# --with graphviz/--without graphviz
-#	enable/disable graphiz support
-#	Default: disabled (missing deps)
-%bcond_with graphviz
-
 # --with devel_mode/--without devel_mode
 #	enable/disable building/installing devel files
 #	Default: enabled
 %bcond_without devel_mode
-
-# --with gpg/--without gpg
-#	enable/disable building gpg support
-#	Default: disabled
-%bcond_with gpg
 
 # --with runtests
 #	run testsuite when building the rpm
@@ -56,7 +39,7 @@
 
 Name:		rt
 Version:	4.2.9
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -127,11 +110,11 @@ BuildRequires: perl(File::ShareDir)
 BuildRequires: perl(File::Spec) >= 0.8
 BuildRequires: perl(File::Temp) >= 0.19
 BuildRequires: perl(File::Which)
-%{?with_gd:BuildRequires: perl(GD)}
-%{?with_gd:BuildRequires: perl(GD::Graph) >= 1.47}
-%{?with_gd:BuildRequires: perl(GD::Text)}
-%{?with_gpg:BuildRequires: perl(GnuPG::Interface)}
-%{?with_graphviz:BuildRequires: perl(GraphViz)}
+BuildRequires: perl(GD)
+BuildRequires: perl(GD::Graph) >= 1.47
+BuildRequires: perl(GD::Text)
+BuildRequires: perl(GnuPG::Interface)
+BuildRequires: perl(GraphViz)
 BuildRequires: perl(Getopt::Long) >= 2.24
 BuildRequires: perl(HTML::Entities)
 %{?with_devel_mode:BuildRequires: perl(HTML::Form)}
@@ -147,9 +130,9 @@ BuildRequires: perl(HTML::TreeBuilder)
 BuildRequires: perl(HTTP::Request::Common)
 BuildRequires: perl(HTTP::Server::Simple) >= 0.34
 BuildRequires: perl(HTTP::Server::Simple::Mason) >= 0.09
-%{?with_graphviz:BuildRequires: perl(IPC::Run)}
+BuildRequires: perl(IPC::Run)
 BuildRequires: perl(IPC::Run3)
-%{?with_graphviz:BuildRequires: perl(IPC::Run::SafeHandles)}
+BuildRequires: perl(IPC::Run::SafeHandles)
 BuildRequires: perl(JSON)
 BuildRequires: perl(JavaScript::Minifier)
 BuildRequires: perl(List::MoreUtils)
@@ -174,7 +157,7 @@ BuildRequires: perl(Net::Server)
 BuildRequires: perl(Net::Server::PreFork)
 BuildRequires: perl(Net::SMTP)
 BuildRequires: perl(Net::SSL)
-%{?with_gpg:BuildRequires: perl(PerlIO::eol)}
+BuildRequires: perl(PerlIO::eol)
 BuildRequires: perl(Pod::Usage)
 BuildRequires: perl(Plack)
 BuildRequires: perl(Plack::Handler::Starlet)
@@ -219,7 +202,6 @@ BuildRequires: perl(XML::RSS) >= 1.05
 %{?with_runtests:BuildRequires: perl(Test::Warn)}
 %{?with_runtests:BuildRequires: perl(Test::MockTime)}
 %{?with_runtests:BuildRequires: perl(String::ShellQuote)}
-%{?with_runtests:BuildRequires: perl(PerlIO::eol)}
 %{?with_runtests:BuildRequires: perl(Test::Expect)}
 
 BuildRequires:	/usr/bin/pod2man
@@ -249,9 +231,9 @@ Requires: perl(Data::ICal::Entry::Event)
 %{?with_pg:Requires: perl(DBD::Pg)}
 %{?with_pg:Conflicts: perl(DBD::Pg) == 3.3.0}
 Requires: perl(Log::Dispatch::Perl)
-%{?with_gd:Requires: perl(GD::Text)}
-%{?with_gd:Requires: perl(GD::Graph::bars)}
-%{?with_gd:Requires: perl(GD::Graph::pie)}
+Requires: perl(GD::Text)
+Requires: perl(GD::Graph::bars)
+Requires: perl(GD::Graph::pie)
 Requires: perl(HTML::Quoted)
 Requires: perl(HTTP::Server::Simple::Mason)
 Requires: perl(HTML::Mason::Request)
@@ -261,6 +243,7 @@ Requires: perl(LWP::MediaTypes)
 Requires: perl(mod_perl2)
 Requires: perl(Module::Versions::Report)
 Requires: perl(Net::Server::PreFork)
+Requires: perl(PerlIO::eol)
 Requires: perl(Plack::Middleware::Test::StashWarnings) >= 0.06
 Requires: perl(Plack::Handler::Starlet)
 Requires: perl(Text::Quoted)
@@ -324,7 +307,6 @@ Requires:	perl(DBD::SQLite)
 Requires:	perl(GnuPG::Interface)
 # Bug: The testsuite unconditionally depends upon perl(GraphViz)
 Requires:	perl(GraphViz)
-Requires:	perl(PerlIO::eol)
 Requires:	perl(Plack::Handler::Apache2)
 Requires:       perl(Set::Tiny)
 Requires:       perl(String::ShellQuote)
@@ -425,10 +407,7 @@ sed -i -e 's,$(RT_ETC_PATH)/upgrade,%{_datadir}/%{name}/upgrade,g' Makefile.in
 --with-db-type=%{?with_mysql:mysql}%{?with_pg:Pg} \
 --enable-layout=Fedora \
 --with-web-handler=modperl2 \
---libdir=%{RT_LIBDIR} \
-%{?with_graphviz:--enable-graphviz}%{!?with_graphviz:--disable-graphviz} \
-%{?with_gd:--enable-gd}%{!?with_gd:--disable-gd} \
-%{?with_gpg:--enable-gpg}%{!?with_gpg:--disable-gpg}
+--libdir=%{RT_LIBDIR}
 
 make %{?_smp_mflags}
 
@@ -610,5 +589,10 @@ fi
 %endif
 
 %changelog
+* Tue Jan 27 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.9-2
+- Remove --with/without gpg.
+- Remove --with/without gd.
+- Remove --with/without graphviz.
+
 * Mon Jan 26 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.9-1
 - Update to rt-4.2.9.
