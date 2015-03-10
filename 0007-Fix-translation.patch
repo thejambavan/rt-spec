@@ -7,19 +7,15 @@ Subject: [PATCH 7/8] Fix translation.
  share/po/de.po | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/share/po/de.po b/share/po/de.po
-index 0eaf1e7..a952f0a 100644
---- a/share/po/de.po
-+++ b/share/po/de.po
-@@ -1002,7 +1002,7 @@ msgstr "Alle Tickets"
+diff -up ./share/po/de.po.orig ./share/po/de.po
+--- ./share/po/de.po.orig	2015-02-25 15:30:21.000000000 -0600
++++ ./share/po/de.po	2015-03-09 13:54:09.094706168 -0500
+@@ -1006,7 +1006,7 @@ msgstr "Alle Tickets"
  
- #: share/html/User/Prefs.html:171
+ #: share/html/User/Prefs.html:173
  msgid "All iCal feeds embed a secret token which authorizes you.  If the URL for one of your iCal feeds was exposed to the outside world, you can get a new secret, <b>breaking all existing iCal feeds</b>, below."
 -msgstr "Alle iCal-Feeds beinhalten einen geheimen Token durch welchen die Authorisierung erfolgt. Falls die URL für einen dieser iCal-Feeds irrtümlich nach Extern weitergegeben wurde, können Sie unterhalb einen neuen Token erstellen, welcher <b>alle exestierenden iCal-Feeds</b> ungültig werden lässt."
 +msgstr "Alle iCal-Feeds beinhalten einen geheimen Token durch welchen die Authorisierung erfolgt. Falls die URL für einen dieser iCal-Feeds irrtümlich nach Extern weitergegeben wurde, können Sie unterhalb einen neuen Token erstellen, welcher <b>alle existierenden iCal-Feeds</b> ungültig werden lässt."
  
  #: share/html/Admin/Queues/index.html:99
  msgid "All queues matching search criteria"
--- 
-2.1.0
-

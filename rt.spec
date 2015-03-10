@@ -38,8 +38,8 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.2.9
-Release:	2%{?dist}
+Version:	4.2.10
+Release:	1%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -55,15 +55,12 @@ Source3:	README.fedora.in
 # rt's logrotate configuration
 Source4:	rt.logrotate.in
 
-Patch1: 0001-Remove-configure-time-generated-files.patch
 Patch2: 0002-Add-Fedora-configuration.patch
 Patch3: 0003-Broken-test-dependencies.patch
 Patch4: 0004-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
-Patch5:	0005-Remove-fixperms-font-install.patch
+Patch5: 0005-Remove-fixperms-font-install.patch
 Patch6: 0006-Fix-permissions.patch
 Patch7: 0007-Fix-translation.patch
-Patch8: 0008-Adjust-path-to-html-autohandler.patch
-Patch9: 0009-Work-around-testsuite-failure.patch
 
 BuildArch:	noarch
 
@@ -352,15 +349,49 @@ sed -e 's,@RT_CACHEDIR@,%{RT_CACHEDIR},' %{SOURCE3} \
 sed -e 's,@RT_LOGDIR@,%{RT_LOGDIR},' %{SOURCE4} \
   > rt.logrotate
 
-%patch1 -p1
+# Remove configure-time generated files
+rm Makefile
+rm bin/rt
+rm bin/rt-crontool
+rm bin/rt-mailgate
+rm etc/RT_Config.pm
+rm etc/upgrade/3.8-ical-extension
+rm etc/upgrade/4.0-customfield-checkbox-extension
+rm etc/upgrade/generate-rtaddressregexp
+rm etc/upgrade/split-out-cf-categories
+rm etc/upgrade/switch-templates-to
+rm etc/upgrade/upgrade-articles
+rm etc/upgrade/vulnerable-passwords
+rm lib/RT/Generated.pm
+rm sbin/rt-attributes-viewer
+rm sbin/rt-clean-sessions
+rm sbin/rt-dump-metadata
+rm sbin/rt-email-dashboards
+rm sbin/rt-email-digest
+rm sbin/rt-email-group-admin
+rm sbin/rt-fulltext-indexer
+rm sbin/rt-importer
+rm sbin/rt-preferences-viewer
+rm sbin/rt-serializer
+rm sbin/rt-server
+rm sbin/rt-server.fcgi
+rm sbin/rt-session-viewer
+rm sbin/rt-setup-database
+rm sbin/rt-setup-fulltext-index
+rm sbin/rt-shredder
+rm sbin/rt-test-dependencies
+rm sbin/rt-validate-aliases
+rm sbin/rt-validator
+rm sbin/standalone_httpd
+rm t/data/configs/apache2.2+fastcgi.conf
+rm t/data/configs/apache2.2+mod_perl.conf
+
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
-%patch9 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -501,16 +532,17 @@ find ${RPM_BUILD_ROOT}%{RT_WWWDIR} \
 # Silence rpmlint
 chmod a+x \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/3.8-ical-extension \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/upgrade-articles \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/generate-rtaddressregexp \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/shrink_transactions_table.pl \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/split-out-cf-categories \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/4.0-customfield-checkbox-extension \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/vulnerable-passwords \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/upgrade-mysql-schema.pl \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/shrink_cgm_table.pl \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/generate-rtaddressregexp \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/sanity-check-stylesheets \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/shrink-cgm-table \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/shrink-transactions-table \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/split-out-cf-categories \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/switch-templates-to \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/time-worked-history.pl
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/time-worked-history \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/upgrade-articles \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/upgrade-mysql-schema.pl \
+${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/vulnerable-passwords
 
 %check
 # The tests don't work in buildroots, they
@@ -589,6 +621,15 @@ fi
 %endif
 
 %changelog
+* Mon Mar 09 2015 Jason L Tibbitts III <tibbs@math.uh.edu> - 4.2.10-1
+- Update to 4.2.10.
+- Remove 0001-Remove-configure-time-generated-files.patch and delete the files
+  directly instead; the patch would require a complete rebase any time any of
+  those files changes.
+- Remove 0008-Adjust-path-to-html-autohandler.patch and
+  0009-Work-around-testsuite-failure.patch as they have been upstreamed.
+- Adjust to new filenames in /usr/share/rt/upgrade.
+
 * Tue Jan 27 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.9-2
 - Remove --with/without gpg.
 - Remove --with/without gd.

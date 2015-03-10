@@ -12,9 +12,6 @@ Subject: [PATCH 4/8] Use /usr/bin/perl instead of /usr/bin/env perl.
  devel/tools/rt-attributes-editor         | 2 +-
  devel/tools/rt-static-docs               | 2 +-
  devel/tools/tweak-template-locstring     | 2 +-
- etc/upgrade/shrink_cgm_table.pl          | 2 +-
- etc/upgrade/shrink_transactions_table.pl | 2 +-
- etc/upgrade/time-worked-history.pl       | 2 +-
  etc/upgrade/upgrade-mysql-schema.pl      | 2 +-
  lib/RT/Interface/Web/QueryBuilder.pm     | 1 +
  t/mail/fake-sendmail                     | 2 +-
@@ -94,36 +91,6 @@ diff --git a/devel/tools/tweak-template-locstring b/devel/tools/tweak-template-l
 index ca44d39..b31570b 100755
 --- a/devel/tools/tweak-template-locstring
 +++ b/devel/tools/tweak-template-locstring
-@@ -1,4 +1,4 @@
--#!/usr/bin/env perl
-+#!/usr/bin/perl
- # BEGIN BPS TAGGED BLOCK {{{
- #
- # COPYRIGHT:
-diff --git a/etc/upgrade/shrink_cgm_table.pl b/etc/upgrade/shrink_cgm_table.pl
-index 7157b20..02f5555 100644
---- a/etc/upgrade/shrink_cgm_table.pl
-+++ b/etc/upgrade/shrink_cgm_table.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/env perl
-+#!/usr/bin/perl
- # BEGIN BPS TAGGED BLOCK {{{
- #
- # COPYRIGHT:
-diff --git a/etc/upgrade/shrink_transactions_table.pl b/etc/upgrade/shrink_transactions_table.pl
-index 0b78f0f..026a863 100644
---- a/etc/upgrade/shrink_transactions_table.pl
-+++ b/etc/upgrade/shrink_transactions_table.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/env perl
-+#!/usr/bin/perl
- # BEGIN BPS TAGGED BLOCK {{{
- #
- # COPYRIGHT:
-diff --git a/etc/upgrade/time-worked-history.pl b/etc/upgrade/time-worked-history.pl
-index 46961aa..666498e 100644
---- a/etc/upgrade/time-worked-history.pl
-+++ b/etc/upgrade/time-worked-history.pl
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env perl
 +#!/usr/bin/perl
