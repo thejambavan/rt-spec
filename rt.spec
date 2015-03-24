@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.2.10
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -55,12 +55,14 @@ Source3:	README.fedora.in
 # rt's logrotate configuration
 Source4:	rt.logrotate.in
 
+Patch1: 0001-Remove-configure-time-generated-files.patch
 Patch2: 0002-Add-Fedora-configuration.patch
 Patch3: 0003-Broken-test-dependencies.patch
 Patch4: 0004-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
 Patch5: 0005-Remove-fixperms-font-install.patch
 Patch6: 0006-Fix-permissions.patch
 Patch7: 0007-Fix-translation.patch
+Patch8: 0008-Work-around-testsuite-failure.patch
 
 BuildArch:	noarch
 
@@ -245,6 +247,7 @@ Requires: perl(Plack::Middleware::Test::StashWarnings) >= 0.06
 Requires: perl(Plack::Handler::Starlet)
 Requires: perl(Text::Quoted)
 Requires: perl(Text::WikiFormat)
+Requires: perl(Time::ParseDate)
 Requires: perl(URI::URL)
 Requires: perl(XML::RSS)
 
@@ -305,12 +308,12 @@ Requires:	perl(GnuPG::Interface)
 # Bug: The testsuite unconditionally depends upon perl(GraphViz)
 Requires:	perl(GraphViz)
 Requires:	perl(Plack::Handler::Apache2)
-Requires:       perl(Set::Tiny)
-Requires:       perl(String::ShellQuote)
-Requires:       perl(Test::Deep)
-Requires:       perl(Test::Expect)
+Requires:	perl(Set::Tiny)
+Requires:	perl(String::ShellQuote)
+Requires:	perl(Test::Deep)
+Requires:	perl(Test::Expect)
 Requires:	perl(Test::MockTime)
-Requires:       perl(Test::Warn)
+Requires:	perl(Test::Warn)
 
 Obsoletes:	rt3-tests < %{version}-%{release}
 Provides:	rt3-tests = %{version}-%{release}
@@ -349,49 +352,14 @@ sed -e 's,@RT_CACHEDIR@,%{RT_CACHEDIR},' %{SOURCE3} \
 sed -e 's,@RT_LOGDIR@,%{RT_LOGDIR},' %{SOURCE4} \
   > rt.logrotate
 
-# Remove configure-time generated files
-rm Makefile
-rm bin/rt
-rm bin/rt-crontool
-rm bin/rt-mailgate
-rm etc/RT_Config.pm
-rm etc/upgrade/3.8-ical-extension
-rm etc/upgrade/4.0-customfield-checkbox-extension
-rm etc/upgrade/generate-rtaddressregexp
-rm etc/upgrade/split-out-cf-categories
-rm etc/upgrade/switch-templates-to
-rm etc/upgrade/upgrade-articles
-rm etc/upgrade/vulnerable-passwords
-rm lib/RT/Generated.pm
-rm sbin/rt-attributes-viewer
-rm sbin/rt-clean-sessions
-rm sbin/rt-dump-metadata
-rm sbin/rt-email-dashboards
-rm sbin/rt-email-digest
-rm sbin/rt-email-group-admin
-rm sbin/rt-fulltext-indexer
-rm sbin/rt-importer
-rm sbin/rt-preferences-viewer
-rm sbin/rt-serializer
-rm sbin/rt-server
-rm sbin/rt-server.fcgi
-rm sbin/rt-session-viewer
-rm sbin/rt-setup-database
-rm sbin/rt-setup-fulltext-index
-rm sbin/rt-shredder
-rm sbin/rt-test-dependencies
-rm sbin/rt-validate-aliases
-rm sbin/rt-validator
-rm sbin/standalone_httpd
-rm t/data/configs/apache2.2+fastcgi.conf
-rm t/data/configs/apache2.2+mod_perl.conf
-
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -407,7 +375,7 @@ cat << \EOF >> config.layout
   localstatedir:	%{RT_LOCALSTATEDIR}
   htmldir:		%{RT_WWWDIR}
   fontdir:		%{RT_FONTSDIR}
-  staticdir:            %{RT_STATICDIR}
+  staticdir:		%{RT_STATICDIR}
   logfiledir:		%{RT_LOGDIR}
   masonstatedir:	%{RT_CACHEDIR}/mason_data
   sessionstatedir:	%{RT_CACHEDIR}/session_data
@@ -519,6 +487,7 @@ ln -s %{_bindir} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/bin
 ln -s %{_sbindir} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/sbin
 ln -s %{_sysconfdir}/%{name} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/etc
 ln -s %{RT_LIBDIR} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/lib
+ln -s %{_pkgdocdir}/docs ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/docs
 
 
 # These files should not be installed
@@ -559,7 +528,8 @@ fi
 
 
 %files
-%doc COPYING README README.fedora
+%doc README README.fedora
+%license COPYING
 %{_bindir}/*
 %{_sbindir}/*
 %exclude %{_bindir}/rt-mailgate
@@ -601,7 +571,7 @@ fi
 %attr(0770,apache,apache) %{RT_CACHEDIR}/session_data
 
 %files mailgate
-%doc COPYING
+%license COPYING
 %{_bindir}/rt-mailgate
 %{_mandir}/man1/rt-mailgate*
 
@@ -615,12 +585,19 @@ fi
 %{_sysconfdir}/%{name}/*.SQLite
 
 %files -n perl-RT-Test
-%doc COPYING
+%license COPYING
 %dir %{RT_LIBDIR}/RT
 %{RT_LIBDIR}/RT/Test*
 %endif
 
 %changelog
+* Tue Mar 24 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.10-2
+- Update patches.
+- R: perl(Time::ParseDate).
+- Add docs symlink.
+- Add %%license.
+- Spec cleanup.
+
 * Mon Mar 09 2015 Jason L Tibbitts III <tibbs@math.uh.edu> - 4.2.10-1
 - Update to 4.2.10.
 - Remove 0001-Remove-configure-time-generated-files.patch and delete the files

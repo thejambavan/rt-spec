@@ -1,4 +1,4 @@
-From 08352fe91e355ee16c8531b3ea335c060a005b17 Mon Sep 17 00:00:00 2001
+From d0d5d1b779a1c503bd9739c5b2245f6f842cd85d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Fri, 23 Jan 2015 04:36:45 +0100
 Subject: [PATCH 7/8] Fix translation.
@@ -7,9 +7,10 @@ Subject: [PATCH 7/8] Fix translation.
  share/po/de.po | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -up ./share/po/de.po.orig ./share/po/de.po
---- ./share/po/de.po.orig	2015-02-25 15:30:21.000000000 -0600
-+++ ./share/po/de.po	2015-03-09 13:54:09.094706168 -0500
+diff --git a/share/po/de.po b/share/po/de.po
+index 45c1977..ff47768 100644
+--- a/share/po/de.po
++++ b/share/po/de.po
 @@ -1006,7 +1006,7 @@ msgstr "Alle Tickets"
  
  #: share/html/User/Prefs.html:173
@@ -19,3 +20,6 @@ diff -up ./share/po/de.po.orig ./share/po/de.po
  
  #: share/html/Admin/Queues/index.html:99
  msgid "All queues matching search criteria"
+-- 
+2.1.0
+
