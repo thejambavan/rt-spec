@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.2.10
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -591,6 +591,9 @@ fi
 %endif
 
 %changelog
+* Tue Jun 09 2015 Jitka Plesnikova <jplesnik@redhat.com> - 4.2.10-3
+- Perl 5.22 rebuild
+
 * Tue Mar 24 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.10-2
 - Update patches.
 - R: perl(Time::ParseDate).
