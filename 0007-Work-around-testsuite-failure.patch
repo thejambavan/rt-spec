@@ -1,7 +1,7 @@
-From 8c6ede102c5a1ce1f7214abf7ac90ca72f2f2538 Mon Sep 17 00:00:00 2001
+From 4ad3086f1fb8c908435a912d8655871645215082 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 24 Mar 2015 08:39:06 +0100
-Subject: [PATCH 8/8] Work-around testsuite failure. cf.
+Subject: [PATCH 7/7] Work-around testsuite failure. cf.
  https://bugzilla.redhat.com/show_bug.cgi?id=1121601#c36.
 
 ---

@@ -1,14 +1,14 @@
-From ecea9d34aaec6fd23343c785a9f74593cd66baaa Mon Sep 17 00:00:00 2001
+From 4c5a226e724ea8f72a88b631438e87d198aaa497 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 14:59:31 +0100
-Subject: [PATCH 5/8] Remove fixperms, font-install.
+Subject: [PATCH 5/7] Remove fixperms, font-install.
 
 ---
  Makefile.in | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index f9b6402..5a23c85 100755
+index b5ebfb9..a75c700 100644
 --- a/Makefile.in
 +++ b/Makefile.in
 @@ -260,7 +260,7 @@ upgrade-instruct:

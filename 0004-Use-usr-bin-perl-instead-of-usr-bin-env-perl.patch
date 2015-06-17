@@ -1,7 +1,7 @@
-From b39008e2f83274e4298da24b1ee4d00bea30c47b Mon Sep 17 00:00:00 2001
+From 73f6a43066dd3347c17e1c4cde8e5505e52a4e4c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 14:55:18 +0100
-Subject: [PATCH 4/8] Use /usr/bin/perl instead of /usr/bin/env perl.
+Subject: [PATCH 4/7] Use /usr/bin/perl instead of /usr/bin/env perl.
 
 ---
  devel/tools/change-loc-msgstr        | 2 +-
@@ -59,7 +59,7 @@ index b9d7192..4a4f20c 100755
  
  # BEGIN BPS TAGGED BLOCK {{{
 diff --git a/devel/tools/rt-apache b/devel/tools/rt-apache
-index dfbd477..942946c 100755
+index 40aec13..f274385 100755
 --- a/devel/tools/rt-apache
 +++ b/devel/tools/rt-apache
 @@ -1,4 +1,4 @@
@@ -69,7 +69,7 @@ index dfbd477..942946c 100755
  # BEGIN BPS TAGGED BLOCK {{{
  #
 diff --git a/devel/tools/rt-attributes-editor b/devel/tools/rt-attributes-editor
-index 15436ac..6890e8b 100755
+index cc69a02..72b90ed 100755
 --- a/devel/tools/rt-attributes-editor
 +++ b/devel/tools/rt-attributes-editor
 @@ -1,4 +1,4 @@

@@ -1,45 +1,49 @@
-From 70ba2dc6ef4e1eb97d77972872128160ae8b1039 Mon Sep 17 00:00:00 2001
+From 3606668019fe072aef0cc98b0f01bedc7b1ab9de Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 07:23:24 +0100
-Subject: [PATCH 1/8] Remove configure time generated files.
+Subject: [PATCH 1/7] Remove configure time generated files.
 
 ---
  Makefile                                       |  583 -----
- bin/rt                                         | 2682 ---------------------
- bin/rt-crontool                                |  456 ----
+ bin/rt                                         | 2680 ---------------------
+ bin/rt-crontool                                |  453 ----
  bin/rt-mailgate                                |  512 ----
- etc/RT_Config.pm                               | 3037 ------------------------
+ etc/RT_Config.pm                               | 3045 ------------------------
  etc/upgrade/3.8-ical-extension                 |   96 -
  etc/upgrade/4.0-customfield-checkbox-extension |   87 -
- etc/upgrade/generate-rtaddressregexp           |  108 -
- etc/upgrade/split-out-cf-categories            |  170 --
- etc/upgrade/switch-templates-to                |  147 --
- etc/upgrade/upgrade-articles                   |  264 --
+ etc/upgrade/generate-rtaddressregexp           |  106 -
+ etc/upgrade/sanity-check-stylesheets           |   88 -
+ etc/upgrade/shrink-cgm-table                   |  124 -
+ etc/upgrade/shrink-transactions-table          |  126 -
+ etc/upgrade/split-out-cf-categories            |  168 --
+ etc/upgrade/switch-templates-to                |  145 --
+ etc/upgrade/time-worked-history                |  111 -
+ etc/upgrade/upgrade-articles                   |  261 --
  etc/upgrade/vulnerable-passwords               |  141 --
- lib/RT/Generated.pm                            |   84 -
- sbin/rt-attributes-viewer                      |  115 -
+ lib/RT/Generated.pm                            |   85 -
+ sbin/rt-attributes-viewer                      |  105 -
  sbin/rt-clean-sessions                         |  183 --
- sbin/rt-dump-metadata                          |  336 ---
- sbin/rt-email-dashboards                       |  165 --
- sbin/rt-email-digest                           |  374 ---
- sbin/rt-email-group-admin                      |  520 ----
- sbin/rt-fulltext-indexer                       |  416 ----
+ sbin/rt-dump-metadata                          |  326 ---
+ sbin/rt-email-dashboards                       |  162 --
+ sbin/rt-email-digest                           |  373 ---
+ sbin/rt-email-group-admin                      |  521 ----
+ sbin/rt-fulltext-indexer                       |  372 ---
  sbin/rt-importer                               |  283 ---
- sbin/rt-preferences-viewer                     |  144 --
+ sbin/rt-preferences-viewer                     |  132 -
  sbin/rt-serializer                             |  399 ----
  sbin/rt-server                                 |  181 --
  sbin/rt-server.fcgi                            |  181 --
- sbin/rt-session-viewer                         |  114 -
- sbin/rt-setup-database                         |  795 -------
- sbin/rt-setup-fulltext-index                   |  763 ------
- sbin/rt-shredder                               |  317 ---
- sbin/rt-test-dependencies                      |  652 -----
+ sbin/rt-session-viewer                         |  104 -
+ sbin/rt-setup-database                         |  800 -------
+ sbin/rt-setup-fulltext-index                   |  787 ------
+ sbin/rt-shredder                               |  318 ---
+ sbin/rt-test-dependencies                      |  680 ------
  sbin/rt-validate-aliases                       |  373 ---
- sbin/rt-validator                              | 1465 ------------
+ sbin/rt-validator                              | 1462 ------------
  sbin/standalone_httpd                          |  181 --
  t/data/configs/apache2.2+fastcgi.conf          |   49 -
  t/data/configs/apache2.2+mod_perl.conf         |   67 -
- 35 files changed, 16440 deletions(-)
+ 39 files changed, 16850 deletions(-)
  delete mode 100644 Makefile
  delete mode 100755 bin/rt
  delete mode 100755 bin/rt-crontool
@@ -48,8 +52,12 @@ Subject: [PATCH 1/8] Remove configure time generated files.
  delete mode 100755 etc/upgrade/3.8-ical-extension
  delete mode 100755 etc/upgrade/4.0-customfield-checkbox-extension
  delete mode 100755 etc/upgrade/generate-rtaddressregexp
+ delete mode 100755 etc/upgrade/sanity-check-stylesheets
+ delete mode 100755 etc/upgrade/shrink-cgm-table
+ delete mode 100755 etc/upgrade/shrink-transactions-table
  delete mode 100755 etc/upgrade/split-out-cf-categories
  delete mode 100755 etc/upgrade/switch-templates-to
+ delete mode 100755 etc/upgrade/time-worked-history
  delete mode 100755 etc/upgrade/upgrade-articles
  delete mode 100755 etc/upgrade/vulnerable-passwords
  delete mode 100644 lib/RT/Generated.pm
@@ -78,7 +86,7 @@ Subject: [PATCH 1/8] Remove configure time generated files.
 
 diff --git a/Makefile b/Makefile
 deleted file mode 100644
-index c16f4dd..0000000
+index 90c2c1d..0000000
 --- a/Makefile
 +++ /dev/null
 @@ -1,583 +0,0 @@
@@ -148,14 +156,14 @@ index c16f4dd..0000000
 -
 -RT_VERSION_MAJOR	=	4
 -RT_VERSION_MINOR	=	2
--RT_VERSION_PATCH	=	10
+-RT_VERSION_PATCH	=	11
 -
 -RT_VERSION		=	$(RT_VERSION_MAJOR).$(RT_VERSION_MINOR).$(RT_VERSION_PATCH)
 -TAG 			=	rt-$(RT_VERSION_MAJOR)-$(RT_VERSION_MINOR)-$(RT_VERSION_PATCH)
 -
 -
 -# This is the group that all of the installed files will be chgrp'ed to.
--RTGROUP			=	www-data
+-RTGROUP			=	www
 -
 -
 -# User which should own rt binaries.
@@ -167,8 +175,8 @@ index c16f4dd..0000000
 -# Group that should own all of RT's libraries, generally root.
 -LIBS_GROUP		=	bin
 -
--WEB_USER		=	www-data
--WEB_GROUP		=	www-data
+-WEB_USER		=	www
+-WEB_GROUP		=	www
 -
 -# DESTDIR allows you to specify that RT be installed somewhere other than
 -# where it will eventually reside. DESTDIR _must_ have a trailing slash
@@ -667,10 +675,10 @@ index c16f4dd..0000000
 -	$(INSTALL) -o $(BIN_OWNER) -g $(RTGROUP) -m 0755 "jsmin" "$(DESTDIR)$(RT_BIN_PATH)/"
 diff --git a/bin/rt b/bin/rt
 deleted file mode 100755
-index 8df2d8a..0000000
+index 36460e0..0000000
 --- a/bin/rt
 +++ /dev/null
-@@ -1,2682 +0,0 @@
+@@ -1,2680 +0,0 @@
 -#!/usr/bin/perl -w
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -743,16 +751,6 @@ index 8df2d8a..0000000
 -use Time::Local; # used in prettyshow
 -use File::Temp;
 -
--# strong (GSSAPI based) authentication is supported if the server does provide
--# it and the perl modules GSSAPI and LWP::Authen::Negotiate are installed
--# it can be suppressed by setting externalauth=0 (default is undef)
--eval { require GSSAPI };
--my $no_strong_auth = 'missing perl module GSSAPI';
--if ( ! $@ ) {
--    eval {require LWP::Authen::Negotiate};
--    $no_strong_auth = $@ ? 'missing perl module LWP::Authen::Negotiate' : 0;
--}
--
 -# We derive configuration information from hardwired defaults, dotfiles,
 -# and the RT* environment variables (in increasing order of precedence).
 -# Session information is stored in ~/.rt_sessions.
@@ -772,18 +770,16 @@ index 8df2d8a..0000000
 -        queue        => undef,
 -# to protect against unlimited searches a better choice would be
 -#       queue        => 'Unknown_Queue',
--# setting externalauth => undef will try GSSAPI auth if the corresponding perl
--# modules are installed, externalauth => 0 is the backward compatible choice 
--        externalauth => 0,
+-        auth         => "rt",
 -    ),
 -    config_from_file($ENV{RTCONFIG} || ".rtrc"),
 -    config_from_env()
 -);
+-
+-$config{auth} = "basic" if delete $config{externalauth};
+-
 -my $session = Session->new("$HOME/.rt_sessions");
 -my $REST = "$config{server}/REST/1.0";
--$no_strong_auth = 'switched off by externalauth=0'
--    if defined $config{externalauth};
--
 -
 -my $prompt = 'rt> ';
 -
@@ -1737,20 +1733,23 @@ index 8df2d8a..0000000
 -    # Should we send authentication information to start a new session?
 -    my $how = $config{server} =~ /^https/ ? 'over SSL' : 'unencrypted';
 -    my($server) = $config{server} =~ m{^.*//([^/]+)};
--    if ($config{externalauth}) {
--        $h->authorization_basic($config{user}, $config{passwd} || read_passwd() );
+-
+-    if ($config{auth} eq "gssapi") {
+-        die "GSSAPI support not available; failed to load perl module GSSAPI:\n$@\n"
+-            unless eval { require GSSAPI; 1 };
+-        die "GSSAPI support not available; failed to load perl module LWP::Authen::Negotiate:\n$@\n"
+-            unless eval { require LWP::Authen::Negotiate; 1 };
+-    } elsif ($config{auth} eq "basic") {
 -        print "   Password will be sent to $server $how\n",
 -              "   Press CTRL-C now if you do not want to continue\n"
 -            if ! $config{passwd};
--    } elsif ( $no_strong_auth ) {
--        if (!defined $session->cookie) {
--            print "   Strong encryption not available, $no_strong_auth\n",
--                  "   Password will be sent to $server $how\n",
--                  "   Press CTRL-C now if you do not want to continue\n"
--                if ! $config{passwd};
--            push @$data, ( user => $config{user} );
--            push @$data, ( pass => $config{passwd} || read_passwd() );
--        }
+-        $h->authorization_basic($config{user}, $config{passwd} || read_passwd() );
+-    } elsif ( !defined $session->cookie ) {
+-        print "   Password will be sent to $server $how\n",
+-              "   Press CTRL-C now if you do not want to continue\n"
+-            if ! $config{passwd};
+-        push @$data, ( user => $config{user} );
+-        push @$data, ( pass => $config{passwd} || read_passwd() );
 -    }
 -
 -    # Now, we construct the request.
@@ -1761,9 +1760,7 @@ index 8df2d8a..0000000
 -        $req = GET($uri);
 -    }
 -    $session->add_cookie_header($req);
--    if ($config{externalauth}) {
--        $req->header(%$h);
--    }
+-    $req->header(%$h) if %$h;
 -
 -    # Then we send the request and parse the response.
 -    DEBUG(3, $req->as_string);
@@ -2101,7 +2098,7 @@ index 8df2d8a..0000000
 -sub config_from_env {
 -    my %env;
 -
--    foreach my $k (qw(EXTERNALAUTH DEBUG USER PASSWD SERVER QUERY ORDERBY)) {
+-    foreach my $k (qw(EXTERNALAUTH AUTH DEBUG USER PASSWD SERVER QUERY ORDERBY)) {
 -
 -        if (exists $ENV{"RT$k"}) {
 -            $env{lc $k} = $ENV{"RT$k"};
@@ -2155,7 +2152,7 @@ index 8df2d8a..0000000
 -        chomp;
 -        next if (/^#/ || /^\s*$/);
 -
--        if (/^(externalauth|user|passwd|server|query|orderby|queue)\s+(.*)\s?$/) {
+-        if (/^(externalauth|auth|user|passwd|server|query|orderby|queue)\s+(.*)\s?$/) {
 -            $cfg{$1} = $2;
 -        }
 -        else {
@@ -2264,49 +2261,56 @@ index 8df2d8a..0000000
 -    }
 -}
 -
+-# WARNING: this code is duplicated in lib/RT/Interface/REST.pm
+-# If you change one, change both functions at once
 -# "Normalise" a hash key that's known to be multi-valued.
 -sub vsplit {
--    my ($val) = @_;
--    my ($word, @words);
--    my @values = ref $val eq 'ARRAY' ? @$val : $val;
+-    my ($val, $strip) = @_;
+-    my @words;
+-    my @values = map {split /\n/} (ref $val eq 'ARRAY' ? @$val : $val);
 -
--    foreach my $line (map {split /\n/} @values) {
--        # XXX: This should become a real parser, à la Text::ParseWords.
--        $line =~ s/^\s+//;
--        $line =~ s/\s+$//;
--        my ( $a, $b ) = split /\s*,\s*/, $line, 2;
--
--        while ($a) {
--            no warnings 'uninitialized';
--            if ( $a =~ /^'/ ) {
--                my $s = $a;
--                while ( $a !~ /'$/ || (   $a !~ /(\\\\)+'$/
--                            && $a =~ /(\\)+'$/ )) {
--                    ( $a, $b ) = split /\s*,\s*/, $b, 2;
--                    $s .= ',' . $a;
--                }
--                push @words, $s;
+-    foreach my $line (@values) {
+-        while ($line =~ /\S/) {
+-            $line =~ s/^
+-                       \s*   # Trim leading whitespace
+-                       (?:
+-                           (")   # Quoted string
+-                           ((?>[^\\"]*(?:\\.[^\\"]*)*))"
+-                       |
+-                           (')   # Single-quoted string
+-                           ((?>[^\\']*(?:\\.[^\\']*)*))'
+-                       |
+-                           q\{(.*?)\} # A perl-ish q{} string; this does
+-                                      # no paren balancing, however, and
+-                                      # only exists for back-compat
+-                       |
+-                           (.*?)     # Anything else, until the next comma
+-                       )
+-                       \s*   # Trim trailing whitespace
+-                       (?:
+-                           \Z  # Finish at end-of-line
+-                       |
+-                           ,   # Or a comma
+-                       )
+-                      //xs or last; # There should be no way this match
+-                                    # fails, but add a failsafe to
+-                                    # prevent infinite-looping if it
+-                                    # somehow does.
+-            my ($quote, $quoted) = ($1 ? ($1, $2) : $3 ? ($3, $4) : ('', $5 || $6));
+-            # Only unquote the quote character, or the backslash -- and
+-            # only if we were originally quoted..
+-            if ($5) {
+-                $quoted =~ s/([\\'])/\\$1/g;
+-                $quote = "'";
 -            }
--            elsif ( $a =~ /^q\{/ ) {
--                my $s = $a;
--                while ( $a !~ /\}$/ ) {
--                    ( $a, $b ) =
--                      split /\s*,\s*/, $b, 2;
--                    $s .= ',' . $a;
--                }
--                $s =~ s/^q\{/'/;
--                $s =~ s/\}/'/;
--                push @words, $s;
+-            if ($strip) {
+-                $quoted =~ s/\\([\\$quote])/$1/g if $quote;
+-                push @words, $quoted;
+-            } else {
+-                push @words, "$quote$quoted$quote";
 -            }
--            else {
--                push @words, $a;
--            }
--            ( $a, $b ) = split /\s*,\s*/, $b, 2;
 -        }
--
--
 -    }
--
 -    return \@words;
 -}
 -
@@ -2593,15 +2597,17 @@ index 8df2d8a..0000000
 -
 -        The following directives may occur, one per line:
 -
--        - server <URL>          URL to RT server.
--        - user <username>       RT username.
--        - passwd <passwd>       RT user's password.
--        - query <RT Query>      Default RT Query for list action
--        - orderby <order>       Default RT order for list action
--        - queue <queuename>     Default RT Queue for list action
--        - externalauth <0|1>    Use HTTP Basic authentication
--         explicitely setting externalauth to 0 inhibits also GSSAPI based
--         authentication, if LWP::Authen::Negotiate (and GSSAPI) is installed
+-        - server <URL>           URL to RT server.
+-        - user <username>        RT username.
+-        - passwd <passwd>        RT user's password.
+-        - query <RT Query>       Default RT Query for list action
+-        - orderby <order>        Default RT order for list action
+-        - queue <queuename>      Default RT Queue for list action
+-        - auth <rt|basic|gssapi> Method to authenticate via; "basic"
+-                     means HTTP Basic authentication, "gssapi" means
+-                     Kerberos credentials, if your RT is configured
+-                     with $WebRemoteUserAuth.  For backwards
+-                     compatibility, "externalauth 1" means "auth basic"
 -
 -        Blank and #-commented lines are ignored.
 -
@@ -2620,7 +2626,7 @@ index 8df2d8a..0000000
 -
 -        - RTUSER
 -        - RTPASSWD
--        - RTEXTERNALAUTH
+-        - RTAUTH
 -        - RTSERVER
 -        - RTDEBUG       Numeric debug level. (Set to 3 for full logs.)
 -        - RTCONFIG      Specifies a name other than ".rtrc" for the
@@ -3355,10 +3361,10 @@ index 8df2d8a..0000000
 -
 diff --git a/bin/rt-crontool b/bin/rt-crontool
 deleted file mode 100755
-index 7575bf0..0000000
+index f793250..0000000
 --- a/bin/rt-crontool
 +++ /dev/null
-@@ -1,456 +0,0 @@
+@@ -1,453 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -3432,7 +3438,7 @@ index 7575bf0..0000000
 -
 -use Getopt::Long;
 -
--use RT::Interface::CLI qw(CleanEnv GetCurrentUser GetMessageContent loc);
+-use RT::Interface::CLI qw(GetCurrentUser loc);
 -
 -my ( $search, $condition, $action, $search_arg, $condition_arg, $action_arg,
 -     $template, $template_id, $transaction, $transaction_type, $help, $log, $verbose );
@@ -3460,9 +3466,6 @@ index 7575bf0..0000000
 -
 -#Connect to the database and get RT::SystemUser and RT::Nobody loaded
 -RT::Init();
--
--# Clean out all the nasties from the environment
--CleanEnv();
 -
 -require RT::Tickets;
 -require RT::Template;
@@ -3817,7 +3820,7 @@ index 7575bf0..0000000
 -
 diff --git a/bin/rt-mailgate b/bin/rt-mailgate
 deleted file mode 100755
-index 701ee8f..0000000
+index 365f4da..0000000
 --- a/bin/rt-mailgate
 +++ /dev/null
 @@ -1,512 +0,0 @@
@@ -3974,7 +3977,7 @@ index 701ee8f..0000000
 -    my $self = shift;
 -    my $opts = shift;
 -    my $ua   = LWP::UserAgent->new();
--    $ua->agent("rt-mailgate/4.2.10 ");
+-    $ua->agent("rt-mailgate/4.2.11 ");
 -    $ua->cookie_jar( { file => $opts->{'jar'} } ) if $opts->{'jar'};
 -
 -    $ua->ssl_opts( verify_hostname => $opts->{'verify-ssl'} );
@@ -4335,10 +4338,10 @@ index 701ee8f..0000000
 -
 diff --git a/etc/RT_Config.pm b/etc/RT_Config.pm
 deleted file mode 100644
-index 013352c..0000000
+index 5bc762f..0000000
 --- a/etc/RT_Config.pm
 +++ /dev/null
-@@ -1,3037 +0,0 @@
+@@ -1,3045 +0,0 @@
 -#
 -# RT was configured with:
 -#
@@ -4462,6 +4465,9 @@ index 013352c..0000000
 -    Plugin( "RT::Extension::SLA" );
 -    Plugin( "RT::Authen::ExternalAuth" );
 -
+-RT will also accept the distribution name (i.e. C<RT-Extension-SLA>)
+-instead of the package name (C<RT::Extension::SLA>).
+-
 -=cut
 -
 -Set(@Plugins, ());
@@ -4552,15 +4558,30 @@ index 013352c..0000000
 -
 -Set($DatabaseName, q{rt4});
 -
--=item C<$DatabaseRequireSSL>
+-=item C<%DatabaseExtraDSN>
 -
--If you're using PostgreSQL and have compiled in SSL support, set
--C<$DatabaseRequireSSL> to 1 to turn on SSL communication with the
--database.
+-Allows additional properties to be passed to the database connection
+-step.  Possible properties are specific to the database-type; see
+-https://metacpan.org/pod/DBI#connect
+-
+-For PostgreSQL, for instance, the following enables SSL (but does no
+-certificate checking, providing data hiding but no MITM protection):
+-
+-   # See https://metacpan.org/pod/DBD::Pg#connect
+-   # and http://www.postgresql.org/docs/8.4/static/libpq-ssl.html
+-   Set( %DatabaseExtraDSN, sslmode => 'require' );
+-
+-For MySQL, the following acts similarly if the server has enabled SSL.
+-Otherwise, it provides no protection; MySQL provides no way to I<force>
+-SSL connections:
+-
+-   # See https://metacpan.org/pod/DBD::mysql#connect
+-   # and http://dev.mysql.com/doc/refman/5.1/en/ssl-options.html
+-   Set( %DatabaseExtraDSN, mysql_ssl => 1 );
 -
 -=cut
 -
--Set($DatabaseRequireSSL, undef);
+-Set(%DatabaseExtraDSN, ());
 -
 -=item C<$DatabaseAdmin>
 -
@@ -4852,18 +4873,11 @@ index 013352c..0000000
 -value.
 -
 -For testing purposes, or to simply disable sending mail out into the
--world, you can set C<$MailCommand> to 'testfile' which writes all mail
--to a temporary file.  RT will log the location of the temporary file
--so you can extract mail from it afterward.
--
--On shutdown, RT will clean up the temporary file created when using
--the 'testfile' option. If testing while the RT server is still running,
--you can find the files in the location noted in the log file. If you run
--a tool like C<rt-crontool> however, or if you look after stopping the server,
--the files will have been deleted when the process completed. If you need to
--keep the files for development or debugging, you can manually set
--C<< UNLINK => 0 >> where the testfile config is processed in
--F<lib/RT/Interface/Email.pm>.
+-world, you can set C<$MailCommand> to 'mbox' which logs all mail, in
+-mbox format, to files in F</opt/rt4/var/> based in the process start
+-time.  The 'testfile' option is similar, but the files that it creates
+-(under /tmp) are temporary, and removed upon process completion; the
+-format is also not mbox-compatable.
 -
 -=cut
 -
@@ -5503,10 +5517,10 @@ index 013352c..0000000
 -
 -Set(
 -    %ChartFont,
--    'zh-cn'  => "$RT::BasePath/share/fonts/DroidSansFallback.ttf",
--    'zh-tw'  => "$RT::BasePath/share/fonts/DroidSansFallback.ttf",
--    'ja'     => "$RT::BasePath/share/fonts/DroidSansFallback.ttf",
--    'others' => "$RT::BasePath/share/fonts/DroidSans.ttf",
+-    'zh-cn'  => "$RT::FontPath/DroidSansFallback.ttf",
+-    'zh-tw'  => "$RT::FontPath/DroidSansFallback.ttf",
+-    'ja'     => "$RT::FontPath/DroidSansFallback.ttf",
+-    'others' => "$RT::FontPath/DroidSans.ttf",
 -);
 -
 -=item C<$ChartsTimezonesInDB>
@@ -6836,9 +6850,6 @@ index 013352c..0000000
 -# URL of a keyserver
 -#    keyserver => 'hkp://subkeys.pgp.net',
 -
--# enables the automatic retrieving of keys when encrypting
--#    'auto-key-locate' => 'keyserver',
--
 -# enables the automatic retrieving of keys when verifying signatures
 -#    'keyserver-options' => 'auto-key-retrieve',
 -);
@@ -7573,10 +7584,10 @@ index 6a39e55..0000000
 -exit 0;
 diff --git a/etc/upgrade/generate-rtaddressregexp b/etc/upgrade/generate-rtaddressregexp
 deleted file mode 100755
-index a516b7c..0000000
+index 0c64549..0000000
 --- a/etc/upgrade/generate-rtaddressregexp
 +++ /dev/null
-@@ -1,108 +0,0 @@
+@@ -1,106 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -7632,10 +7643,8 @@ index a516b7c..0000000
 -use lib "local/lib";
 -use lib "lib";
 -
--use RT -init;
--RT->Config->Set('LogToSTDERR' => 'debug');
--
--$| = 1;
+-use RT::Interface::CLI qw(Init);
+-Init();
 -
 -if (my $re = RT->Config->Get('RTAddressRegexp')) {
 -    print "No need to use this script, you already have RTAddressRegexp set to $re\n";
@@ -7685,12 +7694,12 @@ index a516b7c..0000000
 -        $merged->{lc $3}{$1}{$2||''}++;
 -    }
 -}
-diff --git a/etc/upgrade/split-out-cf-categories b/etc/upgrade/split-out-cf-categories
+diff --git a/etc/upgrade/sanity-check-stylesheets b/etc/upgrade/sanity-check-stylesheets
 deleted file mode 100755
-index 63f310d..0000000
---- a/etc/upgrade/split-out-cf-categories
+index 45e0ab5..0000000
+--- a/etc/upgrade/sanity-check-stylesheets
 +++ /dev/null
-@@ -1,170 +0,0 @@
+@@ -1,88 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -7746,10 +7755,364 @@ index 63f310d..0000000
 -use lib "local/lib";
 -use lib "lib";
 -
--use RT -init;
--RT->Config->Set('LogToSTDERR' => 'debug');
+-use RT::Interface::CLI qw(Init);
+-Init();
 -
--$| = 1;
+-use RT::Users;
+-my $users = RT::Users->new( $RT::SystemUser );
+-$users->UnLimit();
+-
+-my @static_roots = RT::Interface::Web->StaticRoots;
+-my %static_root_check_cache;
+-sub stylesheet_exists {
+-    my $stylesheet = shift;
+-
+-    return $static_root_check_cache{$stylesheet}
+-        if exists $static_root_check_cache{$stylesheet};
+-
+-    for my $static_root (@static_roots) {
+-        return ++$static_root_check_cache{$stylesheet}
+-            if -d "$static_root/css/$stylesheet";
+-    }
+-
+-    return $static_root_check_cache{$stylesheet} = 0;
+-}
+-
+-my $system_stylesheet = RT->Config->Get('WebDefaultStylesheet');
+-
+-while (my $u = $users->Next) {
+-    my $stylesheet = RT->Config->Get('WebDefaultStylesheet', $u);
+-    unless (stylesheet_exists $stylesheet) {
+-        my $prefs = $u->Preferences($RT::System);
+-        $prefs->{WebDefaultStylesheet} = $system_stylesheet;
+-        $u->SetPreferences($RT::System, $prefs);
+-    }
+-}
+diff --git a/etc/upgrade/shrink-cgm-table b/etc/upgrade/shrink-cgm-table
+deleted file mode 100755
+index 94a0a92..0000000
+--- a/etc/upgrade/shrink-cgm-table
++++ /dev/null
+@@ -1,124 +0,0 @@
+-#!/usr/bin/perl
+-# BEGIN BPS TAGGED BLOCK {{{
+-#
+-# COPYRIGHT:
+-#
+-# This software is Copyright (c) 1996-2015 Best Practical Solutions, LLC
+-#                                          <sales@bestpractical.com>
+-#
+-# (Except where explicitly superseded by other copyright notices)
+-#
+-#
+-# LICENSE:
+-#
+-# This work is made available to you under the terms of Version 2 of
+-# the GNU General Public License. A copy of that license should have
+-# been provided with this software, but in any event can be snarfed
+-# from www.gnu.org.
+-#
+-# This work is distributed in the hope that it will be useful, but
+-# WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-# General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+-# 02110-1301 or visit their web page on the internet at
+-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+-#
+-#
+-# CONTRIBUTION SUBMISSION POLICY:
+-#
+-# (The following paragraph is not intended to limit the rights granted
+-# to you to modify and distribute this software under the terms of
+-# the GNU General Public License and is only of importance to you if
+-# you choose to contribute your changes and enhancements to the
+-# community by submitting them to Best Practical Solutions, LLC.)
+-#
+-# By intentionally submitting any modifications, corrections or
+-# derivatives to this work, or any other work intended for use with
+-# Request Tracker, to Best Practical Solutions, LLC, you confirm that
+-# you are the copyright holder for those contributions and you grant
+-# Best Practical Solutions,  LLC a nonexclusive, worldwide, irrevocable,
+-# royalty-free, perpetual, license to use, copy, create derivative
+-# works based on those contributions, and sublicense and distribute
+-# those contributions and any derivatives thereof.
+-#
+-# END BPS TAGGED BLOCK }}}
+-use 5.10.1;
+-use strict;
+-use warnings;
+-
+-use lib "local/lib";
+-use lib "lib";
+-
+-use RT::Interface::CLI qw(Init);
+-Init();
+-
+-use RT::CachedGroupMembers;
+-my $cgms = RT::CachedGroupMembers->new( RT->SystemUser );
+-$cgms->Limit(
+-    FIELD => 'id',
+-    OPERATOR => '!=',
+-    VALUE => 'main.Via',
+-    QUOTEVALUE => 0,
+-    ENTRYAGGREGATOR => 'AND',
+-);
+-$cgms->FindAllRows;
+-
+-my $alias = $cgms->Join(
+-    TYPE   => 'LEFT',
+-    FIELD1 => 'Via',
+-    TABLE2 => 'CachedGroupMembers',
+-    FIELD2 => 'id',
+-);
+-$cgms->Limit(
+-    ALIAS => $alias,
+-    FIELD => 'MemberId',
+-    OPERATOR => '=',
+-    VALUE => $alias .'.GroupId',
+-    QUOTEVALUE => 0,
+-    ENTRYAGGREGATOR => 'AND',
+-);
+-$cgms->Limit(
+-    ALIAS => $alias,
+-    FIELD => 'id',
+-    OPERATOR => '=',
+-    VALUE => $alias .'.Via',
+-    QUOTEVALUE => 0,
+-    ENTRYAGGREGATOR => 'AND',
+-);
+-
+-my $total = $cgms->Count;
+-my $i = 0;
+-
+-FetchNext( $cgms, 'init' );
+-while ( my $rec = FetchNext( $cgms ) ) {
+-    $i++;
+-    printf("\r%0.2f %%", 100 * $i / $total);
+-    $RT::Handle->BeginTransaction;
+-    my ($status) = $rec->Delete;
+-    unless ($status) {
+-        $RT::Logger->error( "Couldn't delete CGM #". $rec->id );
+-        exit 1;
+-    }
+-    $RT::Handle->Commit;
+-}
+-
+-use constant PAGE_SIZE => 10000;
+-sub FetchNext {
+-    my ($objs, $init) = @_;
+-    if ( $init ) {
+-        $objs->RowsPerPage( PAGE_SIZE );
+-        $objs->FirstPage;
+-        return;
+-    }
+-
+-    my $obj = $objs->Next;
+-    return $obj if $obj;
+-    $objs->RedoSearch;
+-    $objs->FirstPage;
+-    return $objs->Next;
+-}
+-
+diff --git a/etc/upgrade/shrink-transactions-table b/etc/upgrade/shrink-transactions-table
+deleted file mode 100755
+index c26614f..0000000
+--- a/etc/upgrade/shrink-transactions-table
++++ /dev/null
+@@ -1,126 +0,0 @@
+-#!/usr/bin/perl
+-# BEGIN BPS TAGGED BLOCK {{{
+-#
+-# COPYRIGHT:
+-#
+-# This software is Copyright (c) 1996-2015 Best Practical Solutions, LLC
+-#                                          <sales@bestpractical.com>
+-#
+-# (Except where explicitly superseded by other copyright notices)
+-#
+-#
+-# LICENSE:
+-#
+-# This work is made available to you under the terms of Version 2 of
+-# the GNU General Public License. A copy of that license should have
+-# been provided with this software, but in any event can be snarfed
+-# from www.gnu.org.
+-#
+-# This work is distributed in the hope that it will be useful, but
+-# WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-# General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+-# 02110-1301 or visit their web page on the internet at
+-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+-#
+-#
+-# CONTRIBUTION SUBMISSION POLICY:
+-#
+-# (The following paragraph is not intended to limit the rights granted
+-# to you to modify and distribute this software under the terms of
+-# the GNU General Public License and is only of importance to you if
+-# you choose to contribute your changes and enhancements to the
+-# community by submitting them to Best Practical Solutions, LLC.)
+-#
+-# By intentionally submitting any modifications, corrections or
+-# derivatives to this work, or any other work intended for use with
+-# Request Tracker, to Best Practical Solutions, LLC, you confirm that
+-# you are the copyright holder for those contributions and you grant
+-# Best Practical Solutions,  LLC a nonexclusive, worldwide, irrevocable,
+-# royalty-free, perpetual, license to use, copy, create derivative
+-# works based on those contributions, and sublicense and distribute
+-# those contributions and any derivatives thereof.
+-#
+-# END BPS TAGGED BLOCK }}}
+-use 5.10.1;
+-use strict;
+-use warnings;
+-
+-use lib "local/lib";
+-use lib "lib";
+-
+-use RT::Interface::CLI qw(Init);
+-Init();
+-
+-use RT::Transactions;
+-my $txns = RT::Transactions->new( RT->SystemUser );
+-$txns->Limit(
+-    FIELD => 'ObjectType',
+-    OPERATOR => '=',
+-    VALUE => 'RT::Group',
+-    QUOTEVALUE => 1,
+-    ENTRYAGGREGATOR => 'AND',
+-);
+-
+-my $alias = $txns->Join(
+-    TYPE   => 'LEFT',
+-    FIELD1 => 'ObjectId',
+-    TABLE2 => 'Groups',
+-    FIELD2 => 'Id',
+-);
+-$txns->Limit(
+-    ALIAS => $alias,
+-    FIELD => 'Domain',
+-    OPERATOR => '=',
+-    VALUE => 'ACLEquivalence',
+-    CASESENSITIVE => 0,
+-    QUOTEVALUE => 1,
+-    ENTRYAGGREGATOR => 'AND',
+-);
+-
+-$txns->Limit(
+-    ALIAS => $alias,
+-    FIELD => 'Name',
+-    OPERATOR => '=',
+-    VALUE => 'UserEquiv',
+-    QUOTEVALUE => 1,
+-    CASESENSITIVE => 0,
+-    ENTRYAGGREGATOR => 'AND',
+-);
+-
+-my $total = $txns->Count;
+-my $i = 0;
+-
+-FetchNext( $txns, 'init' );
+-while ( my $rec = FetchNext( $txns ) ) {
+-    $i++;
+-    printf("\r%0.2f %%", 100 * $i / $total);
+-    $RT::Handle->BeginTransaction;
+-    my ($status) = $rec->Delete;
+-    unless ($status) {
+-        $RT::Logger->error( "Couldn't delete TXN #". $rec->id );
+-        exit 1;
+-    }
+-    $RT::Handle->Commit;
+-}
+-
+-use constant PAGE_SIZE => 10000;
+-sub FetchNext {
+-    my ($objs, $init) = @_;
+-    if ( $init ) {
+-        $objs->RowsPerPage( PAGE_SIZE );
+-        $objs->FirstPage;
+-        return;
+-    }
+-
+-    my $obj = $objs->Next;
+-    return $obj if $obj;
+-    $objs->RedoSearch;
+-    $objs->FirstPage;
+-    return $objs->Next;
+-}
+-
+diff --git a/etc/upgrade/split-out-cf-categories b/etc/upgrade/split-out-cf-categories
+deleted file mode 100755
+index 9e36c12..0000000
+--- a/etc/upgrade/split-out-cf-categories
++++ /dev/null
+@@ -1,168 +0,0 @@
+-#!/usr/bin/perl
+-# BEGIN BPS TAGGED BLOCK {{{
+-#
+-# COPYRIGHT:
+-#
+-# This software is Copyright (c) 1996-2015 Best Practical Solutions, LLC
+-#                                          <sales@bestpractical.com>
+-#
+-# (Except where explicitly superseded by other copyright notices)
+-#
+-#
+-# LICENSE:
+-#
+-# This work is made available to you under the terms of Version 2 of
+-# the GNU General Public License. A copy of that license should have
+-# been provided with this software, but in any event can be snarfed
+-# from www.gnu.org.
+-#
+-# This work is distributed in the hope that it will be useful, but
+-# WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-# General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+-# 02110-1301 or visit their web page on the internet at
+-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+-#
+-#
+-# CONTRIBUTION SUBMISSION POLICY:
+-#
+-# (The following paragraph is not intended to limit the rights granted
+-# to you to modify and distribute this software under the terms of
+-# the GNU General Public License and is only of importance to you if
+-# you choose to contribute your changes and enhancements to the
+-# community by submitting them to Best Practical Solutions, LLC.)
+-#
+-# By intentionally submitting any modifications, corrections or
+-# derivatives to this work, or any other work intended for use with
+-# Request Tracker, to Best Practical Solutions, LLC, you confirm that
+-# you are the copyright holder for those contributions and you grant
+-# Best Practical Solutions,  LLC a nonexclusive, worldwide, irrevocable,
+-# royalty-free, perpetual, license to use, copy, create derivative
+-# works based on those contributions, and sublicense and distribute
+-# those contributions and any derivatives thereof.
+-#
+-# END BPS TAGGED BLOCK }}}
+-use 5.10.1;
+-use strict;
+-use warnings;
+-
+-use lib "local/lib";
+-use lib "lib";
+-
+-use RT::Interface::CLI qw(Init);
+-Init();
 -
 -$RT::Handle->BeginTransaction();
 -
@@ -7863,10 +8226,10 @@ index 63f310d..0000000
 -print "No custom fields with categories found\n" unless $seen;
 diff --git a/etc/upgrade/switch-templates-to b/etc/upgrade/switch-templates-to
 deleted file mode 100755
-index c1b1633..0000000
+index 1045a92..0000000
 --- a/etc/upgrade/switch-templates-to
 +++ /dev/null
-@@ -1,147 +0,0 @@
+@@ -1,145 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -7922,10 +8285,8 @@ index c1b1633..0000000
 -use lib "local/lib";
 -use lib "lib";
 -
--use RT -init;
--RT->Config->Set('LogToSTDERR' => 'info');
--
--$| = 1;
+-use RT::Interface::CLI qw(Init);
+-Init();
 -
 -my $to = shift || '';
 -my $from;
@@ -8014,12 +8375,12 @@ index c1b1633..0000000
 -    EOT
 -}
 -
-diff --git a/etc/upgrade/upgrade-articles b/etc/upgrade/upgrade-articles
+diff --git a/etc/upgrade/time-worked-history b/etc/upgrade/time-worked-history
 deleted file mode 100755
-index 482d7b3..0000000
---- a/etc/upgrade/upgrade-articles
+index 9e08369..0000000
+--- a/etc/upgrade/time-worked-history
 +++ /dev/null
-@@ -1,264 +0,0 @@
+@@ -1,111 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -8075,11 +8436,125 @@ index 482d7b3..0000000
 -use lib "local/lib";
 -use lib "lib";
 -
--use RT -init;
+-use RT::Interface::CLI qw(Init);
+-Init();
 -
--RT->Config->Set('LogToSTDERR' => 'debug');
+-my $dbh = RT->DatabaseHandle->dbh;
+-my $ids = $dbh->selectcol_arrayref(
+-    "SELECT t1.id FROM Tickets t1, Tickets t2 WHERE t1.id = t2.EffectiveId"
+-    ." AND t2.id != t2.EffectiveId AND t2.EffectiveId = t1.id"
+-);
+-foreach my $id ( @$ids ) {
+-    my $t = RT::Ticket->new( RT->SystemUser );
+-    $t->Load( $id );
+-    unless ( $t->id ) {
+-        $RT::Logger->error("Couldn't load ticket #$id");
+-        next;
+-    }
 -
--$| = 1;
+-    fix_time_worked_history($t);
+-}
+-
+-sub fix_time_worked_history {
+-    my ($t) = (@_);
+-
+-    my $history = 0;
+-    my $candidate = undef;
+-    my @delete = ();
+-    my $delete_time = 0;
+-
+-    my $txns = $t->Transactions;
+-    while ( my $txn = $txns->Next ) {
+-        if ( $txn->Type =~ /^(Create|Correspond|Comment)$/ ) {
+-            $history += $txn->TimeTaken || 0;
+-        } elsif ( $txn->Type eq 'Set' && $txn->Field eq 'TimeWorked' ) {
+-            $history += $txn->NewValue - $txn->OldValue;
+-            $candidate = $txn;
+-        } elsif ( $candidate && ($txn->Field||'') eq 'MergedInto' ) {
+-            if ($candidate->Creator eq $txn->Creator ) {
+-                push @delete, $candidate;
+-                $delete_time += $candidate->NewValue - $candidate->OldValue;
+-            }
+-
+-            $candidate = undef;
+-        }
+-    }
+-
+-    if ( $history == $t->TimeWorked ) {
+-        $RT::Logger->info("Ticket #". $t->id . " has TimeWorked matching history. Skipping");
+-    } elsif ( $history - $delete_time == $t->TimeWorked ) {
+-        $RT::Logger->warn( "Ticket #". $t->id ." has TimeWorked mismatch. Deleting transactions" );
+-        foreach my $dtxn ( @delete ) {
+-            my ($status, $msg) = $dtxn->Delete;
+-            $RT::Logger->error("Couldn't delete transaction: $msg") unless $status;
+-        }
+-    } else {
+-        $RT::Logger->error( "Ticket #". $t->id ." has TimeWorked mismatch, but we couldn't find correct transactions to delete. Skipping" );
+-    }
+-}
+diff --git a/etc/upgrade/upgrade-articles b/etc/upgrade/upgrade-articles
+deleted file mode 100755
+index 395e2e3..0000000
+--- a/etc/upgrade/upgrade-articles
++++ /dev/null
+@@ -1,261 +0,0 @@
+-#!/usr/bin/perl
+-# BEGIN BPS TAGGED BLOCK {{{
+-#
+-# COPYRIGHT:
+-#
+-# This software is Copyright (c) 1996-2015 Best Practical Solutions, LLC
+-#                                          <sales@bestpractical.com>
+-#
+-# (Except where explicitly superseded by other copyright notices)
+-#
+-#
+-# LICENSE:
+-#
+-# This work is made available to you under the terms of Version 2 of
+-# the GNU General Public License. A copy of that license should have
+-# been provided with this software, but in any event can be snarfed
+-# from www.gnu.org.
+-#
+-# This work is distributed in the hope that it will be useful, but
+-# WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-# General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+-# 02110-1301 or visit their web page on the internet at
+-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+-#
+-#
+-# CONTRIBUTION SUBMISSION POLICY:
+-#
+-# (The following paragraph is not intended to limit the rights granted
+-# to you to modify and distribute this software under the terms of
+-# the GNU General Public License and is only of importance to you if
+-# you choose to contribute your changes and enhancements to the
+-# community by submitting them to Best Practical Solutions, LLC.)
+-#
+-# By intentionally submitting any modifications, corrections or
+-# derivatives to this work, or any other work intended for use with
+-# Request Tracker, to Best Practical Solutions, LLC, you confirm that
+-# you are the copyright holder for those contributions and you grant
+-# Best Practical Solutions,  LLC a nonexclusive, worldwide, irrevocable,
+-# royalty-free, perpetual, license to use, copy, create derivative
+-# works based on those contributions, and sublicense and distribute
+-# those contributions and any derivatives thereof.
+-#
+-# END BPS TAGGED BLOCK }}}
+-use 5.10.1;
+-use strict;
+-use warnings;
+-
+-use lib "local/lib";
+-use lib "lib";
+-
+-use RT::Interface::CLI qw(Init);
+-Init();
 -
 -my $db_name = RT->Config->Get('DatabaseName');
 -my $db_type = RT->Config->Get('DatabaseType');
@@ -8433,10 +8908,10 @@ index c7616e9..0000000
 -}
 diff --git a/lib/RT/Generated.pm b/lib/RT/Generated.pm
 deleted file mode 100644
-index eceef66..0000000
+index 122a465..0000000
 --- a/lib/RT/Generated.pm
 +++ /dev/null
-@@ -1,84 +0,0 @@
+@@ -1,85 +0,0 @@
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
 -# COPYRIGHT:
@@ -8489,7 +8964,7 @@ index eceef66..0000000
 -use warnings;
 -use strict;
 -
--our $VERSION = '4.2.10';
+-our $VERSION = '4.2.11';
 -our ($MAJOR_VERSION, $MINOR_VERSION, $REVISION) = $VERSION =~ /^(\d)\.(\d)\.(\d+)/;
 -
 -
@@ -8499,6 +8974,7 @@ index eceef66..0000000
 -$BinPath = 'bin';
 -$SbinPath = 'sbin';
 -$VarPath = 'var';
+-$FontPath = 'share/fonts';
 -$LexiconPath = 'share/po';
 -$StaticPath = 'share/static';
 -$PluginPath = 'plugins';
@@ -8523,10 +8999,10 @@ index eceef66..0000000
 -1;
 diff --git a/sbin/rt-attributes-viewer b/sbin/rt-attributes-viewer
 deleted file mode 100755
-index e8c0cdc..0000000
+index 2e86d44..0000000
 --- a/sbin/rt-attributes-viewer
 +++ /dev/null
-@@ -1,115 +0,0 @@
+@@ -1,105 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -8595,21 +9071,11 @@ index e8c0cdc..0000000
 -
 -}
 -
--use Getopt::Long;
--my %opt;
--GetOptions( \%opt, 'help|h', );
+-use RT::Interface::CLI qw(Init);
+-Init();
 -
 -my $id = shift;
--
--if ( $opt{help} || !$id ) {
--    require Pod::Usage;
--    Pod::Usage::pod2usage({ verbose => 2 });
--    exit;
--}
--
--require RT;
--RT::LoadConfig();
--RT::Init();
+-Pod::Usage::pod2usage({ verbose => 2 }) unless $id;
 -
 -require RT::Attribute;
 -my $attr = RT::Attribute->new( RT->SystemUser );
@@ -8833,10 +9299,10 @@ index 7a7b613..0000000
 -=cut
 diff --git a/sbin/rt-dump-metadata b/sbin/rt-dump-metadata
 deleted file mode 100755
-index 46c240f..0000000
+index 714bb59..0000000
 --- a/sbin/rt-dump-metadata
 +++ /dev/null
-@@ -1,336 +0,0 @@
+@@ -1,326 +0,0 @@
 -#!/usr/bin/perl -w
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -8909,25 +9375,15 @@ index 46c240f..0000000
 -
 -}
 -
--use Getopt::Long;
+-use RT::Interface::CLI qw(Init);
 -my %opt;
--GetOptions( \%opt, "help|h",
+-Init( \%opt,
 -    "limit-to-privileged|l",
 -    "skip-disabled|s",
 -    "all|a",
 -);
 -
--if ( $opt{help} ) {
--    require Pod::Usage;
--    Pod::Usage::pod2usage( { verbose => 2 } );
--    exit;
--}
--
--require RT;
 -require XML::Simple;
--
--RT::LoadConfig();
--RT::Init();
 -
 -my %RV;
 -my %Ignore = (
@@ -8944,7 +9400,6 @@ index 46c240f..0000000
 -    Templates Scrips ACL CustomFields
 -    );
 -foreach my $class (@classes) {
--    require "RT/$class.pm";
 -    my $objects = "RT::$class"->new( RT->SystemUser );
 -    $objects->{find_disabled_rows} = 1 unless $opt{'skip-disabled'};
 -    $objects->UnLimit;
@@ -9010,6 +9465,7 @@ index 46c240f..0000000
 -                foreach my $key ( map "$record$_", ( '', 'Id' ) ) {
 -                    next unless exists $rv->{$key};
 -                    my $id = $rv->{$key} or next;
+-                    next unless $id =~ /^\d+$/;
 -                    my $obj = "RT::$record"->new( RT->SystemUser );
 -                    $obj->LoadByCols( Id => $id ) or next;
 -                    $rv->{$key} = $obj->__Value('Name') || 0;
@@ -9072,7 +9528,7 @@ index 46c240f..0000000
 -                    # An internal user group
 -                    if ( /^SystemInternal$/ ) {
 -                        $rv->{GroupDomain} = $group->Domain;
--                        $rv->{GroupType} = $group->Type;
+-                        $rv->{GroupType}   = $group->Name;
 -                    }
 -                    # An individual user
 -                    elsif ( /^ACLEquivalence$/ ) {
@@ -9175,10 +9631,10 @@ index 46c240f..0000000
 -
 diff --git a/sbin/rt-email-dashboards b/sbin/rt-email-dashboards
 deleted file mode 100755
-index cf27f82..0000000
+index 6637255..0000000
 --- a/sbin/rt-email-dashboards
 +++ /dev/null
-@@ -1,165 +0,0 @@
+@@ -1,162 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -9262,16 +9718,13 @@ index cf27f82..0000000
 -
 -require RT;
 -require RT::Interface::CLI;
--RT::Interface::CLI->import(qw{ CleanEnv loc });
+-RT::Interface::CLI->import(qw{ loc });
 -
 -# Load the config file
 -RT::LoadConfig();
 -
 -# Connect to the database and get RT::SystemUser and RT::Nobody loaded
 -RT::Init();
--
--# Clean out all the nasties from the environment
--CleanEnv();
 -
 -require RT::Dashboard::Mailer;
 -RT::Dashboard::Mailer->MailDashboards(
@@ -9346,10 +9799,10 @@ index cf27f82..0000000
 -
 diff --git a/sbin/rt-email-digest b/sbin/rt-email-digest
 deleted file mode 100755
-index dfc9b2c..0000000
+index 303ce8b..0000000
 --- a/sbin/rt-email-digest
 +++ /dev/null
-@@ -1,374 +0,0 @@
+@@ -1,373 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -9420,12 +9873,11 @@ index dfc9b2c..0000000
 -use Date::Format qw( strftime );
 -use Getopt::Long;
 -use RT;
--use RT::Interface::CLI qw( CleanEnv loc );
+-use RT::Interface::CLI qw( loc );
 -use RT::Interface::Email;
 -
 -RT::LoadConfig();
 -RT::Init();
--CleanEnv();
 -
 -sub usage {
 -    my ($error) = @_;
@@ -9726,10 +10178,10 @@ index dfc9b2c..0000000
 -=back
 diff --git a/sbin/rt-email-group-admin b/sbin/rt-email-group-admin
 deleted file mode 100755
-index a526a96..0000000
+index cc30ac4..0000000
 --- a/sbin/rt-email-group-admin
 +++ /dev/null
-@@ -1,520 +0,0 @@
+@@ -1,521 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -9778,6 +10230,7 @@ index a526a96..0000000
 -# those contributions and any derivatives thereof.
 -#
 -# END BPS TAGGED BLOCK }}}
+-
 -=head1 NAME
 -
 -rt-email-group-admin - Command line tool for administrating NotifyGroup actions
@@ -9805,7 +10258,7 @@ index a526a96..0000000
 -    rt-email-group-admin --create 'Notify developers' --group 'Development Team'
 -
 -Then you can add the followoing scrip to your Bugs queue:
--    
+-
 -    Condition: On Create
 -    Action:    Notify developers
 -    Template:  Transaction
@@ -10252,10 +10705,10 @@ index a526a96..0000000
 -=cut
 diff --git a/sbin/rt-fulltext-indexer b/sbin/rt-fulltext-indexer
 deleted file mode 100755
-index c7a99c0..0000000
+index 00893c8..0000000
 --- a/sbin/rt-fulltext-indexer
 +++ /dev/null
-@@ -1,416 +0,0 @@
+@@ -1,372 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -10306,7 +10759,7 @@ index c7a99c0..0000000
 -# END BPS TAGGED BLOCK }}}
 -use strict;
 -use warnings;
--no warnings 'once';
+-use 5.010;
 -
 -# fix lib paths, some may be relative
 -BEGIN { # BEGIN RT CMD BOILERPLATE
@@ -10325,53 +10778,25 @@ index c7a99c0..0000000
 -
 -}
 -
--BEGIN {
--    use RT;
--    RT::LoadConfig();
--    RT::Init();
--};
+-use RT -init;
 -use RT::Interface::CLI ();
--
--my %OPT = (
--    help        => 0,
--    debug       => 0,
--    quiet       => 0,
--);
--my @OPT_LIST = qw(help|h! debug! quiet);
--
--my $db_type = RT->Config->Get('DatabaseType');
--if ( $db_type eq 'Pg' ) {
--    %OPT = (
--        %OPT,
--        limit  => 0,
--        all    => 0,
--    );
--    push @OPT_LIST, 'limit=i', 'all!';
--}
--elsif ( $db_type eq 'mysql' ) {
--    %OPT = (
--        %OPT,
--        limit    => 0,
--        all      => 0,
--    );
--    push @OPT_LIST, 'limit=i', 'all!';
--}
--elsif ( $db_type eq 'Oracle' ) {
--    %OPT = (
--        %OPT,
--        memory => '2M',
--    );
--    push @OPT_LIST, qw(memory=s);
--}
+-use HTML::Entities;
 -
 -use Getopt::Long qw(GetOptions);
--GetOptions( \%OPT, @OPT_LIST );
+-my %OPT = ( memory => '2M', limit => 0 );
+-GetOptions( \%OPT,
+-    "help|h!",
+-    "debug!",
+-    "quiet!",
 -
--if ( $OPT{'help'} ) {
--    RT::Interface::CLI->ShowHelp(
--        Sections => 'NAME|DESCRIPTION|'. uc($db_type),
--    );
--}
+-    "all!",
+-    "limit=i",
+-
+-    "memory=s",
+-);
+-$OPT{limit} ||= 200;
+-
+-RT::Interface::CLI->ShowHelp if $OPT{help};
 -
 -use Fcntl ':flock';
 -if ( !flock main::DATA, LOCK_EX | LOCK_NB ) {
@@ -10385,7 +10810,9 @@ index c7a99c0..0000000
 -    }
 -}
 -
--my $fts_config = RT->Config->Get('FullTextSearch') || {};
+-my $db_type = RT->Config->Get('DatabaseType');
+-my $fts_config = $ENV{RT_FTS_CONFIG} ? JSON::from_json($ENV{RT_FTS_CONFIG})
+-    : RT->Config->Get('FullTextSearch') || {};
 -unless ( $fts_config->{'Enable'} ) {
 -    print STDERR <<EOT;
 -
@@ -10425,227 +10852,214 @@ index c7a99c0..0000000
 -    exit 1;
 -}
 -
--my @types = qw(text html);
--foreach my $type ( @types ) {
--  REDO:
--    my $attachments = attachments($type);
--    $attachments->Limit(
--        FIELD => 'id',
--        OPERATOR => '>',
--        VALUE => last_indexed($type)
--    );
--    $attachments->OrderBy( FIELD => 'id', ORDER => 'asc' );
--    $attachments->RowsPerPage( $OPT{'limit'} || 100 );
+-# Skip ACL checks.  This saves a large number of unnecessary queries
+-# (for tickets, ACLs, and users) which are unnecessary, as we are
+-# running as the system user.
+-{
+-    no warnings 'redefine';
+-    no warnings 'once';
+-    *RT::Attachment::_Value = \&DBIx::SearchBuilder::Record::_Value;
+-    *RT::Attachments::Next  = \&DBIx::SearchBuilder::Next;
+-}
 -
--    my $found = 0;
--    while ( my $a = $attachments->Next ) {
--        next if filter( $type, $a );
--        debug("Found attachment #". $a->id );
--        my $txt = extract($type, $a) or next;
--        $found++;
--        process( $type, $a, $txt );
--        debug("Processed attachment #". $a->id );
+-my $LAST;
+-if ($db_type eq 'mysql') {
+-    process_mysql();
+-} elsif ($db_type eq 'Pg') {
+-    process_pg();
+-}
+-
+-sub attachment_loop {
+-    my $subref = shift;
+-    my $table = $fts_config->{'Table'};
+-    $LAST //= 0;
+-
+-    # Fetch in batches of size --limit
+-    {
+-        # Indexes all text/plain and text/html attachments
+-        my $attachments = RT::Attachments->new( RT->SystemUser );
+-        $attachments->Limit(
+-            FIELD    => 'ContentType',
+-            OPERATOR => 'IN',
+-            VALUE    => ['text/plain', 'text/html'],
+-        );
+-        $attachments->Limit( FIELD => 'id', OPERATOR => '>', VALUE => $LAST );
+-        $attachments->OrderBy( FIELD => 'id', ORDER => 'asc' );
+-        $attachments->RowsPerPage( $OPT{'limit'} );
+-
+-        # Call back to the DB-specific part
+-        $subref->($attachments);
+-
+-        $LAST = $attachments->Last->id if $attachments->Count;
+-
+-        redo if $OPT{'all'} and $attachments->Count == $OPT{'limit'};
 -    }
--    goto REDO if $OPT{'all'} and $attachments->Count == ($OPT{'limit'} || 100)
 -}
 -
--sub attachments {
--    my $type = shift;
--    my $res = RT::Attachments->new( RT->SystemUser );
--    my $txn_alias = $res->Join(
--        ALIAS1 => 'main',
--        FIELD1 => 'TransactionId',
--        TABLE2 => 'Transactions',
--        FIELD2 => 'id',
--    );
--    $res->Limit(
--        ALIAS => $txn_alias,
--        FIELD => 'ObjectType',
--        VALUE => 'RT::Ticket',
--    );
--    my $ticket_alias = $res->Join(
--        ALIAS1 => $txn_alias,
--        FIELD1 => 'ObjectId',
--        TABLE2 => 'Tickets',
--        FIELD2 => 'id',
--    );
--    $res->Limit(
--        ALIAS => $ticket_alias,
--        FIELD => 'Status',
--        OPERATOR => '!=',
--        VALUE => 'deleted'
--    );
+-sub process_bulk_insert {
+-    my $dbh = $RT::Handle->dbh;
+-    my ($statement, $error) = @_;
 -
--    return goto_specific(
--        suffix => $type,
--        error => "Don't know how to find $type attachments",
--        arguments => [$res],
--    );
+-    # Doing large inserts is faster than individual statements, but
+-    # comes at a parsing cost; cache the statement handles (99% of which
+-    # will be the same size) for a notable (2x) speed gain.
+-    my %sthandles;
+-
+-    $sthandles{1} =
+-        $dbh->prepare($statement->(1));
+-
+-    attachment_loop( sub {
+-        my ($attachments) = @_;
+-        my @insert;
+-        my $found = 0;
+-        while ( my $a = $attachments->Next ) {
+-            debug("Found attachment #". $a->id );
+-            my $text = $a->Content // "";
+-            HTML::Entities::decode_entities($text) if $a->ContentType eq "text/html";
+-            push @insert, $text, $a->id;
+-            $found++;
+-        }
+-        return unless $found;
+-
+-        # $found should be the limit size on all but the last go-around.
+-        $sthandles{$found} ||= $dbh->prepare($statement->($found));
+-
+-        return if eval { $sthandles{$found}->execute(@insert); };
+-
+-        # We can catch and recover from some errors; re-do row-by-row to
+-        # know which row had which errors
+-        while (@insert) {
+-            my ($content, $id) = splice(@insert,0,2);
+-            next if eval { $sthandles{1}->execute($content, $id); };
+-            $error->($id, $content);
+-
+-            # If this was a semi-expected error, insert an empty
+-            # tsvector, so we count this row as "indexed" for
+-            # purposes of knowing where to pick up
+-            eval { $sthandles{1}->execute( "", $id ) }
+-                or die "Failed to insert empty row for attachment $id: " . $dbh->errstr;
+-        }
+-    });
 -}
 -
--sub last_indexed {
--    my ($type) = (@_);
--    return goto_specific(
--        suffix => $db_type,
--        error => "Don't know how to find last indexed $type attachment for $db_type DB",
--        arguments => \@_,
--    );
--}
--
--sub filter {
--    my $type = shift;
--    return goto_specific(
--        suffix    => $type,
--        arguments => \@_,
--    );
--}
--
--sub extract {
--    my $type = shift;
--    return goto_specific(
--        suffix    => $type,
--        error     => "No way to convert $type attachment into text",
--        arguments => \@_,
--    );
--}
--
--sub process {
--    return goto_specific(
--        suffix    => $db_type,
--        error     => "No processer for $db_type DB",
--        arguments => \@_,
--    );
--}
--
--sub last_indexed_mysql { last_indexed_pg(@_); }
 -sub process_mysql {
--    my ($type, $attachment, $text) = (@_);
--
 -    my $dbh = $RT::Handle->dbh;
 -    my $table = $fts_config->{'Table'};
 -
--    my $query;
--    if ( my ($id) = $dbh->selectrow_array("SELECT id FROM $table WHERE id = ?", undef, $attachment->id) ) {
--        $query = "UPDATE $table SET Content = ? WHERE id = ?";
--    } else {
--        $query = "INSERT INTO $table(Content, id) VALUES(?, ?)";
--    }
+-    ($LAST) = $dbh->selectrow_array("SELECT MAX(id) FROM $table");
 -
--    $dbh->do( $query, undef, $$text, $attachment->id );
--}
+-    my $insert = $fts_config->{Engine} eq "MyISAM" ? "INSERT DELAYED" : "INSERT";
 -
--sub last_indexed_pg {
--    my $type = shift;
--    my $attachments = attachments( $type );
--    my $alias = 'main';
--    if ( $fts_config->{'Table'} && $fts_config->{'Table'} ne 'Attachments' ) {
--        $alias = $attachments->Join(
--            TYPE    => 'left',
--            FIELD1 => 'id',
--            TABLE2  => $fts_config->{'Table'},
--            FIELD2 => 'id',
--        );
--    }
--    $attachments->Limit(
--        ALIAS => $alias,
--        FIELD => $fts_config->{'Column'},
--        OPERATOR => 'IS NOT',
--        VALUE => 'NULL',
+-    process_bulk_insert(
+-        sub {
+-            my ($n) = @_;
+-            return "$insert INTO $table(Content, id) VALUES "
+-                . join(", ", ("(?,?)") x $n);
+-        },
+-        sub {
+-            my ($id) = @_;
+-            if ($dbh->err == 1366 and $dbh->state eq "HY000") {
+-                warn "Attachment $id cannot be indexed. Most probably it contains invalid UTF8 bytes. ".
+-                    "Error: ". $dbh->errstr;
+-            } else {
+-                die "Attachment $id cannot be indexed: " . $dbh->errstr;
+-            }
+-        }
 -    );
--    $attachments->OrderBy( FIELD => 'id', ORDER => 'desc' );
--    $attachments->RowsPerPage( 1 );
--    my $res = $attachments->First;
--    return 0 unless $res;
--    return $res->id;
 -}
+-
 -
 -sub process_pg {
--    my ($type, $attachment, $text) = (@_);
+-    if ( $fts_config->{'Table'} ne 'Attachments' ) {
+-        process_pg_insert();
+-    } else {
+-        process_pg_update();
+-    }
+-}
 -
+-sub process_pg_insert {
 -    my $dbh = $RT::Handle->dbh;
 -    my $table = $fts_config->{'Table'};
 -    my $column = $fts_config->{'Column'};
+-    ($LAST) = $dbh->selectrow_array("SELECT MAX(id) FROM $table");
 -
--    my $query;
--    if ( $table ) {
--        if ( my ($id) = $dbh->selectrow_array("SELECT id FROM $table WHERE id = ?", undef, $attachment->id) ) {
--            $query = "UPDATE $table SET $column = to_tsvector(?) WHERE id = ?";
--        } else {
--            $query = "INSERT INTO $table($column, id) VALUES(to_tsvector(?), ?)";
+-    process_bulk_insert(
+-        sub {
+-            my ($n) = @_;
+-            return "INSERT INTO $table($column, id) VALUES "
+-                . join(", ", ("(TO_TSVECTOR(?),?)") x $n);
+-        },
+-        sub {
+-            my ($id) = @_;
+-            if ( $dbh->err == 7 && $dbh->state eq '54000' ) {
+-                warn "Attachment $id cannot be indexed. Most probably it contains too many unique words. ".
+-                  "Error: ". $dbh->errstr;
+-            } elsif ( $dbh->err == 7 && $dbh->state eq '22021' ) {
+-                warn "Attachment $id cannot be indexed. Most probably it contains invalid UTF8 bytes. ".
+-                  "Error: ". $dbh->errstr;
+-            } else {
+-                die "Attachment $id cannot be indexed: " . $dbh->errstr;
+-            }
 -        }
--    } else {
--        $query = "UPDATE Attachments SET $column = to_tsvector(?) WHERE id = ?";
--    }
+-    );
+-}
 -
--    my $status = eval { $dbh->do( $query, undef, $$text, $attachment->id ) };
--    unless ( $status ) {
--        if ( $dbh->err == 7  && $dbh->state eq '54000' ) {
--            warn "Attachment @{[$attachment->id]} cannot be indexed. Most probably it contains too many unique words. Error: ". $dbh->errstr;
--        } elsif ( $dbh->err == 7 && $dbh->state eq '22021' ) {
--            warn "Attachment @{[$attachment->id]} cannot be indexed. Most probably it contains invalid UTF8 bytes. Error: ". $dbh->errstr;
--        } else {
--            die "error: ". $dbh->errstr;
+-sub process_pg_update {
+-    my $dbh = $RT::Handle->dbh;
+-    my $column = $fts_config->{'Column'};
+-
+-    ($LAST) = $dbh->selectrow_array("SELECT MAX(id) FROM Attachments WHERE $column IS NOT NULL");
+-
+-    my $sth = $dbh->prepare("UPDATE Attachments SET $column = TO_TSVECTOR(?) WHERE id = ?");
+-
+-    attachment_loop( sub {
+-        my ($attachments) = @_;
+-        my @insert;
+-        while ( my $a = $attachments->Next ) {
+-            debug("Found attachment #". $a->id );
+-
+-            my $text = $a->Content // "";
+-            HTML::Entities::decode_entities($text) if $a->ContentType eq "text/html";
+-
+-            push @insert, [$text, $a->id];
 -        }
 -
--        # Insert an empty tsvector, so we count this row as "indexed"
--        # for purposes of knowing where to pick up
--        eval { $dbh->do( $query, undef, "", $attachment->id ) }
--            or die "Failed to insert empty tsvector: " . $dbh->errstr;
--    }
--}
+-        # Try in one database transaction; if it fails, we roll it back
+-        # and try one statement at a time.
+-        $dbh->begin_work;
+-        my $ok = 1;
+-        for (@insert) {
+-            $ok = eval { $sth->execute( $_->[0], $_->[1] ) };
+-            last unless $ok;
+-        }
+-        if ($ok) {
+-            $dbh->commit;
+-            return;
+-        }
+-        $dbh->rollback;
 -
--sub attachments_text {
--    my $res = shift;
--    $res->Limit( FIELD => 'ContentType', VALUE => 'text/plain' );
--    return $res;
--}
+-        # Things didn't go well.  Retry the UPDATE statements one row at
+-        # a time, outside of the transaction.
+-        for (@insert) {
+-            my ($content, $id) = ($_->[0], $_->[1]);
+-            next if eval { $sth->execute( $content, $id ) };
+-            if ( $dbh->err == 7  && $dbh->state eq '54000' ) {
+-                warn "Attachment $id cannot be indexed. Most probably it contains too many unique words. ".
+-                  "Error: ". $dbh->errstr;
+-            } elsif ( $dbh->err == 7 && $dbh->state eq '22021' ) {
+-                warn "Attachment $id cannot be indexed. Most probably it contains invalid UTF8 bytes. ".
+-                  "Error: ". $dbh->errstr;
+-            } else {
+-                die "Attachment $id cannot be indexed: " . $dbh->errstr;
+-            }
 -
--sub extract_text {
--    my $attachment = shift;
--    my $text = $attachment->Content;
--    return undef unless defined $text && length($text);
--    return \$text;
--}
--
--sub attachments_html {
--    my $res = shift;
--    $res->Limit( FIELD => 'ContentType', VALUE => 'text/html' );
--    return $res;
--}
--
--sub filter_html {
--    my $attachment = shift;
--    if ( my $parent = $attachment->ParentObj ) {
--# skip html parts that are alternatives
--        return 1 if $parent->id
--            && $parent->ContentType eq 'mulitpart/alternative';
--    }
--    return 0;
--}
--
--sub extract_html {
--    my $attachment = shift;
--    my $text = $attachment->Content;
--    return undef unless defined $text && length($text);
--# the rich text editor generates html entities for characters
--# but Pg doesn't index them, so decode to something it can index.
--    require HTML::Entities;
--    HTML::Entities::decode_entities($text);
--    return \$text;
--}
--
--sub goto_specific {
--    my %args = (@_);
--
--    my $func = (caller(1))[3];
--    $func =~ s/.*:://;
--    my $call = $func ."_". lc $args{'suffix'};
--    unless ( defined &$call ) {
--        return undef unless $args{'error'};
--        require Carp; Carp::croak( $args{'error'} );
--    }
--    @_ = @{ $args{'arguments'} };
--    goto &$call;
+-            # If this was a semi-expected error, insert an empty
+-            # tsvector, so we count this row as "indexed" for
+-            # purposes of knowing where to pick up
+-            eval { $sth->execute( "", $id ) }
+-                or die "Failed to insert empty row for attachment $id: " . $dbh->errstr;
+-        }
+-    });
 -}
 -
 -
@@ -10663,11 +11077,6 @@ index c7a99c0..0000000
 -This is a helper script to keep full text indexes in sync with data.
 -Read F<docs/full_text_indexing.pod> for complete details on how and when
 -to run it.
--
--=head1 AUTHOR
--
--Ruslan Zakirov E<lt>ruz@bestpractical.comE<gt>,
--Alex Vandiver E<lt>alexmv@bestpractical.comE<gt>
 -
 -=cut
 -
@@ -10963,10 +11372,10 @@ index 785fcc2..0000000
 -=cut
 diff --git a/sbin/rt-preferences-viewer b/sbin/rt-preferences-viewer
 deleted file mode 100755
-index 7bb6e70..0000000
+index 205ebf3..0000000
 --- a/sbin/rt-preferences-viewer
 +++ /dev/null
-@@ -1,144 +0,0 @@
+@@ -1,132 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -11035,21 +11444,9 @@ index 7bb6e70..0000000
 -
 -}
 -
--BEGIN {
--    use RT;
--    RT::LoadConfig();
--    RT::Init();
--};
--
--use Getopt::Long;
+-use RT::Interface::CLI qw(Init);
 -my %opt;
--GetOptions( \%opt, 'help|h', 'user|u=s', 'option|o=s' );
--
--if ( $opt{help} ) {
--    require Pod::Usage;
--    Pod::Usage::pod2usage({ verbose => 2 });
--    exit;
--}
+-Init( \%opt, 'user|u=s', 'option|o=s' );
 -
 -require RT::Attributes;
 -my $attrs = RT::Attributes->new( RT->SystemUser );
@@ -11518,7 +11915,7 @@ index b90a709..0000000
 -
 diff --git a/sbin/rt-server b/sbin/rt-server
 deleted file mode 100755
-index d3711f1..0000000
+index 51d14ac..0000000
 --- a/sbin/rt-server
 +++ /dev/null
 @@ -1,181 +0,0 @@
@@ -11679,7 +12076,7 @@ index d3711f1..0000000
 -# Try to clean up wrong-permissions var/
 -$SIG{INT} = sub {
 -    local $@;
--    system("chown", "-R", "www-data:www-data", "/opt/rt4/var");
+-    system("chown", "-R", "www:www", "/opt/rt4/var");
 -    exit 0;
 -} if $> == 0;
 -
@@ -11705,7 +12102,7 @@ index d3711f1..0000000
 -    rt-server --server Starman --port 8080
 diff --git a/sbin/rt-server.fcgi b/sbin/rt-server.fcgi
 deleted file mode 100755
-index d3711f1..0000000
+index 51d14ac..0000000
 --- a/sbin/rt-server.fcgi
 +++ /dev/null
 @@ -1,181 +0,0 @@
@@ -11866,7 +12263,7 @@ index d3711f1..0000000
 -# Try to clean up wrong-permissions var/
 -$SIG{INT} = sub {
 -    local $@;
--    system("chown", "-R", "www-data:www-data", "/opt/rt4/var");
+-    system("chown", "-R", "www:www", "/opt/rt4/var");
 -    exit 0;
 -} if $> == 0;
 -
@@ -11892,10 +12289,10 @@ index d3711f1..0000000
 -    rt-server --server Starman --port 8080
 diff --git a/sbin/rt-session-viewer b/sbin/rt-session-viewer
 deleted file mode 100755
-index 3b9e98d..0000000
+index 35131bd..0000000
 --- a/sbin/rt-session-viewer
 +++ /dev/null
-@@ -1,114 +0,0 @@
+@@ -1,104 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -11964,21 +12361,11 @@ index 3b9e98d..0000000
 -
 -}
 -
--use Getopt::Long;
--my %opt;
--GetOptions( \%opt, 'help|h', );
+-use RT::Interface::CLI qw(Init);
+-Init();
 -
 -my $session_id = shift;
--
--if ( $opt{help} || !$session_id ) {
--    require Pod::Usage;
--    Pod::Usage::pod2usage({ verbose => 2 });
--    exit;
--}
--
--require RT;
--RT::LoadConfig();
--RT::Init();
+-Pod::Usage::pod2usage({ verbose => 2 }) unless $session_id;
 -
 -require RT::Interface::Web::Session;
 -my %session;
@@ -12012,10 +12399,10 @@ index 3b9e98d..0000000
 -=cut
 diff --git a/sbin/rt-setup-database b/sbin/rt-setup-database
 deleted file mode 100755
-index c694e3d..0000000
+index ecea319..0000000
 --- a/sbin/rt-setup-database
 +++ /dev/null
-@@ -1,795 +0,0 @@
+@@ -1,800 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -12066,6 +12453,7 @@ index c694e3d..0000000
 -# END BPS TAGGED BLOCK }}}
 -use strict;
 -use warnings;
+-use 5.010;
 -
 -use vars qw($Nobody $SystemUser $item);
 -
@@ -12366,9 +12754,13 @@ index c694e3d..0000000
 -}
 -
 -sub action_insert {
+-    state $RAN_INIT;
 -    my %args = @_;
--    $RT::Handle = RT::Handle->new;
--    RT::Init();
+-    unless ($RAN_INIT) {
+-        $RT::Handle = RT::Handle->new;
+-        RT::Init();
+-        $RAN_INIT++;
+-    }
 -    $log_actions = 1;
 -
 -    my ($status, $msg) = RT::Handle->CheckCompatibility( $RT::Handle->dbh, 'insert' );
@@ -12813,10 +13205,10 @@ index c694e3d..0000000
 -=cut
 diff --git a/sbin/rt-setup-fulltext-index b/sbin/rt-setup-fulltext-index
 deleted file mode 100755
-index 1a8d312..0000000
+index b25b46f..0000000
 --- a/sbin/rt-setup-fulltext-index
 +++ /dev/null
-@@ -1,763 +0,0 @@
+@@ -1,787 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -12910,7 +13302,7 @@ index 1a8d312..0000000
 -my %DEFAULT;
 -if ( $DB{'type'} eq 'Pg' ) {
 -    %DEFAULT = (
--        table  => 'Attachments',
+-        table  => 'AttachmentsIndex',
 -        column => 'ContentIndex',
 -    );
 -}
@@ -12940,6 +13332,7 @@ index 1a8d312..0000000
 -
 -    'dba=s'          => \$DB{'admin'},
 -    'dba-password=s' => \$DB{'admin_password'},
+-    'limit=i'        => \$DB{'batch-size'},
 -) or show_help();
 -
 -if ( $OPT{'help'} || (!$DB{'admin'} && $DB{'type'} eq 'Oracle' ) ) {
@@ -12994,8 +13387,12 @@ index 1a8d312..0000000
 -    my $engine = $RT::Handle->dbh->{mysql_serverversion} < 50600 ? "MyISAM" : "InnoDB";
 -    my $schema = "CREATE TABLE $table ( "
 -        ."id INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,"
--        ."Content LONGTEXT, FULLTEXT(Content) ) ENGINE=$engine CHARACTER SET utf8";
+-        ."Content LONGTEXT ) ENGINE=$engine CHARACTER SET utf8";
 -    insert_schema( $schema );
+-
+-    insert_data( Table => $table, Engine => $engine );
+-
+-    insert_schema( "CREATE FULLTEXT INDEX $table ON $table(Content)" );
 -
 -    print_rt_config( Table => $table );
 -} elsif ($DB{'type'} eq 'sphinx') {
@@ -13106,6 +13503,8 @@ index 1a8d312..0000000
 -    seamless_rotate         = 1
 -    preopen_indexes         = 0
 -    unlink_old              = 1
+-    # For sphinx >= 1.10:
+-    binlog_path             = $var_path/sphinx/
 -}
 -
 -END
@@ -13116,7 +13515,7 @@ index 1a8d312..0000000
 -    my $table = $OPT{'table'} || prompt(
 -        message => "Enter the name of a DB table that will be used to store the Pg tsvector.\n"
 -                 . "You may either use the existing Attachments table, or create a new\n"
--                 . "table.",
+-                 . "table.  Creating a new table makes initial indexing faster.",
 -        default => $DEFAULT{'table'},
 -        silent  => !$OPT{'ask'},
 -    );
@@ -13126,32 +13525,39 @@ index 1a8d312..0000000
 -        silent  => !$OPT{'ask'},
 -    );
 -
--    my $schema;
+-    my @schema;
 -    my $drop;
 -    if ( lc($table) eq 'attachments' ) {
 -        $drop = "ALTER TABLE $table DROP COLUMN $column";
--        $schema = "ALTER TABLE $table ADD COLUMN $column tsvector";
+-        push @schema, "ALTER TABLE $table ADD COLUMN $column tsvector";
 -    } else {
 -        $drop = "DROP TABLE $table";
--        $schema = "CREATE TABLE $table ( "
--            ."id INTEGER NOT NULL,"
--            ."$column tsvector )";
+-        push @schema, split /;\n+/, <<SCHEMA;
+-CREATE TABLE $table (
+-    id SERIAL,
+-    $column tsvector
+-);
+-GRANT SELECT, INSERT, UPDATE, DELETE ON $table TO "$DB{user}"
+-SCHEMA
 -    }
 -
 -    my $index_type = lc($OPT{'index-type'} || '');
 -    while ( $index_type ne 'gist' and $index_type ne 'gin' ) {
 -        $index_type = lc prompt(
--            message => "You may choose between GiST or GIN indexes; the former is several times\n"
--                     . "slower to search, but takes less space on disk and is faster to update.",
--            default => 'GiST',
+-            message => "You may choose between GiST or GIN indexes; the GiST takes less space on\n"
+-                     . "disk and is faster to update, but is an order of magnitude slower to query.",
+-            default => 'GIN',
 -            silent  => !$OPT{'ask'},
 -        );
 -    }
 -
 -    do_error_is_ok( dba_handle() => $drop )
 -        unless $OPT{'dryrun'};
--    insert_schema( $schema );
--    insert_schema("CREATE INDEX ${column}_idx ON $table USING $index_type($column)");
+-    insert_schema( $_ ) for @schema;
+-
+-    insert_data( Table => $table, Column => $column );
+-
+-    insert_schema( "CREATE INDEX ${column}_idx ON $table USING $index_type($column)" );
 -
 -    print_rt_config( Table => $table, Column => $column );
 -}
@@ -13544,6 +13950,16 @@ index 1a8d312..0000000
 -    }
 -}
 -
+-sub insert_data {
+-    return if $OPT{dryrun};
+-
+-    print "Indexing existing data...\n";
+-
+-    $ENV{RT_FTS_CONFIG} = JSON::to_json( {Enable => 1, Indexed => 1, @_});
+-    system( "$RT::SbinPath/rt-fulltext-indexer", "--all",
+-            ($DB{'batch-size'} ? ("--limit", $DB{'batch-size'}) : ()));
+-}
+-
 -=head1 NAME
 -
 -rt-setup-fulltext-index - Create indexes for full text search
@@ -13582,10 +13998,10 @@ index 1a8d312..0000000
 -
 diff --git a/sbin/rt-shredder b/sbin/rt-shredder
 deleted file mode 100755
-index 208df2f..0000000
+index 721efea..0000000
 --- a/sbin/rt-shredder
 +++ /dev/null
-@@ -1,317 +0,0 @@
+@@ -1,318 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -13634,6 +14050,7 @@ index 208df2f..0000000
 -# those contributions and any derivatives thereof.
 -#
 -# END BPS TAGGED BLOCK }}}
+-
 -=head1 NAME
 -
 -rt-shredder - Script which wipe out tickets from RT DB
@@ -13772,7 +14189,7 @@ index 208df2f..0000000
 -    }
 -    my $list = "Next ". scalar( @$objs ) ." objects would be deleted:\n";
 -    foreach my $o( @$objs ) {
--        $list .= "\t". $o->_AsString ." object\n";
+-        $list .= "\t". $o->UID ." object\n";
 -    }
 -    print $list;
 -    exit(0) unless prompt_yN( "Do you want to proceed?" );
@@ -13905,10 +14322,10 @@ index 208df2f..0000000
 -exit(0);
 diff --git a/sbin/rt-test-dependencies b/sbin/rt-test-dependencies
 deleted file mode 100755
-index 62f0f9c..0000000
+index 9b7c895..0000000
 --- a/sbin/rt-test-dependencies
 +++ /dev/null
-@@ -1,652 +0,0 @@
+@@ -1,680 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -13990,6 +14407,7 @@ index 62f0f9c..0000000
 -    'with-HTML-DOC',
 -
 -    'list-deps',
+-    'siteinstall!',
 -    'help|h',
 -);
 -
@@ -14100,7 +14518,7 @@ index 62f0f9c..0000000
 -CGI::Cookie 1.20
 -CGI::Emulate::PSGI
 -CGI::PSGI 0.12
--Class::Accessor 0.34
+-Class::Accessor::Fast
 -Crypt::Eksblowfish
 -CSS::Squish 0.06
 -Data::GUID
@@ -14400,6 +14818,27 @@ index 62f0f9c..0000000
 -    my $module = shift;
 -    my $version = shift;
 -
+-    unless (defined $args{siteinstall}) {
+-        require Config;
+-        my %uniq;
+-        my @order = grep {($_ eq $Config::Config{sitelibexp}
+-                        or $_ eq $Config::Config{privlibexp})
+-                        and not $uniq{$_}++} @INC;
+-        if ($] < 5.011 and @order == 2
+-                and $order[0] eq $Config::Config{sitelibexp}
+-                and $order[1] eq $Config::Config{privlibexp}) {
+-
+-            print "\n";
+-            print "Patched perl, with site_perl before core in \@INC, detected.\n";
+-            print "Installing dual-life modules into site_perl so they are not\n";
+-            print "later overridden by the distribution's package.\n";
+-
+-            $args{siteinstall} = 1;
+-        } else {
+-            $args{siteinstall} = 0;
+-        }
+-    }
+-
 -    print "\nInstall module $module\n";
 -
 -    my $ext = $ENV{'RT_FIX_DEPS_CMD'} || $ENV{'PERL_PREFER_CPAN_CLIENT'};
@@ -14419,6 +14858,12 @@ index 62f0f9c..0000000
 -END
 -            exit(1);
 -        }
+-
+-        my $installdirs = $CPAN::Config->{makepl_arg} ||= "";
+-        $installdirs =~ s/(\bINSTALLDIRS=\S+|$)/ INSTALLDIRS=site/
+-            if $args{siteinstall};
+-        local $CPAN::Config->{makepl_arg} = $installdirs;
+-
 -        my $rv = eval { require CPAN; CPAN::Shell->install($module) };
 -        return $rv unless $@;
 -
@@ -14475,12 +14920,12 @@ index 62f0f9c..0000000
 -
 -sub check_users {
 -  section("users");
--  print_found("rt group (www-data)",      defined getgrnam("www-data"));
+-  print_found("rt group (www)",      defined getgrnam("www"));
 -  print_found("bin owner (root)",   defined getpwnam("root"));
 -  print_found("libs owner (root)", defined getpwnam("root"));
 -  print_found("libs group (bin)", defined getgrnam("bin"));
--  print_found("web owner (www-data)",    defined getpwnam("www-data"));
--  print_found("web group (www-data)",   defined getgrnam("www-data"));
+-  print_found("web owner (www)",    defined getpwnam("www"));
+-  print_found("web group (www)",   defined getgrnam("www"));
 -}
 -
 -1;
@@ -14942,10 +15387,10 @@ index 25d4cc3..0000000
 -=back
 diff --git a/sbin/rt-validator b/sbin/rt-validator
 deleted file mode 100755
-index 6ebfc0d..0000000
+index 7786313..0000000
 --- a/sbin/rt-validator
 +++ /dev/null
-@@ -1,1465 +0,0 @@
+@@ -1,1462 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -15014,23 +15459,18 @@ index 6ebfc0d..0000000
 -
 -}
 -
--use Getopt::Long;
+-use RT::Interface::CLI qw(Init);
 -my %opt = ();
--GetOptions(
+-Init(
 -    \%opt,
 -    'check|c',
 -    'resolve',
 -    'force',
 -    'verbose|v',
--    'help|h',
 -    'links-only',
 -);
 -
--if ( $opt{help} || !$opt{check} ) {
--    require Pod::Usage;
--    print Pod::Usage::pod2usage( { verbose => 2 } );
--    exit 2;
--}
+-Pod::Usage::pod2usage( { verbose => 2 } ) unless $opt{check};
 -
 -usage_warning() if $opt{'resolve'} && !$opt{'force'};
 -
@@ -15047,10 +15487,6 @@ index 6ebfc0d..0000000
 -# Read a line of text, any line of text
 -    <STDIN>;
 -}
--
--use RT;
--RT::LoadConfig();
--RT::Init();
 -
 -my $dbh = $RT::Handle->dbh;
 -my $db_type = RT->Config->Get('DatabaseType');
@@ -15906,7 +16342,7 @@ index 6ebfc0d..0000000
 -
 -            my $query = "SELECT id, $column FROM $table WHERE"
 -              . " $column LIKE ? AND $column NOT LIKE ?";
--            my @binds = ($scheme ."://%", $prefix ."%");
+-            my @binds = (sql_escape_like($scheme) ."://%", sql_escape_like($prefix) ."%");
 -
 -            while ( my ($k, $v) = each %{ $use->{'Additional'} || {} } ) {
 -                $query .= " AND $k = ?";
@@ -15931,7 +16367,7 @@ index 6ebfc0d..0000000
 -                my $wrong_prefix = $scheme . '://'. $wrong_org;
 -                my $query = "UPDATE $table SET $column = ". sql_concat('?', "SUBSTR($column, ?)")
 -                  ." WHERE $column LIKE ?";
--                execute_query( $query, $prefix, length($wrong_prefix)+1, $wrong_prefix .'/%' );
+-                execute_query( $query, $prefix, length($wrong_prefix)+1, sql_escape_like($wrong_prefix) .'/%' );
 -
 -                $redo_check{'Links: wrong organization'} = 1;
 -                $redo_check{'Links: LocalX for non-ticket'} = 1;
@@ -15953,7 +16389,7 @@ index 6ebfc0d..0000000
 -        # we look only at links with correct organization, previouse check deals
 -        # with incorrect orgs
 -        my $where = "Local$dir > 0 AND $dir LIKE ? AND $dir NOT LIKE ?";
--        my @binds = ($prefix ."/%", $prefix ."/ticket/%");
+-        my @binds = (sql_escape_like($prefix) ."/%", sql_escape_like($prefix) ."/ticket/%");
 -
 -        my $sth = execute_query( "SELECT id FROM $table WHERE $where", @binds );
 -        while ( my ($id, $value) = $sth->fetchrow_array ) {
@@ -15989,7 +16425,7 @@ index 6ebfc0d..0000000
 -        # XXX: we have issue with MergedInto links - "LocalX !~ X"
 -        my $where = "Local$dir > 0 AND $dir LIKE ? AND $dir != ". sql_concat('?', "Local$dir")
 -            ." AND Type != ?";
--        my @binds = ($prefix ."%", $prefix, 'MergedInto');
+-        my @binds = (sql_escape_like($prefix) ."%", $prefix, 'MergedInto');
 -
 -        my $sth = execute_query( "SELECT id FROM $table WHERE $where", @binds );
 -        while ( my ($id, $value) = $sth->fetchrow_array ) {
@@ -16044,7 +16480,7 @@ index 6ebfc0d..0000000
 -                my $query = "SELECT s.id FROM $stable s LEFT JOIN $ttable t "
 -                  ." ON t.id = ". sql_str2int("SUBSTR(s.$scolumn, ?)")
 -                    ." WHERE s.$scolumn LIKE ? AND t.id IS NULL";
--                my @binds = (length($tprefix) + 1, $tprefix.'%');
+-                my @binds = (length($tprefix) + 1, sql_escape_like($tprefix).'%');
 -
 -                while ( my ($k, $v) = each %{ $use->{'Additional'} || {} } ) {
 -                    $query .= " AND s.$k = ?";
@@ -16292,6 +16728,12 @@ index 6ebfc0d..0000000
 -    return $_[0];
 -}
 -
+-sub sql_escape_like {
+-    my ($string) = @_;
+-    $string =~ s/([%_\\])/\\$1/g;
+-    return $string;
+-}
+-
 -{ my %cached_answer;
 -sub prompt {
 -    my $action = shift;
@@ -16413,7 +16855,7 @@ index 6ebfc0d..0000000
 -
 diff --git a/sbin/standalone_httpd b/sbin/standalone_httpd
 deleted file mode 100755
-index d3711f1..0000000
+index 51d14ac..0000000
 --- a/sbin/standalone_httpd
 +++ /dev/null
 @@ -1,181 +0,0 @@
@@ -16574,7 +17016,7 @@ index d3711f1..0000000
 -# Try to clean up wrong-permissions var/
 -$SIG{INT} = sub {
 -    local $@;
--    system("chown", "-R", "www-data:www-data", "/opt/rt4/var");
+-    system("chown", "-R", "www:www", "/opt/rt4/var");
 -    exit 0;
 -} if $> == 0;
 -
@@ -16600,7 +17042,7 @@ index d3711f1..0000000
 -    rt-server --server Starman --port 8080
 diff --git a/t/data/configs/apache2.2+fastcgi.conf b/t/data/configs/apache2.2+fastcgi.conf
 deleted file mode 100644
-index bc6056f..0000000
+index bc07e43..0000000
 --- a/t/data/configs/apache2.2+fastcgi.conf
 +++ /dev/null
 @@ -1,49 +0,0 @@
@@ -16613,8 +17055,8 @@ index bc6056f..0000000
 -
 -<IfModule !mpm_netware_module>
 -<IfModule !mpm_winnt_module>
--User www-data
--Group www-data
+-User www
+-Group www
 -</IfModule>
 -</IfModule>
 -
@@ -16655,7 +17097,7 @@ index bc6056f..0000000
 -
 diff --git a/t/data/configs/apache2.2+mod_perl.conf b/t/data/configs/apache2.2+mod_perl.conf
 deleted file mode 100644
-index e0ce14c..0000000
+index a17d68d..0000000
 --- a/t/data/configs/apache2.2+mod_perl.conf
 +++ /dev/null
 @@ -1,67 +0,0 @@
@@ -16686,8 +17128,8 @@ index e0ce14c..0000000
 -
 -<IfModule !mpm_netware_module>
 -<IfModule !mpm_winnt_module>
--User www-data
--Group www-data
+-User www
+-Group www
 -</IfModule>
 -</IfModule>
 -

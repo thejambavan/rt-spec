@@ -38,8 +38,8 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.2.10
-Release:	3%{?dist}
+Version:	4.2.11
+Release:	1%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -61,8 +61,7 @@ Patch3: 0003-Broken-test-dependencies.patch
 Patch4: 0004-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
 Patch5: 0005-Remove-fixperms-font-install.patch
 Patch6: 0006-Fix-permissions.patch
-Patch7: 0007-Fix-translation.patch
-Patch8: 0008-Work-around-testsuite-failure.patch
+Patch7: 0007-Work-around-testsuite-failure.patch
 
 BuildArch:	noarch
 
@@ -359,7 +358,6 @@ sed -e 's,@RT_LOGDIR@,%{RT_LOGDIR},' %{SOURCE4} \
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -476,9 +474,11 @@ ln -s /usr/share/fonts/google-droid/DroidSansFallback.ttf ${RPM_BUILD_ROOT}%{RT_
 install -d -m755 ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}
 cp -R t ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}
 
-# Some parts of the testsuite want relative paths
+# Uninstalled stuff the testsuite accesses
 install -d -m755 ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/devel
 cp -R devel/tools ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/devel
+cp -R devel/docs ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/devel
+# Some parts of the testsuite want relative paths
 cp %{SOURCE1} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}
 install -d -m755 ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/share
 ln -s %{RT_WWWDIR} ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}/share/html
@@ -591,6 +591,11 @@ fi
 %endif
 
 %changelog
+* Wed Jun 17 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.11-1
+- Update to 4.2.11.
+- Rebase patches.
+- Install devel/docs.
+
 * Tue Jun 09 2015 Jitka Plesnikova <jplesnik@redhat.com> - 4.2.10-3
 - Perl 5.22 rebuild
 
