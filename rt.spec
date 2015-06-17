@@ -596,9 +596,6 @@ fi
 - Rebase patches.
 - Install devel/docs.
 
-* Tue Jun 09 2015 Jitka Plesnikova <jplesnik@redhat.com> - 4.2.10-3
-- Perl 5.22 rebuild
-
 * Tue Mar 24 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.10-2
 - Update patches.
 - R: perl(Time::ParseDate).
