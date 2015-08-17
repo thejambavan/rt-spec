@@ -38,7 +38,7 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.2.11
+Version:	4.2.12
 Release:	1%{?dist}
 Summary:	Request tracker
 
@@ -440,6 +440,11 @@ done
 %install
 make install DESTDIR=${RPM_BUILD_ROOT}
 
+# Work-around to regression in rpm >= 4.12.90:
+# Can't mix %%doc with directly installed docs, anymore.
+# Need to install all files directly.
+install -m 644 README README.fedora ${RPM_BUILD_ROOT}%{_pkgdocdir}
+
 # We don't want CPAN
 rm -f ${RPM_BUILD_ROOT}%{_sbindir}/rt-test-dependencies
 
@@ -528,7 +533,7 @@ fi
 
 
 %files
-%doc README README.fedora
+%{_pkgdocdir}
 %license COPYING
 %{_bindir}/*
 %{_sbindir}/*
@@ -591,6 +596,14 @@ fi
 %endif
 
 %changelog
+* Mon Aug 17 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.12-1
+- Update to rt-4.2.12.
+- Rebase 0001-Remove-configure-time-generated-files.patch.
+
+* Tue Aug 04 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.11-2
+- Install README* directy into %_pkgdocdir (Work-around regression introduced
+  by rpm-4.12.90 (RHBZ#1249716).
+
 * Wed Jun 17 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.11-1
 - Update to 4.2.11.
 - Rebase patches.
