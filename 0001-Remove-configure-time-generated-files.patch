@@ -1,4 +1,4 @@
-From 3606668019fe072aef0cc98b0f01bedc7b1ab9de Mon Sep 17 00:00:00 2001
+From 8530f61cf636ccdd9c181ae83a501ae114275f37 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 07:23:24 +0100
 Subject: [PATCH 1/7] Remove configure time generated files.
@@ -86,7 +86,7 @@ Subject: [PATCH 1/7] Remove configure time generated files.
 
 diff --git a/Makefile b/Makefile
 deleted file mode 100644
-index 90c2c1d..0000000
+index 1f2bda7..0000000
 --- a/Makefile
 +++ /dev/null
 @@ -1,583 +0,0 @@
@@ -156,7 +156,7 @@ index 90c2c1d..0000000
 -
 -RT_VERSION_MAJOR	=	4
 -RT_VERSION_MINOR	=	2
--RT_VERSION_PATCH	=	11
+-RT_VERSION_PATCH	=	12
 -
 -RT_VERSION		=	$(RT_VERSION_MAJOR).$(RT_VERSION_MINOR).$(RT_VERSION_PATCH)
 -TAG 			=	rt-$(RT_VERSION_MAJOR)-$(RT_VERSION_MINOR)-$(RT_VERSION_PATCH)
@@ -3820,7 +3820,7 @@ index f793250..0000000
 -
 diff --git a/bin/rt-mailgate b/bin/rt-mailgate
 deleted file mode 100755
-index 365f4da..0000000
+index dbc95c0..0000000
 --- a/bin/rt-mailgate
 +++ /dev/null
 @@ -1,512 +0,0 @@
@@ -3977,7 +3977,7 @@ index 365f4da..0000000
 -    my $self = shift;
 -    my $opts = shift;
 -    my $ua   = LWP::UserAgent->new();
--    $ua->agent("rt-mailgate/4.2.11 ");
+-    $ua->agent("rt-mailgate/4.2.12 ");
 -    $ua->cookie_jar( { file => $opts->{'jar'} } ) if $opts->{'jar'};
 -
 -    $ua->ssl_opts( verify_hostname => $opts->{'verify-ssl'} );
@@ -8908,7 +8908,7 @@ index c7616e9..0000000
 -}
 diff --git a/lib/RT/Generated.pm b/lib/RT/Generated.pm
 deleted file mode 100644
-index 122a465..0000000
+index e3b92f7..0000000
 --- a/lib/RT/Generated.pm
 +++ /dev/null
 @@ -1,85 +0,0 @@
@@ -8964,7 +8964,7 @@ index 122a465..0000000
 -use warnings;
 -use strict;
 -
--our $VERSION = '4.2.11';
+-our $VERSION = '4.2.12';
 -our ($MAJOR_VERSION, $MINOR_VERSION, $REVISION) = $VERSION =~ /^(\d)\.(\d)\.(\d+)/;
 -
 -
@@ -14322,7 +14322,7 @@ index 721efea..0000000
 -exit(0);
 diff --git a/sbin/rt-test-dependencies b/sbin/rt-test-dependencies
 deleted file mode 100755
-index 9b7c895..0000000
+index 5d96d0e..0000000
 --- a/sbin/rt-test-dependencies
 +++ /dev/null
 @@ -1,680 +0,0 @@
@@ -14426,8 +14426,8 @@ index 9b7c895..0000000
 -    'with-GPG' => 1,
 -    'with-SMIME' => 1,
 -    'with-ICAL' => 1,
--    'with-GRAPHVIZ' => 1,
--    'with-GD' => 1,
+-    'with-GRAPHVIZ' => 0,
+-    'with-GD' => 0,
 -    'with-DASHBOARDS' => 1,
 -    'with-USERLOGO' => 1,
 -    'with-HTML-DOC' => 0,
@@ -17169,5 +17169,5 @@ index a17d68d..0000000
 -</Perl>
 -
 -- 
-2.1.0
+2.4.3
 

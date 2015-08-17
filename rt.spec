@@ -38,8 +38,8 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.2.11
-Release:	2%{?dist}
+Version:	4.2.12
+Release:	1%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -596,6 +596,10 @@ fi
 %endif
 
 %changelog
+* Mon Aug 17 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.12-1
+- Update to rt-4.2.12.
+- Rebase 0001-Remove-configure-time-generated-files.patch.
+
 * Tue Aug 04 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.11-2
 - Install README* directy into %_pkgdocdir (Work-around regression introduced
   by rpm-4.12.90 (RHBZ#1249716).
