@@ -1,49 +1,54 @@
-From 8530f61cf636ccdd9c181ae83a501ae114275f37 Mon Sep 17 00:00:00 2001
+From 878f18451f4ef0e3d7dbfe6a3a5c62c7aa7509a8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
-Date: Tue, 18 Mar 2014 07:23:24 +0100
-Subject: [PATCH 1/7] Remove configure time generated files.
+Date: Fri, 5 Feb 2016 15:52:08 +0100
+Subject: [PATCH 1/6] Remove configure time generated files.
 
 ---
- Makefile                                       |  583 -----
- bin/rt                                         | 2680 ---------------------
- bin/rt-crontool                                |  453 ----
- bin/rt-mailgate                                |  512 ----
- etc/RT_Config.pm                               | 3045 ------------------------
+ Makefile                                       |  545 ----
+ bin/rt                                         | 2680 -----------------
+ bin/rt-crontool                                |  461 ---
+ bin/rt-mailgate                                |  446 ---
+ etc/RT_Config.pm                               | 3638 ------------------------
  etc/upgrade/3.8-ical-extension                 |   96 -
  etc/upgrade/4.0-customfield-checkbox-extension |   87 -
  etc/upgrade/generate-rtaddressregexp           |  106 -
  etc/upgrade/sanity-check-stylesheets           |   88 -
  etc/upgrade/shrink-cgm-table                   |  124 -
  etc/upgrade/shrink-transactions-table          |  126 -
- etc/upgrade/split-out-cf-categories            |  168 --
- etc/upgrade/switch-templates-to                |  145 --
+ etc/upgrade/switch-templates-to                |  145 -
  etc/upgrade/time-worked-history                |  111 -
  etc/upgrade/upgrade-articles                   |  261 --
- etc/upgrade/vulnerable-passwords               |  141 --
+ etc/upgrade/upgrade-assets                     |  101 -
+ etc/upgrade/upgrade-sla                        |  142 -
+ etc/upgrade/vulnerable-passwords               |  141 -
  lib/RT/Generated.pm                            |   85 -
  sbin/rt-attributes-viewer                      |  105 -
  sbin/rt-clean-sessions                         |  183 --
  sbin/rt-dump-metadata                          |  326 ---
- sbin/rt-email-dashboards                       |  162 --
+ sbin/rt-email-dashboards                       |  169 --
  sbin/rt-email-digest                           |  373 ---
  sbin/rt-email-group-admin                      |  521 ----
+ sbin/rt-externalize-attachments                |  231 --
  sbin/rt-fulltext-indexer                       |  372 ---
- sbin/rt-importer                               |  283 ---
+ sbin/rt-importer                               |  283 --
+ sbin/rt-ldapimport                             |  136 -
  sbin/rt-preferences-viewer                     |  132 -
- sbin/rt-serializer                             |  399 ----
+ sbin/rt-serializer                             |  399 ---
  sbin/rt-server                                 |  181 --
  sbin/rt-server.fcgi                            |  181 --
  sbin/rt-session-viewer                         |  104 -
- sbin/rt-setup-database                         |  800 -------
- sbin/rt-setup-fulltext-index                   |  787 ------
+ sbin/rt-setup-database                         |  804 ------
+ sbin/rt-setup-fulltext-index                   |  787 -----
  sbin/rt-shredder                               |  318 ---
- sbin/rt-test-dependencies                      |  680 ------
+ sbin/rt-test-dependencies                      |  703 -----
  sbin/rt-validate-aliases                       |  373 ---
- sbin/rt-validator                              | 1462 ------------
+ sbin/rt-validator                              | 1478 ----------
  sbin/standalone_httpd                          |  181 --
  t/data/configs/apache2.2+fastcgi.conf          |   49 -
  t/data/configs/apache2.2+mod_perl.conf         |   67 -
- 39 files changed, 16850 deletions(-)
+ t/data/configs/apache2.4+fastcgi.conf          |   48 -
+ t/data/configs/apache2.4+mod_perl.conf         |   66 -
+ 44 files changed, 17953 deletions(-)
  delete mode 100644 Makefile
  delete mode 100755 bin/rt
  delete mode 100755 bin/rt-crontool
@@ -55,10 +60,11 @@ Subject: [PATCH 1/7] Remove configure time generated files.
  delete mode 100755 etc/upgrade/sanity-check-stylesheets
  delete mode 100755 etc/upgrade/shrink-cgm-table
  delete mode 100755 etc/upgrade/shrink-transactions-table
- delete mode 100755 etc/upgrade/split-out-cf-categories
  delete mode 100755 etc/upgrade/switch-templates-to
  delete mode 100755 etc/upgrade/time-worked-history
  delete mode 100755 etc/upgrade/upgrade-articles
+ delete mode 100755 etc/upgrade/upgrade-assets
+ delete mode 100755 etc/upgrade/upgrade-sla
  delete mode 100755 etc/upgrade/vulnerable-passwords
  delete mode 100644 lib/RT/Generated.pm
  delete mode 100755 sbin/rt-attributes-viewer
@@ -67,8 +73,10 @@ Subject: [PATCH 1/7] Remove configure time generated files.
  delete mode 100755 sbin/rt-email-dashboards
  delete mode 100755 sbin/rt-email-digest
  delete mode 100755 sbin/rt-email-group-admin
+ delete mode 100755 sbin/rt-externalize-attachments
  delete mode 100755 sbin/rt-fulltext-indexer
  delete mode 100755 sbin/rt-importer
+ delete mode 100755 sbin/rt-ldapimport
  delete mode 100755 sbin/rt-preferences-viewer
  delete mode 100755 sbin/rt-serializer
  delete mode 100755 sbin/rt-server
@@ -83,13 +91,15 @@ Subject: [PATCH 1/7] Remove configure time generated files.
  delete mode 100755 sbin/standalone_httpd
  delete mode 100644 t/data/configs/apache2.2+fastcgi.conf
  delete mode 100644 t/data/configs/apache2.2+mod_perl.conf
+ delete mode 100644 t/data/configs/apache2.4+fastcgi.conf
+ delete mode 100644 t/data/configs/apache2.4+mod_perl.conf
 
 diff --git a/Makefile b/Makefile
 deleted file mode 100644
-index 1f2bda7..0000000
+index e03d359..0000000
 --- a/Makefile
 +++ /dev/null
-@@ -1,583 +0,0 @@
+@@ -1,545 +0,0 @@
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
 -# COPYRIGHT:
@@ -155,8 +165,8 @@ index 1f2bda7..0000000
 -
 -
 -RT_VERSION_MAJOR	=	4
--RT_VERSION_MINOR	=	2
--RT_VERSION_PATCH	=	12
+-RT_VERSION_MINOR	=	4
+-RT_VERSION_PATCH	=	0
 -
 -RT_VERSION		=	$(RT_VERSION_MAJOR).$(RT_VERSION_MINOR).$(RT_VERSION_PATCH)
 -TAG 			=	rt-$(RT_VERSION_MAJOR)-$(RT_VERSION_MINOR)-$(RT_VERSION_PATCH)
@@ -236,8 +246,10 @@ index 1f2bda7..0000000
 -				rt-email-dashboards \
 -				rt-email-digest \
 -				rt-email-group-admin \
+-				rt-externalize-attachments \
 -				rt-fulltext-indexer \
 -				rt-importer \
+-				rt-ldapimport \
 -				rt-preferences-viewer \
 -				rt-serializer \
 -				rt-server \
@@ -546,6 +558,7 @@ index 1f2bda7..0000000
 -
 -etc-install:
 -	[ -d $(DESTDIR)$(RT_ETC_PATH) ] || $(INSTALL) -m 0755 -d $(DESTDIR)$(RT_ETC_PATH)
+-	[ -d "$(DESTDIR)$(RT_ETC_PATH)/RT_SiteConfig.d" ] || $(INSTALL) -m 0755 -d "$(DESTDIR)$(RT_ETC_PATH)/RT_SiteConfig.d"
 -	for file in $(ETC_FILES) ; do \
 -	    $(INSTALL) -m 0644 "etc/$$file" "$(DESTDIR)$(RT_ETC_PATH)/" ; \
 -	done
@@ -632,50 +645,9 @@ index 1f2bda7..0000000
 -     --log-level=info \
 -     --skip cpan-capitalization,cpan-mod_perl,cpan-Encode,cpan-PPI,cpan-Test-Exception-LessClever,cpan-Test-Manifest,cpan-Test-Object,cpan-Test-Pod,cpan-Test-Requires,cpan-Test-SubCalls,cpan-Test-cpan-Tester,cpan-Test-Warn --skip-all-recommends
 -	mv $(VESSEL)/scripts/RT/build  $(VESSEL)/scripts/RT/build.pl
--
--JSMIN_URL = http://download.bestpractical.com/mirror/jsmin-2013-03-29.c
--JSMIN_SHA = 67dc8d73a8878f88cdaeb1a86775872eae5c3077
--
--jsmin: jsmin-checkcc jsmin-fetch jsmin-verify jsmin-confirm jsmin-build jsmin-install
--	@echo ""
--	@echo "To configure RT to use jsmin, add the following line to $(DESTDIR)$(RT_ETC_PATH)/RT_SiteConfig.pm:"
--	@echo ""
--	@echo "    Set(\$$JSMinPath, '$(DESTDIR)$(RT_BIN_PATH)/jsmin');"
--	@echo ""
--
--jsmin-checkcc:
--	@[ -n "$(CC)" ] || (echo "You don't appear to have a C compiler, please set CC and re-run configure" && exit 1)
--
--jsmin-confirm:
--	@echo "jsmin is distributed under a slightly unusual license and can't be shipped"
--	@echo "with RT.  Before configuring RT to use jsmin, please read jsmin's license"
--	@echo "below:"
--	@echo ""
--	@$(PERL) -pe 'print && exit if /^\*\// or /^#include/' jsmin.c
--	@echo ""
--	@echo "Press Enter to accept the license, or Ctrl-C to stop now."
--	@$(PERL) -e '<STDIN>'
--
--jsmin-fetch:
--	@echo ""
--	@echo "Downloading jsmin.c from $(JSMIN_URL)"
--	@echo ""
--	@$(PERL) -MLWP::Simple -e 'exit not is_success(getstore("$(JSMIN_URL)", "jsmin.c"))' \
--		|| (echo "Failed to download $(JSMIN_URL)" && exit 1)
--
--jsmin-verify:
--	@$(PERL) -MDigest::SHA -e \
--		'exit not Digest::SHA->new(1)->addfile("jsmin.c")->hexdigest eq "$(JSMIN_SHA)"' \
--		|| (echo "Verification of jsmin.c failed! Possible man in the middle?" && exit 1)
--
--jsmin-build:
--	$(CC) -o jsmin jsmin.c
--
--jsmin-install:
--	$(INSTALL) -o $(BIN_OWNER) -g $(RTGROUP) -m 0755 "jsmin" "$(DESTDIR)$(RT_BIN_PATH)/"
 diff --git a/bin/rt b/bin/rt
 deleted file mode 100755
-index 36460e0..0000000
+index 85954b9..0000000
 --- a/bin/rt
 +++ /dev/null
 @@ -1,2680 +0,0 @@
@@ -1974,7 +1946,7 @@ index 36460e0..0000000
 -            elsif ($state <= 1 && $line =~ /^($field):(?:\s+(.*))?$/) {
 -                # Read a field: value specification.
 -                my $f  = $1;
--                my @v  = ($2 || ());
+-                my @v  = (defined $2 && length $2 ? $2 : ());
 -
 -                # Read continuation lines, if any.
 -                while (@lines && ($lines[0] eq '' || $lines[0] =~ /^\s+/)) {
@@ -3361,10 +3333,10 @@ index 36460e0..0000000
 -
 diff --git a/bin/rt-crontool b/bin/rt-crontool
 deleted file mode 100755
-index f793250..0000000
+index aafa51d..0000000
 --- a/bin/rt-crontool
 +++ /dev/null
-@@ -1,453 +0,0 @@
+@@ -1,461 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -3440,15 +3412,15 @@ index f793250..0000000
 -
 -use RT::Interface::CLI qw(GetCurrentUser loc);
 -
--my ( $search, $condition, $action, $search_arg, $condition_arg, $action_arg,
+-my ( $search, $condition, $actions, $search_arg, $condition_arg, $actions_arg,
 -     $template, $template_id, $transaction, $transaction_type, $help, $log, $verbose );
 -GetOptions(
 -    "search=s"           => \$search,
 -    "search-arg=s"       => \$search_arg,
 -    "condition=s"        => \$condition,
 -    "condition-arg=s"    => \$condition_arg,
--    "action-arg=s"       => \$action_arg,
--    "action=s"           => \$action,
+-    "action-arg=s@"      => \$actions_arg,
+-    "action=s@"          => \$actions,
 -    "template=s"         => \$template,
 -    "template-id=s"      => \$template_id,
 -    "transaction=s"      => \$transaction,
@@ -3481,7 +3453,7 @@ index f793250..0000000
 -    exit(1);
 -}
 -
--help() unless $search && $action;
+-help() unless $search && $actions;
 -
 -$transaction = lc( $transaction||'' );
 -if ( $transaction && $transaction !~ /^(first|all|last)$/i ) {
@@ -3500,7 +3472,9 @@ index f793250..0000000
 -
 -# We _must_ have a search object
 -load_module($search);
--load_module($action)    if ($action);
+-for my $action (@$actions) {
+-    load_module($action);
+-}
 -load_module($condition) if ($condition);
 -
 -my $void_scrip = RT::Scrip->new( $CurrentUser );
@@ -3564,24 +3538,35 @@ index f793250..0000000
 -        print "\t".loc("Condition matches...")."\n" if $verbose;
 -    }
 -
--    #prepare our action
--    my $action_obj = $action->new(
--        TicketObj      => $ticket,
--        TransactionObj => $transaction,
--        TemplateObj    => $template_obj,
--        Argument       => $action_arg,
--        ScripObj       => $void_scrip,
--        ScripActionObj => $void_scrip_action,
--        CurrentUser    => $CurrentUser,
--    );
+-    my $i = 0;
+-    for my $action (@$actions) {
 -
--    #if our preparation, move onto the next ticket
--    return unless $action_obj->Prepare;
--    print "\t".loc("Action prepared...")."\n" if $verbose;
+-        # Given the current index of the actions array, see
+-        # if there is still a corresponding element in the
+-        # actions_arg array. If so, then use that argument,
+-        # else use undef.
+-        my $action_argument = ($i <= $#$actions_arg) ? $actions_arg->[$i] : undef;
+-        $i++;
 -
--    #commit our action.
--    return unless $action_obj->Commit;
--    print "\t".loc("Action committed.")."\n" if $verbose;
+-        # prepare our action
+-        my $action_obj = $action->new(
+-            TicketObj      => $ticket,
+-            TransactionObj => $transaction,
+-            TemplateObj    => $template_obj,
+-            Argument       => $action_argument,
+-            ScripObj       => $void_scrip,
+-            ScripActionObj => $void_scrip_action,
+-            CurrentUser    => $CurrentUser,
+-        );
+-
+-        # if our preparation failed, move onto the next action
+-        next unless $action_obj->Prepare;
+-        print "\t".loc("Action prepared...")."\n" if $verbose;
+-
+-        # commit our action.
+-        next unless $action_obj->Commit;
+-        print "\t".loc("Action committed.")."\n" if $verbose;
+-    }
 -}
 -
 -# =head2 get_transactions
@@ -3679,10 +3664,10 @@ index f793250..0000000
 -      . loc( "[_1] - An argument to pass to [_2]", "--condition-arg", "--condition" )
 -      . "\n";
 -    print "        "
--      . loc( "[_1] - Specify the action module you want to use", "--action" )
+-      . loc( "[_1] - Specify the action module you want to use. This option may be repeated to apply multiple actions to found tickets.", "--action" )
 -      . "\n";
 -    print "        "
--      . loc( "[_1] - An argument to pass to [_2]", "--action-arg", "--action" )
+-      . loc( "[_1] - An argument to pass to [_2]. This option may be repeated to pass corresponding arguments to multiple calls of [_2].", "--action-arg", "--action" )
 -      . "\n";
 -    print "        "
 -      . loc( "[_1] - Specify name or id of template(s) you want to use", "--template" )
@@ -3723,11 +3708,6 @@ index f793250..0000000
 -    print " bin/rt-crontool \\\n";
 -    print "  --search RT::Search::ActiveTicketsInQueue  --search-arg general \\\n";
 -    print"  --action RT::Action::EscalatePriority\n";
-- 
-- 
-- 
--
--
 -
 -    exit(0);
 -}
@@ -3789,11 +3769,11 @@ index f793250..0000000
 -
 -=item action 
 -
--Specify the action module you want to use
+-Specify the action module you want to use. This option may be repeated to apply multiple actions to found tickets.
 -
 -=item action-arg
 -
--An argument to pass to --action
+-An argument to pass to --action. This option may be repeated to pass corresponding arguments to multiple calls of --action.
 -
 -=item template
 -
@@ -3820,10 +3800,10 @@ index f793250..0000000
 -
 diff --git a/bin/rt-mailgate b/bin/rt-mailgate
 deleted file mode 100755
-index dbc95c0..0000000
+index 0a069db..0000000
 --- a/bin/rt-mailgate
 +++ /dev/null
-@@ -1,512 +0,0 @@
+@@ -1,446 +0,0 @@
 -#!/usr/bin/perl -w
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -3872,6 +3852,7 @@ index dbc95c0..0000000
 -# those contributions and any derivatives thereof.
 -#
 -# END BPS TAGGED BLOCK }}}
+-
 -=head1 NAME
 -
 -rt-mailgate - Mail interface to RT.
@@ -3977,7 +3958,7 @@ index dbc95c0..0000000
 -    my $self = shift;
 -    my $opts = shift;
 -    my $ua   = LWP::UserAgent->new();
--    $ua->agent("rt-mailgate/4.2.12 ");
+-    $ua->agent("rt-mailgate/4.4.0 ");
 -    $ua->cookie_jar( { file => $opts->{'jar'} } ) if $opts->{'jar'};
 -
 -    $ua->ssl_opts( verify_hostname => $opts->{'verify-ssl'} );
@@ -4154,15 +4135,15 @@ index dbc95c0..0000000
 -
 -=item C<--action>
 -
--Specifies what happens to email sent to this alias.  The avaliable
--basic actions are: C<correspond>, C<comment>.
+-Specifies what happens to email sent to this alias.  The avaliable basic
+-actions are: C<correspond>, C<comment>.  Additional actions, such as
+-C<take> or C<resolve>, may be available depending on your local
+-C<@MailPlugins> configuration.
 -
--
--If you've set the RT configuration variable B<< C<UnsafeEmailCommands> >>,
--C<take> and C<resolve> are also available.  You can execute two or more
--actions on a single message using a C<-> separated list.  RT will execute
--the actions in the listed order.  For example you can use C<take-comment>,
--C<correspond-resolve> or C<take-comment-resolve> as actions.
+-You can execute two or more actions on a single message using a C<->
+-separated list.  RT will execute the actions in the listed order.  For
+-example you can use C<take-comment>, C<correspond-resolve> or
+-C<take-comment-resolve> as actions.
 -
 -Note that C<take> and C<resolve> actions ignore message text if used
 -alone.  Include a  C<comment> or C<correspond> action if you want RT
@@ -4250,73 +4231,6 @@ index dbc95c0..0000000
 -Note that you don't have to run your RT server on your mail server, as
 -the mail gateway will happily relay to a different machine.
 -
--=head1 CUSTOMIZATION
--
--By default, the mail gateway will accept mail from anyone. However,
--there are situations in which you will want to authenticate users
--before allowing them to communicate with the system. You can do this
--via a plug-in mechanism in the RT configuration.
--
--You can set the array C<@MailPlugins> to be a list of plugins. The
--default plugin, if this is not given, is C<Auth::MailFrom> - that is,
--authentication of the person is done based on the C<From> header of the
--email. If you have additional filters or authentication mechanisms, you
--can list them here and they will be called in order:
--
--    Set( @MailPlugins =>
--        "Filter::SpamAssassin",
--        "Auth::LDAP",
--        # ...
--    );
--
--See the documentation for any additional plugins you have.
--
--You may also put Perl subroutines into the C<@MailPlugins> array, if
--they behave as described below.
--
--=head1 WRITING PLUGINS
--
--What's actually going on in the above is that C<@MailPlugins> is a
--list of Perl modules; RT prepends C<RT::Interface::Email::> to the name,
--to form a package name, and then C<use>'s this module. The module is
--expected to provide a C<GetCurrentUser> subroutine, which takes a hash of
--several parameters:
--
--=over 4
--
--=item Message
--
--A C<MIME::Entity> object representing the email
--
--=item CurrentUser
--
--An C<RT::CurrentUser> object
--
--=item AuthStat
--
--The authentication level returned from the previous plugin.
--
--=item Ticket [OPTIONAL]
--
--The ticket under discussion
--
--=item Queue [OPTIONAL]
--
--If we don't already have a ticket id, we need to know which queue we're talking about
--
--=item Action
--
--The action being performed. At the moment, it's one of "comment" or "correspond"
--
--=back
--
--It returns two values, the new C<RT::CurrentUser> object, and the new
--authentication level. The authentication level can be zero, not allowed
--to communicate with RT at all, (a "permission denied" error is mailed to
--the correspondent) or one, which is the normal mode of operation.
--Additionally, if C<-1> is returned, then the processing of the plug-ins
--stops immediately and the message is ignored.
--
 -=head1 ENVIRONMENT
 -
 -=over 4
@@ -4338,10 +4252,10 @@ index dbc95c0..0000000
 -
 diff --git a/etc/RT_Config.pm b/etc/RT_Config.pm
 deleted file mode 100644
-index 5bc762f..0000000
+index 2266489..0000000
 --- a/etc/RT_Config.pm
 +++ /dev/null
-@@ -1,3045 +0,0 @@
+@@ -1,3638 +0,0 @@
 -#
 -# RT was configured with:
 -#
@@ -4462,11 +4376,10 @@ index 5bc762f..0000000
 -Once a plugin has been downloaded and installed, use C<Plugin()> to add
 -to the enabled C<@Plugins> list:
 -
--    Plugin( "RT::Extension::SLA" );
--    Plugin( "RT::Authen::ExternalAuth" );
+-    Plugin( "RT::Extension::JSGantt" );
 -
--RT will also accept the distribution name (i.e. C<RT-Extension-SLA>)
--instead of the package name (C<RT::Extension::SLA>).
+-RT will also accept the distribution name (i.e. C<RT-Extension-JSGantt>)
+-instead of the package name (C<RT::Extension::JSGantt>).
 -
 -=cut
 -
@@ -4738,7 +4651,7 @@ index 5bc762f..0000000
 -
 -=cut
 -
--Set($MaxAttachmentSize, 10_000_000);  # 10M
+-Set($MaxAttachmentSize, 10*1024*1024);  # 10MiB
 -
 -=item C<$TruncateLongAttachments>
 -
@@ -4815,15 +4728,6 @@ index 5bc762f..0000000
 -
 -C<@MailPlugins> is a list of authentication plugins for
 -L<RT::Interface::Email> to use; see L<rt-mailgate>
--
--=cut
--
--=item C<$UnsafeEmailCommands>
--
--C<$UnsafeEmailCommands>, if set to 1, enables 'take' and 'resolve'
--as possible actions via the mail gateway.  As its name implies, this
--is very unsafe, as it allows email with a forged sender to possibly
--resolve arbitrary tickets!
 -
 -=cut
 -
@@ -5314,19 +5218,6 @@ index 5bc762f..0000000
 -
 -Set(@JSFiles, qw//);
 -
--=item C<$JSMinPath>
--
--Path to the jsmin binary; if specified, it will be used to minify
--C<JSFiles>.  The default, and the fallback if the binary cannot be
--found, is to simply concatenate the files.
--
--jsmin can be installed by running 'make jsmin' from the RT install
--directory, or from http://www.crockford.com/javascript/jsmin.html
--
--=cut
--
--# Set($JSMinPath, "/path/to/jsmin");
--
 -=item C<@CSSFiles>
 -
 -A list of additional CSS files to be included in head.
@@ -5371,7 +5262,7 @@ index 5bc762f..0000000
 -
 -=cut
 -
--Set(@UserSummaryPortlets, (qw/ExtraInfo CreateTicket ActiveTickets InactiveTickets/));
+-Set(@UserSummaryPortlets, (qw/ExtraInfo CreateTicket ActiveTickets InactiveTickets UserAssets /));
 -
 -=item C<$UserSummaryExtraInfo>
 -
@@ -5586,7 +5477,7 @@ index 5bc762f..0000000
 -Set(
 -    $HomepageComponents,
 -    [
--        qw(QuickCreate Quicksearch MyAdminQueues MySupportQueues MyReminders RefreshHomepage Dashboards SavedSearches FindUser) # loc_qw
+-        qw(QuickCreate QueueList MyAdminQueues MySupportQueues MyReminders RefreshHomepage Dashboards SavedSearches FindUser MyAssets FindAsset) # loc_qw
 -    ]
 -);
 -
@@ -5946,6 +5837,17 @@ index 5bc762f..0000000
 -
 -Set($SimplifiedRecipients, 0);
 -
+-=item C<$SquelchedRecipients>
+-
+-If C<$SquelchedRecipients> is set, the checkbox list of who will receive
+-B<any> kind of mail on the ticket reply page are displayed initially as
+-B<un>checked - which means nobody in that list would get any mail. It
+-does not affect correspondence done via email yet.
+-
+-=cut
+-
+-Set($SquelchedRecipients, 0);
+-
 -=item C<$HideResolveActionsWithDependencies>
 -
 -If set to 1, this option will skip ticket menu actions which can't be
@@ -5959,8 +5861,16 @@ index 5bc762f..0000000
 -
 -Set($HideResolveActionsWithDependencies, 0);
 -
--=back
+-=item C<$HideUnsetFieldsOnDisplay>
 -
+-This determines if we should hide unset fields on ticket display page.
+-Set this to 1 to hide unset fields.
+-
+-=cut
+-
+-Set($HideUnsetFieldsOnDisplay, 0);
+-
+-=back
 -
 -
 -=head2 Articles
@@ -5988,7 +5898,123 @@ index 5bc762f..0000000
 -
 -=back
 -
+-=head1 Assets
 -
+-=over 4
+-
+-=item C<@AssetQueues>
+-
+-This should be a list of names of queues whose tickets should always
+-display the "Assets" box.  This is useful for queues which deal
+-primarily with assets, as it provides a ready box to link an asset to
+-the ticket, even when the ticket has no related assets yet.
+-
+-=cut
+-
+-# Set(@AssetQueues, ());
+-
+-=item C<$DefaultCatalog>
+-
+-This provides the default catalog after a user initially logs in.
+-However, the default catalog is "sticky," and so will remember the
+-last-selected catalog thereafter.
+-
+-=cut
+-
+-# Set($DefaultCatalog, 'General assets');
+-
+-=item C<$AssetSearchFields>
+-
+-Specifies which fields of L<RT::Asset> to match against and how to match
+-each field when performing a quick search on assets.  Valid match
+-methods are LIKE, STARTSWITH, ENDSWITH, =, and !=.  Valid search fields
+-are id, Name, Description, or custom fields, which are specified as
+-"CF.1234" or "CF.Name"
+-
+-=cut
+-
+-Set($AssetSearchFields, {
+-    id          => '=',
+-    Name        => 'LIKE',
+-    Description => 'LIKE',
+-}) unless $AssetSearchFields;
+-
+-=item C<$AssetSearchFormat>
+-
+-The format that results of the asset search are displayed with.  This is
+-either a string, which will be used for all catalogs, or a hash
+-reference, keyed by catalog's name/id.  If a hashref and neither name or
+-id is found therein, falls back to the key ''.
+-
+-If you wish to use the multiple catalog format, your configuration would look
+-something like:
+-
+-    Set($AssetSearchFormat, {
+-        'General assets' => q[Format String for the General Assets Catalog],
+-        8                => q[Format String for Catalog 8],
+-        ''               => q[Format String for any catalogs not listed explicitly],
+-    });
+-
+-=cut
+-
+-# loc('Related tickets')
+-Set($AssetSearchFormat, q[
+-    '<a href="__WebHomePath__/Asset/Display.html?id=__id__">__Name__</a>/TITLE:Name',
+-    Description,
+-    '__Status__ (__Catalog__)/TITLE:Status',
+-    Owner,
+-    HeldBy,
+-    Contacts,
+-    '__ActiveTickets__ __InactiveTickets__/TITLE:Related tickets',
+-]) unless $AssetSearchFormat;
+-
+-=item C<$AssetSummaryFormat>
+-
+-The information that is displayed on ticket display pages about assets
+-related to the ticket.  This is displayed in a table beneath the asset
+-name.
+-
+-=cut
+-
+-Set($AssetSummaryFormat, q[
+-    '<a href="__WebHomePath__/Asset/Display.html?id=__id__">__Name__</a>/TITLE:Name',
+-    Description,
+-    '__Status__ (__Catalog__)/TITLE:Status',
+-    Owner,
+-    HeldBy,
+-    Contacts,
+-    '__ActiveTickets__ __InactiveTickets__/TITLE:Related tickets',
+-]) unless $AssetSummaryFormat;
+-
+-=item C<$AssetSummaryRelatedTicketsFormat>
+-
+-The information that is displayed on ticket display pages about tickets
+-related to assets related to the ticket.  This is displayed as a list of
+-tickets underneath the asset properties.
+-
+-=cut
+-
+-Set($AssetSummaryRelatedTicketsFormat, q[
+-    '<a href="__WebPath__/Ticket/Display.html?id=__id__">__id__</a>',
+-    '(__OwnerName__)',
+-    '<a href="__WebPath__/Ticket/Display.html?id=__id__">__Subject__</a>',
+-    QueueName,
+-    Status,
+-]) unless $AssetSummaryRelatedTicketsFormat;
+-
+-=item C<$AssetBasicCustomFieldsOnCreate>
+-
+-Specify a list of Asset custom fields to show in "Basics" widget on create.
+-
+-e.g.
+-
+-Set( $AssetBasicCustomFieldsOnCreate, [ 'foo', 'bar' ] );
+-
+-=cut
+-
+-# Set($AssetBasicCustomFieldsOnCreate, undef );
+-
+-=back
 -
 -=head2 Message box properties
 -
@@ -6149,14 +6175,14 @@ index 5bc762f..0000000
 -
 -=item C<$MaxInlineBody>
 -
--C<$MaxInlineBody> is the maximum attachment size that we want to see
--inline when viewing a transaction.  RT will inline any text if the
+-C<$MaxInlineBody> is the maximum textual attachment size that we want to
+-see inline when viewing a transaction.  RT will inline any text if the
 -value is undefined or 0.  This option can be overridden by users in
--their preferences.
+-their preferences.  The default is 25k.
 -
 -=cut
 -
--Set($MaxInlineBody, 12000);
+-Set($MaxInlineBody, 25 * 1024);
 -
 -=item C<$ShowTransactionImages>
 -
@@ -6230,16 +6256,6 @@ index 5bc762f..0000000
 -=cut
 -
 -Set($QuoteFolding, 1);
--
--=item C<$AllowLoginPasswordAutoComplete>
--
--Allow browsers to remember the user's password on login (in case the
--browser can do so, and has the appropriate setting enabled). Default
--is 0.
--
--=cut
--
--Set($AllowLoginPasswordAutoComplete, 0);
 -
 -=back
 -
@@ -6406,6 +6422,23 @@ index 5bc762f..0000000
 -
 -Set(@ReferrerWhitelist, qw());
 -
+-=item C<%ReferrerComponents>
+-
+-C<%ReferrerComponents> is the hash to customize referrer checking behavior when
+-C<$RestrictReferrer> is enabled, where you can whitelist or blacklist the
+-components along with their query args. e.g.
+-
+-    Set( %ReferrerComponents,
+-        ( '/Foo.html' => 1, '/Bar.html' => 0, '/Baz.html' => [ 'id', 'results' ] )
+-    );
+-
+-With this, '/Foo.html' will be whitelisted, and '/Bar.html' will be blacklisted.
+-'/Baz.html' with id/results query arguments will be whitelisted but blacklisted
+-if there are other query arguments.
+-
+-=cut
+-
+-Set( %ReferrerComponents );
 -
 -=item C<$BcryptCost>
 -
@@ -6415,7 +6448,7 @@ index 5bc762f..0000000
 -
 -=cut
 -
--Set($BcryptCost, 10);
+-Set($BcryptCost, 11);
 -
 -=back
 -
@@ -6684,9 +6717,30 @@ index 5bc762f..0000000
 -
 -Set($TimeInICal, 0);
 -
+-=item C<$PreferDateTimeFormatNatural>
+-
+-By default, RT parses an unknown date first with L<Time::ParseDate>, and if
+-this fails with L<DateTime::Format::Natural>.
+-C<$PreferDateTimeFormatNatural> changes this behavior to first parse with
+-L<DateTime::Format::Natural>, and if this fails with L<Time::ParseDate>.
+-This gives you the possibility to use the more advanced features of
+-L<DateTime::Format::Natural>.
+-For example with L<Time::ParseDate> it isn't possible to get the
+-'first day of the last month', where L<DateTime::Format::Natural> supports
+-this with 'last month'.
+-
+-Be aware that L<Time::ParseDate> and L<DateTime::Format::Natural> have
+-different definitions for the relative date and time syntax.
+-L<Time::ParseDate> returns for 'last month' this DayOfMonth from the last month.
+-L<DateTime::Format::Natural> returns for 'last month' the first day of the last
+-month. So changing this config option maybe changes the results of your saved
+-searches.
+-
+-=cut
+-
+-Set($PreferDateTimeFormatNatural, 0);
+-
 -=back
--
--
 -
 -=head1 Cryptography
 -
@@ -6703,17 +6757,12 @@ index 5bc762f..0000000
 -By default, all enabled security protocols will analyze each incoming
 -email. You may set C<Incoming> to a subset of this list, if some enabled
 -protocols do not apply to incoming mail; however, this is usually
--unnecessary. Note that for any verification or decryption to occur for
--incoming mail, the C<Auth::Crypt> mail plugin must be added to
--L</@MailPlugins> as specified in L<RT::Crypt/Handling incoming messages>.
+-unnecessary.
 -
 -For outgoing emails, the first security protocol from the above list is
 -used. Use the C<Outgoing> option to set a security protocol that should
 -be used in outgoing emails.  At this moment, only one protocol can be
 -used to protect outgoing emails.
--
--Set C<RejectOnUnencrypted> to 1 if all incoming email must be
--properly encrypted.  All unencrypted emails will be rejected by RT.
 -
 -Set C<RejectOnMissingPrivateKey> to 0 if you don't want to reject
 -emails encrypted for key RT doesn't have and can not decrypt.
@@ -6736,7 +6785,6 @@ index 5bc762f..0000000
 -    Incoming                  => undef, # ['GnuPG', 'SMIME']
 -    Outgoing                  => undef, # 'SMIME'
 -
--    RejectOnUnencrypted       => 0,
 -    RejectOnMissingPrivateKey => 1,
 -    RejectOnBadData           => 1,
 -
@@ -6856,7 +6904,86 @@ index 5bc762f..0000000
 -
 -=back
 -
+-=head1 External storage
 -
+-By default, RT stores attachments in the database.  ExternalStorage moves
+-all attachments that RT does not need efficient access to (which include
+-textual content and images) to outside of the database.  This may either
+-be on local disk, or to a cloud storage solution.  This decreases the
+-size of RT's database, in turn decreasing the burden of backing up RT's
+-database, at the cost of adding additional locations which must be
+-configured or backed up.  Attachment storage paths are calculated based
+-on file contents; this provides de-duplication.
+-
+-A full description of external storage can be found by running the command
+-`perldoc L<RT::ExternalStorage>` (or `perldoc lib/RT/ExternalStorage.pm`
+-from your RT install directory).
+-
+-Note that simply configuring L<RT::ExternalStorage> is insufficient; there
+-are additional steps required (including setup of a regularly-scheduled
+-upload job) to enable RT to make use of external storage.
+-
+-=over 4
+-
+-=item C<%ExternalStorage>
+-
+-This selects which storage engine is used, as well as options for
+-configuring that specific storage engine. RT ships with the following
+-storage engines:
+-
+-L<RT::ExternalStorage::Disk>, which stores files on directly onto disk.
+-
+-L<RT::ExternalStorage::AmazonS3>, which stores files on Amazon's S3 service.
+-
+-L<RT::ExternalStorage::Dropbox>, which stores files in Dropbox.
+-
+-See each storage engine's documentation for the configuration it requires
+-and accepts.
+-
+-    Set(%ExternalStorage,
+-        Type => 'Disk',
+-        Path => '/opt/rt4/var/attachments',
+-    );
+-
+-=cut
+-
+-Set(%ExternalStorage, ());
+-
+-=item C<$ExternalStorageCutoffSize>
+-
+-Certain object types, like values for Binary (aka file upload) custom
+-fields, are always put into external storage. However, for other
+-object types, like images and text, there is a line in the sand where
+-you want small objects in the database but large objects in external
+-storage. By default, objects larger than 10 MiB will be put into external
+-storage. C<$ExternalStorageCutoffSize> adjusts that line in the sand.
+-
+-Note that changing this setting does not affect existing attachments, only
+-the new ones that C<sbin/rt-externalize-attachments> hasn't seen yet.
+-
+-=cut
+-
+-Set($ExternalStorageCutoffSize, 10*1024*1024);
+-
+-=item C<$ExternalStorageDirectLink>
+-
+-Certain ExternalStorage backends can serve files over HTTP.  For such
+-backends, RT can link directly to those files in external storage.  This
+-cuts down download time and relieves resource pressure because RT's web
+-server is no longer involved in retrieving and then immediately serving
+-each attachment.
+-
+-Of the storage engines that RT ships, only
+-L<RT::ExternalStorage::AmazonS3> supports this feature, and you must
+-manually configure it to allow direct linking.
+-
+-Set this to 1 to link directly to files in external storage.
+-
+-=cut
+-
+-Set($ExternalStorageDirectLink, 0);
+-
+-=back
 -
 -=head1 Lifecycles
 -
@@ -6945,12 +7072,6 @@ index 5bc762f..0000000
 -If you (or your code) doesn't specify a status when creating a ticket,
 -RT will use the this status. See also L</Statuses available during
 -ticket creation>.
--
--=item on_merge
--
--When tickets are merged, the status of the ticket that was merged
--away is forced to this value.  It should be one of inactive statuses;
--'resolved' or its equivalent is most probably the best candidate.
 -
 -=item approved
 -
@@ -7122,7 +7243,6 @@ index 5bc762f..0000000
 -
 -        defaults => {
 -            on_create => 'new',
--            on_merge  => 'resolved',
 -            approved  => 'open',
 -            denied    => 'rejected',
 -            reminder_on_open     => 'open',
@@ -7158,6 +7278,52 @@ index 5bc762f..0000000
 -            'deleted -> open'  => { label  => 'Undelete',                    }, # loc{label}
 -        ],
 -    },
+-    assets => {
+-        type     => "asset",
+-        initial  => [ 
+-            'new' # loc
+-        ],
+-        active   => [ 
+-            'allocated', # loc
+-            'in-use' # loc
+-        ],
+-        inactive => [ 
+-            'recycled', # loc
+-            'stolen', # loc
+-            'deleted' # loc
+-        ],
+-
+-        defaults => {
+-            on_create => 'new',
+-        },
+-
+-        transitions => {
+-            ''        => [qw(new allocated in-use)],
+-            new       => [qw(allocated in-use stolen deleted)],
+-            allocated => [qw(in-use recycled stolen deleted)],
+-            "in-use"  => [qw(allocated recycled stolen deleted)],
+-            recycled  => [qw(allocated)],
+-            stolen    => [qw(allocated)],
+-            deleted   => [qw(allocated)],
+-        },
+-        rights => {
+-            '* -> *'        => 'ModifyAsset',
+-        },
+-        actions => {
+-            '* -> allocated' => { 
+-                label => "Allocate" # loc
+-            },
+-            '* -> in-use'    => { 
+-                label => "Now in-use" # loc
+-            },
+-            '* -> recycled'  => { 
+-                label => "Recycle" # loc
+-            },
+-            '* -> stolen'    => { 
+-                label => "Report stolen" # loc
+-            },
+-        },
+-    },
 -# don't change lifecyle of the approvals, they are not capable to deal with
 -# custom statuses
 -    approvals => {
@@ -7167,7 +7333,6 @@ index 5bc762f..0000000
 -
 -        defaults => {
 -            on_create => 'new',
--            on_merge => 'resolved',
 -            reminder_on_open     => 'open',
 -            reminder_on_resolve  => 'resolved',
 -        },
@@ -7204,9 +7369,338 @@ index 5bc762f..0000000
 -    },
 -);
 -
+-=head1 SLA
+-
+-=over 4
+-
+-=item C<%ServiceAgreements>
+-
+-    Set( %ServiceAgreements, (
+-        Default => '4h',
+-        QueueDefault => {
+-            'Incident' => '2h',
+-        },
+-        Levels => {
+-            '2h' => { Resolve => { RealMinutes => 60*2 } },
+-            '4h' => { Resolve => { RealMinutes => 60*4 } },
+-        },
+-    ));
+-
+-In this example I<Incident> is the name of the queue, and I<2h> is the name of
+-the SLA which will be applied to this queue by default.
+-
+-Each service level can be described using several options:
+-L<Starts|/"Starts (interval, first business minute)">,
+-L<Resolve|/"Resolve and Response (interval, no defaults)">,
+-L<Response|/"Resolve and Response (interval, no defaults)">,
+-L<KeepInLoop|/"Keep in loop (interval, no defaults)">,
+-L<OutOfHours|/"OutOfHours (struct, no default)">
+-and L<ServiceBusinessHours|/"Configuring business hours">.
+-
+-=over 4
+-
+-=item Starts (interval, first business minute)
+-
+-By default when a ticket is created Starts date is set to
+-first business minute after time of creation. In other
+-words if a ticket is created during business hours then
+-Starts will be equal to Created time, otherwise Starts will
+-be beginning of the next business day.
+-
+-However, if you provide 24/7 support then you most
+-probably would be interested in Starts to be always equal
+-to Created time.
+-
+-Starts option can be used to adjust behaviour. Format
+-of the option is the same as format for deadlines which
+-described later in details. RealMinutes, BusinessMinutes
+-options and OutOfHours modifiers can be used here like
+-for any other deadline. For example:
+-
+-    'standard' => {
+-        # give people 15 minutes
+-        Starts   => { BusinessMinutes => 15  },
+-    },
+-
+-You can still use old option StartImmediately to set
+-Starts date equal to Created date.
+-
+-Example:
+-
+-    '24/7' => {
+-        StartImmediately => 1,
+-        Response => { RealMinutes => 30 },
+-    },
+-
+-But it's the same as:
+-
+-    '24/7' => {
+-        Starts => { RealMinutes => 0 },
+-        Response => { RealMinutes => 30 },
+-    },
+-
+-=item Resolve and Response (interval, no defaults)
+-
+-These two options define deadlines for resolve of a ticket
+-and reply to customer(requestors) questions accordingly.
+-
+-You can define them using real time, business or both. Read more
+-about the latter L<below|/"Using both Resolve and Response in the same level">.
+-
+-The Due date field is used to store calculated deadlines.
+-
+-=over 4
+-
+-=item Resolve
+-
+-Defines deadline when a ticket should be resolved. This option is
+-quite simple and straightforward when used without L</Response>.
+-
+-Example:
+-
+-    # 8 business hours
+-    'simple' => { Resolve => 60*8 },
+-    ...
+-    # one real week
+-    'hard' => { Resolve => { RealMinutes => 60*24*7 } },
+-
+-=item Response
+-
+-In many companies providing support service(s) resolve time of a ticket
+-is less important than time of response to requestors from staff
+-members.
+-
+-You can use Response option to define such deadlines.  The Due date is
+-set when a ticket is created, unset when a worker replies, and re-set
+-when the requestor replies again -- until the ticket is closed, when the
+-ticket's Due date is unset.
+-
+-B<NOTE> that this behaviour changes when Resolve and Response options
+-are combined; see L</"Using both Resolve and Response in the same
+-level">.
+-
+-Note that by default, only the requestors on the ticket are considered
+-"outside actors" and thus require a Response due date; all other email
+-addresses are treated as workers of the ticket, and thus count as
+-meeting the SLA.  If you'd like to invert this logic, so that the Owner
+-and AdminCcs are the only worker email addresses, and all others are
+-external, see the L</AssumeOutsideActor> configuration.
+-
+-The owner is never treated as an outside actor; if they are also the
+-requestor of the ticket, it will have no SLA.
+-
+-If an outside actor replies multiple times, their later replies are
+-ignored; the deadline is always calculated from the oldest
+-correspondence from the outside actor.
 -
 -
+-=item Using both Resolve and Response in the same level
 -
+-Resolve and Response can be combined. In such case due date is set
+-according to the earliest of two deadlines and never is dropped to
+-'not set'.
+-
+-If a ticket met its Resolve deadline then due date stops "flipping",
+-is freezed and the ticket becomes overdue. Before that moment when
+-an inside actor replies to a ticket, due date is changed to Resolve
+-deadline instead of 'Not Set', as well this happens when a ticket
+-is closed. So all the time due date is defined.
+-
+-Example:
+-
+-    'standard delivery' => {
+-        Response => { RealMinutes => 60*1  }, # one hour
+-        Resolve  => { RealMinutes => 60*24 }, # 24 real hours
+-    },
+-
+-A client orders goods and due date of the order is set to the next one
+-hour, you have this hour to process the order and write a reply.
+-As soon as goods are delivered you resolve tickets and usually meet
+-Resolve deadline, but if you don't resolve or user replies then most
+-probably there are problems with delivery of the goods. And if after
+-a week you keep replying to the client and always meeting one hour
+-response deadline that doesn't mean the ticket is not over due.
+-Due date was frozen 24 hours after creation of the order.
+-
+-=item Using business and real time in one option
+-
+-It's quite rare situation when people need it, but we've decided
+-that business is applied first and then real time when deadline
+-described using both types of time. For example:
+-
+-    'delivery' => {
+-        Resolve => { BusinessMinutes => 0, RealMinutes => 60*8 },
+-    },
+-    'fast delivery' {
+-        StartImmediately => 1,
+-        Resolve => { RealMinutes => 60*8 },
+-    },
+-
+-For delivery requests which come into the system during business
+-hours these levels define the same deadlines, otherwise the first
+-level set deadline to 8 real hours starting from the next business
+-day, when tickets with the second level should be resolved in the
+-next 8 hours after creation.
+-
+-=back
+-
+-=item Keep in loop (interval, no defaults)
+-
+-If response deadline is used then Due date is changed to repsonse
+-deadline or to "Not Set" when staff replies to a ticket. In some
+-cases you want to keep requestors in loop and keed them up to date
+-every few hours. KeepInLoop option can be used to achieve this.
+-
+-    'incident' => {
+-        Response   => { RealMinutes => 60*1  }, # one hour
+-        KeepInLoop => { RealMinutes => 60*2 }, # two hours
+-        Resolve    => { RealMinutes => 60*24 }, # 24 real hours
+-    },
+-
+-In the above example Due is set to one hour after creation, reply
+-of a inside actor moves Due date two hours forward, outside actors'
+-replies move Due date to one hour and resolve deadine is 24 hours.
+-
+-=item Modifying Agreements
+-
+-=over 4
+-
+-=item OutOfHours (struct, no default)
+-
+-Out of hours modifier. Adds more real or business minutes to resolve
+-and/or reply options if event happens out of business hours, read also
+-</"Configuring business hours"> below.
+-
+-Example:
+-
+-    'level x' => {
+-        OutOfHours => { Resolve => { RealMinutes => +60*24 } },
+-        Resolve    => { RealMinutes => 60*24 },
+-    },
+-
+-If a request comes into the system during night then supporters have two
+-hours, otherwise only one.
+-
+-    'level x' => {
+-        OutOfHours => { Response => { BusinessMinutes => +60*2 } },
+-        Resolve    => { BusinessMinutes => 60 },
+-    },
+-
+-Supporters have two additional hours in the morning to deal with bunch
+-of requests that came into the system during the last night.
+-
+-=item IgnoreOnStatuses (array, no default)
+-
+-Allows you to ignore a deadline when ticket has certain status. Example:
+-
+-    'level x' => {
+-        KeepInLoop => { BusinessMinutes => 60, IgnoreOnStatuses => ['stalled'] },
+-    },
+-
+-In above example KeepInLoop deadline is ignored if ticket is stalled.
+-
+-B<NOTE>: When a ticket goes from an ignored status to a normal status, the new
+-Due date is calculated from the last action (reply, SLA change, etc) which fits
+-the SLA type (Response, Starts, KeepInLoop, etc).  This means if a ticket in
+-the above example flips from stalled to open without a reply, the ticket will
+-probably be overdue.  In most cases this shouldn't be a problem since moving
+-out of stalled-like statuses is often the result of RT's auto-open on reply
+-scrip, therefore ensuring there's a new reply to calculate Due from.  The
+-overall effect is that ignored statuses don't let the Due date drift
+-arbitrarily, which could wreak havoc on your SLA performance.
+-C<ExcludeTimeOnIgnoredStatuses> option could get around the "probably be
+-overdue" issue by excluding the time spent on ignored statuses, e.g.
+-
+-    'level x' => {
+-        KeepInLoop => {
+-            BusinessMinutes => 60,
+-            ExcludeTimeOnIgnoredStatuses => 1,
+-            IgnoreOnStatuses => ['stalled'],
+-        },
+-    },
+-
+-=back
+-
+-=item Defining service levels per queue
+-
+-In the config you can set per queue defaults, using:
+-
+-    Set( %ServiceAgreements, (
+-        Default => 'global default level of service',
+-        QueueDefault => {
+-            'queue name' => 'default value for this queue',
+-            ...
+-        },
+-        ...
+-    ));
+-
+-=item AssumeOutsideActor
+-
+-When using a L<Response|/"Resolve and Response (interval, no defaults)">
+-configuration, the due date is unset when anyone who is not a requestor
+-replies.  If it is common for non-requestors to reply to tickets, and
+-this should I<not> satisfy the SLA, you may wish to set
+-C<AssumeOutsideActor>.  This causes the extension to assume that the
+-Response SLA has only been met when the owner or AdminCc reply.
+-
+-    Set ( %ServiceAgreements = (
+-        AssumeOutsideActor => 1,
+-        ...
+-    ));
+-
+-=back
+-
+-=cut
+-
+-Set( %ServiceAgreements, );
+-
+-=item C<%ServiceBusinessHours>
+-
+-In the config you can set one or more work schedules, e.g.
+-
+-    Set( %ServiceBusinessHours, (
+-        'Default' => {
+-            ... description ...
+-        },
+-        'Support' => {
+-            ... description ...
+-        },
+-        'Sales' => {
+-            ... description ...
+-        },
+-    ));
+-
+-Read more about how to describe a schedule in L<Business::Hours>.
+-
+-=over 4
+-
+-=item Defining different business hours for service levels
+-
+-Each level supports BusinessHours option to specify your own business
+-hours.
+-
+-    'level x' => {
+-        BusinessHours => 'work just in Monday',
+-        Resolve    => { BusinessMinutes => 60 },
+-    },
+-
+-then L<%ServiceBusinessHours> should have the corresponding definition:
+-
+-    Set( %ServiceBusinessHours, (
+-        'work just in Monday' => {
+-            1 => { Name => 'Monday', Start => '9:00', End => '18:00' },
+-        },
+-    ));
+-
+-Default Business Hours setting is in $ServiceBusinessHours{'Default'}.
+-
+-=back
+-
+-=cut
+-
+-Set( %ServiceBusinessHours, );
+-
+-=back
 -
 -=head1 Administrative interface
 -
@@ -7242,7 +7736,7 @@ index 5bc762f..0000000
 -    Queues =>
 -        q{'<a href="__WebPath__/Admin/Queues/Modify.html?id=__id__">__id__</a>/TITLE:#'}
 -        .q{,'<a href="__WebPath__/Admin/Queues/Modify.html?id=__id__">__Name__</a>/TITLE:Name'}
--        .q{,__Description__,__Address__,__Priority__,__DefaultDueIn__,__Lifecycle__,__SubjectTag__,__Disabled__},
+-        .q{,__Description__,__Address__,__Priority__,__DefaultDueIn__,__Lifecycle__,__SubjectTag__,__Disabled__,__SortOrder__},
 -
 -    Groups =>
 -        q{'<a href="__WebPath__/Admin/Groups/Modify.html?id=__id__">__id__</a>/TITLE:#'}
@@ -7257,7 +7751,12 @@ index 5bc762f..0000000
 -    CustomFields =>
 -        q{'<a href="__WebPath__/Admin/CustomFields/Modify.html?id=__id__">__id__</a>/TITLE:#'}
 -        .q{,'<a href="__WebPath__/Admin/CustomFields/Modify.html?id=__id__">__Name__</a>/TITLE:Name'}
--        .q{,__AddedTo__, __FriendlyType__, __FriendlyPattern__,__Disabled__},
+-        .q{,__AddedTo__, __EntryHint__, __FriendlyPattern__,__Disabled__},
+-
+-    CustomRoles =>
+-        q{'<a href="__WebPath__/Admin/CustomRoles/Modify.html?id=__id__">__id__</a>/TITLE:#'}
+-        .q{,'<a href="__WebPath__/Admin/CustomRoles/Modify.html?id=__id__">__Name__</a>/TITLE:Name'}
+-        .q{,__Description__,__MaxValues__,__Disabled__},
 -
 -    Scrips =>
 -        q{'<a href="__WebPath__/Admin/Scrips/Modify.html?id=__id____From__">__id__</a>/TITLE:#'}
@@ -7272,6 +7771,11 @@ index 5bc762f..0000000
 -        q{ '<a href="__WebPath__/Admin/Articles/Classes/Modify.html?id=__id__">__id__</a>/TITLE:#'}
 -        .q{,'<a href="__WebPath__/Admin/Articles/Classes/Modify.html?id=__id__">__Name__</a>/TITLE:Name'}
 -        .q{,__Description__,__Disabled__},
+-
+-    Catalogs =>
+-        q{'<a href="__WebPath__/Admin/Assets/Catalogs/Modify.html?id=__id__">__id__</a>/TITLE:#'}
+-        .q{,'<a href="__WebPath__/Admin/Assets/Catalogs/Modify.html?id=__id__">__Name__</a>/TITLE:Name'}
+-        .q{,__Description__,__Lifecycle__,__Disabled__},
 -);
 -
 -=item C<%AdminSearchResultRows>
@@ -7286,9 +7790,12 @@ index 5bc762f..0000000
 -    Groups       => 50,
 -    Users        => 50,
 -    CustomFields => 50,
+-    CustomRoles  => 50,
 -    Scrips       => 50,
 -    Templates    => 50,
 -    Classes      => 50,
+-    Catalogs     => 50,
+-    Assets       => 50,
 -);
 -
 -=back
@@ -8050,180 +8557,6 @@ index c26614f..0000000
 -    return $objs->Next;
 -}
 -
-diff --git a/etc/upgrade/split-out-cf-categories b/etc/upgrade/split-out-cf-categories
-deleted file mode 100755
-index 9e36c12..0000000
---- a/etc/upgrade/split-out-cf-categories
-+++ /dev/null
-@@ -1,168 +0,0 @@
--#!/usr/bin/perl
--# BEGIN BPS TAGGED BLOCK {{{
--#
--# COPYRIGHT:
--#
--# This software is Copyright (c) 1996-2015 Best Practical Solutions, LLC
--#                                          <sales@bestpractical.com>
--#
--# (Except where explicitly superseded by other copyright notices)
--#
--#
--# LICENSE:
--#
--# This work is made available to you under the terms of Version 2 of
--# the GNU General Public License. A copy of that license should have
--# been provided with this software, but in any event can be snarfed
--# from www.gnu.org.
--#
--# This work is distributed in the hope that it will be useful, but
--# WITHOUT ANY WARRANTY; without even the implied warranty of
--# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
--# General Public License for more details.
--#
--# You should have received a copy of the GNU General Public License
--# along with this program; if not, write to the Free Software
--# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
--# 02110-1301 or visit their web page on the internet at
--# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
--#
--#
--# CONTRIBUTION SUBMISSION POLICY:
--#
--# (The following paragraph is not intended to limit the rights granted
--# to you to modify and distribute this software under the terms of
--# the GNU General Public License and is only of importance to you if
--# you choose to contribute your changes and enhancements to the
--# community by submitting them to Best Practical Solutions, LLC.)
--#
--# By intentionally submitting any modifications, corrections or
--# derivatives to this work, or any other work intended for use with
--# Request Tracker, to Best Practical Solutions, LLC, you confirm that
--# you are the copyright holder for those contributions and you grant
--# Best Practical Solutions,  LLC a nonexclusive, worldwide, irrevocable,
--# royalty-free, perpetual, license to use, copy, create derivative
--# works based on those contributions, and sublicense and distribute
--# those contributions and any derivatives thereof.
--#
--# END BPS TAGGED BLOCK }}}
--use 5.10.1;
--use strict;
--use warnings;
--
--use lib "local/lib";
--use lib "lib";
--
--use RT::Interface::CLI qw(Init);
--Init();
--
--$RT::Handle->BeginTransaction();
--
--use RT::CustomFields;
--my $CFs = RT::CustomFields->new( RT->SystemUser );
--$CFs->UnLimit;
--$CFs->Limit( FIELD => 'Type', VALUE => 'Select' );
--
--my $seen;
--while (my $cf  = $CFs->Next ) {
--    next if $cf->BasedOnObj->Id;
--    my @categories;
--    my %mapping;
--    my $values = $cf->Values;
--    while (my $value = $values->Next) {
--        next unless defined $value->Category and length $value->Category;
--        push @categories, $value->Category unless grep {$_ eq $value->Category} @categories;
--        $mapping{$value->Name} = $value->Category;
--    }
--    next unless @categories;
--
--    $seen++;
--    print "Found CF '@{[$cf->Name]}' with categories:\n";
--    print "  $_\n" for @categories;
--
--    print "Split this CF's categories into a hierarchical custom field (Y/n)? ";
--    my $dothis = <>;
--    next if $dothis =~ /n/i;
--
--    print "Enter name of CF to create as category ('@{[$cf->Name]} category'): ";
--    my $newname = <>;
--    chomp $newname;
--    $newname = $cf->Name . " category" unless length $newname;
--
--    # bump the CF's sort oder up by one
--    $cf->SetSortOrder( ($cf->SortOrder || 0) + 1 );
--
--    # ..and add a new CF before it
--    my $new = RT::CustomField->new( RT->SystemUser );
--    my ($id, $msg) = $new->Create(
--        Name => $newname,
--        Type => 'Select',
--        MaxValues => 1,
--        LookupType => $cf->LookupType,
--        SortOrder => $cf->SortOrder - 1,
--    );
--    die "Can't create custom field '$newname': $msg" unless $id;
--
--    # Set the CF to be based on what we just made
--    $cf->SetBasedOn( $new->Id );
--
--    # Apply it to all of the same things
--    {
--        my $ocfs = RT::ObjectCustomFields->new( RT->SystemUser );
--        $ocfs->LimitToCustomField( $cf->Id );
--        while (my $ocf = $ocfs->Next) {
--            my $newocf = RT::ObjectCustomField->new( RT->SystemUser );
--            ($id, $msg) = $newocf->Create(
--                SortOrder => $ocf->SortOrder,
--                CustomField => $new->Id,
--                ObjectId => $ocf->ObjectId,
--            );
--            die "Can't create ObjectCustomField: $msg" unless $id;
--        }
--    }
--
--    # Copy over all of the rights
--    {
--        my $acl = RT::ACL->new( RT->SystemUser );
--        $acl->LimitToObject( $cf );
--        while (my $ace = $acl->Next) {
--            my $newace = RT::ACE->new( RT->SystemUser );
--            ($id, $msg) = $newace->Create(
--                PrincipalId => $ace->PrincipalId,
--                PrincipalType => $ace->PrincipalType,
--                RightName => $ace->RightName,
--                Object => $new,
--            );
--            die "Can't assign rights: $msg" unless $id;
--        }
--    }
--
--    # Add values for all of the categories
--    for my $i (0..$#categories) {
--        ($id, $msg) = $new->AddValue(
--            Name => $categories[$i],
--            SortOrder => $i + 1,
--        );
--        die "Can't create custom field value: $msg" unless $id;
--    }
--
--    # Grovel through all ObjectCustomFieldValues, and add the
--    # appropriate category
--    {
--        my $ocfvs = RT::ObjectCustomFieldValues->new( RT->SystemUser );
--        $ocfvs->LimitToCustomField( $cf->Id );
--        while (my $ocfv = $ocfvs->Next) {
--            next unless exists $mapping{$ocfv->Content};
--            my $newocfv = RT::ObjectCustomFieldValue->new( RT->SystemUser );
--            ($id, $msg) = $newocfv->Create(
--                CustomField => $new->Id,
--                ObjectType => $ocfv->ObjectType,
--                ObjectId   => $ocfv->ObjectId,
--                Content    => $mapping{$ocfv->Content},
--            );
--        }
--    }
--}
--
--$RT::Handle->Commit;
--print "No custom fields with categories found\n" unless $seen;
 diff --git a/etc/upgrade/switch-templates-to b/etc/upgrade/switch-templates-to
 deleted file mode 100755
 index 1045a92..0000000
@@ -8494,7 +8827,7 @@ index 9e08369..0000000
 -}
 diff --git a/etc/upgrade/upgrade-articles b/etc/upgrade/upgrade-articles
 deleted file mode 100755
-index 395e2e3..0000000
+index 979b6d4..0000000
 --- a/etc/upgrade/upgrade-articles
 +++ /dev/null
 @@ -1,261 +0,0 @@
@@ -8665,7 +8998,7 @@ index 395e2e3..0000000
 -    use RT::ObjectCustomFieldValues;
 -    my $ocfvs = RT::ObjectCustomFieldValues->new(RT->System);
 -    $ocfvs->Limit( FIELD => 'ObjectType', VALUE => 'RT::FM::Article' );
--    $ocfvs->{'find_expired_rows'} = 1;
+-    $ocfvs->{'find_disabled_rows'} = 1;
 -    while ( my $ocfv = $ocfvs->Next ) {
 -        my ($ret, $msg) = $ocfv->__Set( Field => 'ObjectType', Value => 'RT::Article' );
 -        warn "Updated CF ".$ocfv->__Value('CustomField')." Value for Article ".$ocfv->__Value('ObjectId');
@@ -8757,6 +9090,261 @@ index 395e2e3..0000000
 -    while ( my $a = $attributes->Next ) {
 -        my ($ret,$msg) = $a->__Set( Field => 'ObjectType', Value => 'RT::Class' );
 -        warn "Updating Attribute ".$a->Name." to point to RT::Class";
+-    }
+-}
+diff --git a/etc/upgrade/upgrade-assets b/etc/upgrade/upgrade-assets
+deleted file mode 100755
+index 296a33b..0000000
+--- a/etc/upgrade/upgrade-assets
++++ /dev/null
+@@ -1,101 +0,0 @@
+-#!/usr/bin/perl
+-# BEGIN BPS TAGGED BLOCK {{{
+-#
+-# COPYRIGHT:
+-#
+-# This software is Copyright (c) 1996-2015 Best Practical Solutions, LLC
+-#                                          <sales@bestpractical.com>
+-#
+-# (Except where explicitly superseded by other copyright notices)
+-#
+-#
+-# LICENSE:
+-#
+-# This work is made available to you under the terms of Version 2 of
+-# the GNU General Public License. A copy of that license should have
+-# been provided with this software, but in any event can be snarfed
+-# from www.gnu.org.
+-#
+-# This work is distributed in the hope that it will be useful, but
+-# WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-# General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+-# 02110-1301 or visit their web page on the internet at
+-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+-#
+-#
+-# CONTRIBUTION SUBMISSION POLICY:
+-#
+-# (The following paragraph is not intended to limit the rights granted
+-# to you to modify and distribute this software under the terms of
+-# the GNU General Public License and is only of importance to you if
+-# you choose to contribute your changes and enhancements to the
+-# community by submitting them to Best Practical Solutions, LLC.)
+-#
+-# By intentionally submitting any modifications, corrections or
+-# derivatives to this work, or any other work intended for use with
+-# Request Tracker, to Best Practical Solutions, LLC, you confirm that
+-# you are the copyright holder for those contributions and you grant
+-# Best Practical Solutions,  LLC a nonexclusive, worldwide, irrevocable,
+-# royalty-free, perpetual, license to use, copy, create derivative
+-# works based on those contributions, and sublicense and distribute
+-# those contributions and any derivatives thereof.
+-#
+-# END BPS TAGGED BLOCK }}}
+-use 5.10.1;
+-use strict;
+-use warnings;
+-
+-use lib "local/lib";
+-use lib "lib";
+-
+-use RT::Interface::CLI qw(Init);
+-Init();
+-
+-my $db_name = RT->Config->Get('DatabaseName');
+-my $db_type = RT->Config->Get('DatabaseType');
+-
+-my $dbh = $RT::Handle->dbh;
+-
+-my $found_assets_tables = {};
+-foreach my $name ( $RT::Handle->_TableNames ) {
+-    next unless grep lc($name) eq $_, qw(rtxassets rtxcatalogs);
+-    $found_assets_tables->{lc $name}++;
+-}
+-
+-unless ( $found_assets_tables->{rtxassets} && $found_assets_tables->{rtxcatalogs} ) {
+-    warn "Could not find RT::Extension::Assets data to migrate";
+-    exit;
+-}
+-
+-{ # port over Catalogs
+-    my @columns = qw(id Name Lifecycle Description Disabled Creator Created LastUpdatedBy LastUpdated);
+-    copy_tables('RTxCatalogs','Catalogs',\@columns);
+-
+-}
+-
+-
+-{ # port over Assets
+-    my @columns = qw(id Name Catalog Status Description Creator Created LastUpdatedBy LastUpdated);
+-    copy_tables('RTxAssets','Assets',\@columns);
+-}
+-
+-sub copy_tables {
+-    my ($source, $dest, $columns) = @_;
+-    my $column_list = join(', ',@$columns);
+-    my $sql;
+-    # SQLite: http://www.sqlite.org/lang_insert.html
+-    if ( $db_type eq 'mysql' || $db_type eq 'SQLite' ) {
+-        $sql = "insert into $dest ($column_list) select $column_list from $source";
+-    }
+-    # Oracle: http://www.adp-gmbh.ch/ora/sql/insert/select_and_subquery.html
+-    elsif ( $db_type eq 'Pg' || $db_type eq 'Oracle' ) {
+-        $sql = "insert into $dest ($column_list) (select $column_list from $source)";
+-    }
+-    $RT::Logger->debug($sql);
+-    $dbh->do($sql);
+-}
+diff --git a/etc/upgrade/upgrade-sla b/etc/upgrade/upgrade-sla
+deleted file mode 100755
+index 05bd201..0000000
+--- a/etc/upgrade/upgrade-sla
++++ /dev/null
+@@ -1,142 +0,0 @@
+-#!/usr/bin/perl
+-# BEGIN BPS TAGGED BLOCK {{{
+-#
+-# COPYRIGHT:
+-#
+-# This software is Copyright (c) 1996-2015 Best Practical Solutions, LLC
+-#                                          <sales@bestpractical.com>
+-#
+-# (Except where explicitly superseded by other copyright notices)
+-#
+-#
+-# LICENSE:
+-#
+-# This work is made available to you under the terms of Version 2 of
+-# the GNU General Public License. A copy of that license should have
+-# been provided with this software, but in any event can be snarfed
+-# from www.gnu.org.
+-#
+-# This work is distributed in the hope that it will be useful, but
+-# WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-# General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+-# 02110-1301 or visit their web page on the internet at
+-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+-#
+-#
+-# CONTRIBUTION SUBMISSION POLICY:
+-#
+-# (The following paragraph is not intended to limit the rights granted
+-# to you to modify and distribute this software under the terms of
+-# the GNU General Public License and is only of importance to you if
+-# you choose to contribute your changes and enhancements to the
+-# community by submitting them to Best Practical Solutions, LLC.)
+-#
+-# By intentionally submitting any modifications, corrections or
+-# derivatives to this work, or any other work intended for use with
+-# Request Tracker, to Best Practical Solutions, LLC, you confirm that
+-# you are the copyright holder for those contributions and you grant
+-# Best Practical Solutions,  LLC a nonexclusive, worldwide, irrevocable,
+-# royalty-free, perpetual, license to use, copy, create derivative
+-# works based on those contributions, and sublicense and distribute
+-# those contributions and any derivatives thereof.
+-#
+-# END BPS TAGGED BLOCK }}}
+-use 5.10.1;
+-use strict;
+-use warnings;
+-
+-use lib "local/lib";
+-use lib "lib";
+-
+-use RT::Interface::CLI qw(Init);
+-Init();
+-
+-my $tickets = RT::Tickets->new(RT->SystemUser);
+-$tickets->FromSQL('CF.SLA IS NOT NULL AND SLA IS NULL');
+-while ( my $ticket = $tickets->Next ) {
+-    my ($ret, $msg) = $ticket->SetSLA($ticket->FirstCustomFieldValue('SLA'));
+-    unless ( $ret ) {
+-        RT->Logger->error("Failed to upgrade SLA for ticket #" . $ticket->id . ": $msg");
+-    }
+-}
+-
+-my $queues = RT::Queues->new(RT->SystemUser);
+-$queues->UnLimit;
+-
+-my %cfs_to_disable;
+-while ( my $queue = $queues->Next ) {
+-    my $cfs = $queue->TicketCustomFields;
+-    $cfs->Limit(FIELD => 'Name', VALUE => 'SLA', CASESENSITIVE => 0 );
+-    if ( my $cf = $cfs->First ) {
+-        $cfs_to_disable{$cf->id} ||= $cf;
+-    }
+-    elsif ( !$queue->SLADisabled ) {
+-        my ($ret, $msg) = $queue->SetSLADisabled(1);
+-        if ( $ret ) {
+-            RT->Logger->info("Disabled SLA for queue #" . $queue->id . " because it doesn't have custom field SLA applied");
+-        }
+-        else {
+-            RT->Logger->error("Failed to disable SLA for queue #" . $queue->id . ": $msg");
+-        }
+-    }
+-}
+-
+-for my $cf ( values %cfs_to_disable ) {
+-    my ($ret, $msg) = $cf->SetDisabled(1);
+-    if ( $ret ) {
+-        RT->Logger->info("Disabled custom field SLA #" . $cf->id);
+-    }
+-    else {
+-        RT->Logger->error("Failed to disable custom field SLA #" . $cf->id . ": $msg");
+-    }
+-}
+-
+-my @old_scrips = ( '[SLA] Set default service level if needed', '[SLA] Set starts date if needed', '[SLA] Set due date if needed' );
+-for my $item ( @old_scrips ) {
+-    my $scrip = RT::Scrip->new(RT->SystemUser);
+-    $scrip->LoadByCols( Description => $item );
+-    if ( $scrip->id ) {
+-        my ($ret, $msg) = $scrip->RT::Record::Delete();
+-        if ( $ret ) {
+-            RT->Logger->info(qq{Deleted scrip "$item"});
+-        }
+-        else {
+-            RT->Logger->error(qq{Failed to delete scrip "$item": $msg});
+-        }
+-    }
+-}
+-
+-my @old_conditions = ( '[SLA] Require default', '[SLA] Require Starts set', '[SLA] Require Due set' );
+-for my $item ( @old_conditions ) {
+-    my $condition = RT::ScripCondition->new(RT->SystemUser);
+-    $condition->Load($item);
+-    if ( $condition->id ) {
+-        my ($ret, $msg) = $condition->RT::Record::Delete();
+-        if ( $ret ) {
+-            RT->Logger->info(qq{Deleted condition "$item"});
+-        }
+-        else {
+-            RT->Logger->error(qq{Failed to delete condition "$item": $msg});
+-        }
+-    }
+-}
+-
+-my @old_actions = ('[SLA] Set default service level', '[SLA] Set starts date', '[SLA] Set due date' );
+-for my $item ( @old_actions ) {
+-    my $action = RT::ScripAction->new(RT->SystemUser);
+-    $action->Load($item);
+-    if ( $action->id ) {
+-        my ($ret, $msg) = $action->RT::Record::Delete();
+-        if ( $ret ) {
+-            RT->Logger->info(qq{Deleted action "$item"});
+-        }
+-        else {
+-            RT->Logger->error(qq{Failed to delete action "$item": $msg});
+-        }
 -    }
 -}
 diff --git a/etc/upgrade/vulnerable-passwords b/etc/upgrade/vulnerable-passwords
@@ -8908,7 +9496,7 @@ index c7616e9..0000000
 -}
 diff --git a/lib/RT/Generated.pm b/lib/RT/Generated.pm
 deleted file mode 100644
-index e3b92f7..0000000
+index e55ebaa..0000000
 --- a/lib/RT/Generated.pm
 +++ /dev/null
 @@ -1,85 +0,0 @@
@@ -8964,7 +9552,7 @@ index e3b92f7..0000000
 -use warnings;
 -use strict;
 -
--our $VERSION = '4.2.12';
+-our $VERSION = '4.4.0';
 -our ($MAJOR_VERSION, $MINOR_VERSION, $REVISION) = $VERSION =~ /^(\d)\.(\d)\.(\d+)/;
 -
 -
@@ -9631,10 +10219,10 @@ index 714bb59..0000000
 -
 diff --git a/sbin/rt-email-dashboards b/sbin/rt-email-dashboards
 deleted file mode 100755
-index 6637255..0000000
+index 4eae7ce..0000000
 --- a/sbin/rt-email-dashboards
 +++ /dev/null
-@@ -1,162 +0,0 @@
+@@ -1,169 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -9707,7 +10295,7 @@ index 6637255..0000000
 -my %opts;
 -use Getopt::Long;
 -GetOptions( \%opts,
--    "help|h", "dryrun", "time=i", "epoch=i", "all"
+-    "help|h", "dryrun", "time=i", "epoch=i", "all", "log=s"
 -);
 -
 -if ($opts{'help'}) {
@@ -9722,6 +10310,9 @@ index 6637255..0000000
 -
 -# Load the config file
 -RT::LoadConfig();
+-
+-# adjust logging to the screen according to options
+-RT->Config->Set( LogToSTDERR => $opts{log} ) if $opts{log};
 -
 -# Connect to the database and get RT::SystemUser and RT::Nobody loaded
 -RT::Init();
@@ -9792,6 +10383,10 @@ index 6637255..0000000
 -
 -Ignore subscription frequency when considering each dashboard (should only be
 -used with --dryrun for testing and debugging)
+-
+-=item --log LEVEL
+-
+-Adjust LogToSTDERR config option
 -
 -=back
 -
@@ -10703,6 +11298,243 @@ index cc30ac4..0000000
 -L<RT::Action::NotifyGroup>, L<RT::Action::NotifyGroupAsComment>
 -
 -=cut
+diff --git a/sbin/rt-externalize-attachments b/sbin/rt-externalize-attachments
+deleted file mode 100755
+index a942c58..0000000
+--- a/sbin/rt-externalize-attachments
++++ /dev/null
+@@ -1,231 +0,0 @@
+-#!/usr/bin/perl
+-# BEGIN BPS TAGGED BLOCK {{{
+-#
+-# COPYRIGHT:
+-#
+-# This software is Copyright (c) 1996-2015 Best Practical Solutions, LLC
+-#                                          <sales@bestpractical.com>
+-#
+-# (Except where explicitly superseded by other copyright notices)
+-#
+-#
+-# LICENSE:
+-#
+-# This work is made available to you under the terms of Version 2 of
+-# the GNU General Public License. A copy of that license should have
+-# been provided with this software, but in any event can be snarfed
+-# from www.gnu.org.
+-#
+-# This work is distributed in the hope that it will be useful, but
+-# WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-# General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+-# 02110-1301 or visit their web page on the internet at
+-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+-#
+-#
+-# CONTRIBUTION SUBMISSION POLICY:
+-#
+-# (The following paragraph is not intended to limit the rights granted
+-# to you to modify and distribute this software under the terms of
+-# the GNU General Public License and is only of importance to you if
+-# you choose to contribute your changes and enhancements to the
+-# community by submitting them to Best Practical Solutions, LLC.)
+-#
+-# By intentionally submitting any modifications, corrections or
+-# derivatives to this work, or any other work intended for use with
+-# Request Tracker, to Best Practical Solutions, LLC, you confirm that
+-# you are the copyright holder for those contributions and you grant
+-# Best Practical Solutions,  LLC a nonexclusive, worldwide, irrevocable,
+-# royalty-free, perpetual, license to use, copy, create derivative
+-# works based on those contributions, and sublicense and distribute
+-# those contributions and any derivatives thereof.
+-#
+-# END BPS TAGGED BLOCK }}}
+-use strict;
+-use warnings;
+-
+-# fix lib paths, some may be relative
+-BEGIN { # BEGIN RT CMD BOILERPLATE
+-    require File::Spec;
+-    require Cwd;
+-    my @libs = ("lib", "local/lib");
+-    my $bin_path;
+-
+-    for my $lib (@libs) {
+-        unless ( File::Spec->file_name_is_absolute($lib) ) {
+-            $bin_path ||= ( File::Spec->splitpath(Cwd::abs_path(__FILE__)) )[1];
+-            $lib = File::Spec->catfile( $bin_path, File::Spec->updir, $lib );
+-        }
+-        unshift @INC, $lib;
+-    }
+-
+-}
+-
+-# Read in the options
+-my %opts;
+-use Getopt::Long;
+-GetOptions( \%opts,
+-    "help|h", "verbose|v",
+-);
+-
+-if ($opts{'help'}) {
+-    require Pod::Usage;
+-    print Pod::Usage::pod2usage(-verbose => 2);
+-    exit;
+-}
+-
+-use RT -init;
+-
+-# Ensure we only run one of these processes at once
+-use Fcntl ':flock';
+-exit unless flock main::DATA, LOCK_EX | LOCK_NB;
+-
+-use Digest::SHA qw//;
+-
+-my $ExternalStorage = RT->System->ExternalStorage;
+-
+-die "\%ExternalStorage is not configured\n"
+-    unless $ExternalStorage;
+-
+-if ($ExternalStorage->can('IsWriteable')) {
+-    my ($ok, $msg) = $ExternalStorage->IsWriteable;
+-    die $msg if !$ok;
+-}
+-
+-# pull out the previous high-water mark for each object type
+-my $last = RT->System->FirstAttribute("ExternalStorage");
+-$last = $last ? $last->Content : {};
+-
+-for my $class (qw/RT::Attachments RT::ObjectCustomFieldValues/) {
+-    my $column = $class eq 'RT::Attachments' ? "Content" : "LargeContent";
+-    my $id = $last->{$class} || 0;
+-
+-    while (1) {
+-        my $attach = $class->new($RT::SystemUser);
+-        $attach->Limit(
+-            FIELD    => 'id',
+-            OPERATOR => '>',
+-            VALUE    => $id,
+-        );
+-        $attach->Limit(
+-            FIELD           => 'ContentEncoding',
+-            OPERATOR        => '!=',
+-            VALUE           => 'external',
+-            ENTRYAGGREGATOR => 'AND',
+-        );
+-
+-        if ($class eq "RT::ObjectCustomFieldValues") {
+-            $attach->{'find_disabled_rows'} = 1;
+-        }
+-
+-        $attach->RowsPerPage(100);
+-        while ( my $a = $attach->Next ) {
+-            $id = $a->id;
+-
+-            my ($ok, $why) = $a->ShouldStoreExternally;
+-            if (!$ok) {
+-                if ($opts{verbose}) {
+-                    RT->Logger->info("Skipping $class $id because: $why");
+-                }
+-                next;
+-            }
+-
+-            # Explicitly get bytes (not characters, which ->$column would do)
+-            my $content = $a->_DecodeLOB(
+-                "application/octet-stream",
+-                $a->ContentEncoding,
+-                $a->_Value( $column, decode_utf8 => 0),
+-            );
+-
+-            # Attempt to write that out
+-            if ($opts{verbose}) {
+-                RT->Logger->info("Storing $class $id");
+-            }
+-
+-            my ($key, $msg) = Store( $content );
+-            unless ($key) {
+-                RT->Logger->error("Failed to store $class $id: $msg");
+-                exit 1;
+-            }
+-
+-            $RT::Handle->dbh->begin_work;
+-
+-            (my $status, $msg ) = $a->__Set(
+-                Field => $column, Value => $key
+-            );
+-            unless ($status) {
+-                RT->Logger->error("Failed to update $column of $class $id: $msg");
+-                exit 2;
+-            }
+-
+-            ( $status, $msg ) = $a->__Set(
+-                Field => 'ContentEncoding', Value => 'external',
+-            );
+-            unless ($status) {
+-                RT->Logger->error("Failed to update ContentEncoding of $class $id: $msg");
+-                exit 2;
+-            }
+-
+-            $RT::Handle->dbh->commit;
+-
+-            if ($opts{verbose}) {
+-                RT->Logger->info("Stored $class $id as $key");
+-            }
+-        }
+-
+-        last unless $attach->Count;
+-    }
+-    $last->{$class} = $id;
+-}
+-
+-# update high-water mark for each object type
+-RT->System->SetAttribute( Name => "ExternalStorage", Content => $last );
+-
+-sub Store {
+-    my $content = shift;
+-
+-    my $key = Digest::SHA::sha256_hex( $content );
+-    my ($ok, $msg) = $ExternalStorage->Store( $key => $content );
+-    return ($ok, $msg) unless defined $ok;
+-
+-    return ($key);
+-}
+-
+-=head1 NAME
+-
+-rt-externalize-attachments - Move attachments from database to external storage
+-
+-=head1 SYNOPSIS
+-
+-    rt-externalize-attachments [options]
+-
+-=head1 OPTIONS
+-
+-This tool supports a few options. Most are for debugging.
+-
+-=over 8
+-
+-=item -h
+-
+-=item --help
+-
+-Display this documentation
+-
+-=item -v
+-
+-=item --verbose
+-
+-Log a message (at level "info") for each attachment, both before its
+-upload begins and after it completes.
+-
+-=back
+-
+-=cut
+-
+-# don't remove; for locking (see call to flock above)
+-__DATA__
 diff --git a/sbin/rt-fulltext-indexer b/sbin/rt-fulltext-indexer
 deleted file mode 100755
 index 00893c8..0000000
@@ -11370,6 +12202,148 @@ index 785fcc2..0000000
 -
 -
 -=cut
+diff --git a/sbin/rt-ldapimport b/sbin/rt-ldapimport
+deleted file mode 100755
+index 78cc092..0000000
+--- a/sbin/rt-ldapimport
++++ /dev/null
+@@ -1,136 +0,0 @@
+-#!/usr/bin/perl
+-# BEGIN BPS TAGGED BLOCK {{{
+-#
+-# COPYRIGHT:
+-#
+-# This software is Copyright (c) 1996-2015 Best Practical Solutions, LLC
+-#                                          <sales@bestpractical.com>
+-#
+-# (Except where explicitly superseded by other copyright notices)
+-#
+-#
+-# LICENSE:
+-#
+-# This work is made available to you under the terms of Version 2 of
+-# the GNU General Public License. A copy of that license should have
+-# been provided with this software, but in any event can be snarfed
+-# from www.gnu.org.
+-#
+-# This work is distributed in the hope that it will be useful, but
+-# WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-# General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+-# 02110-1301 or visit their web page on the internet at
+-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+-#
+-#
+-# CONTRIBUTION SUBMISSION POLICY:
+-#
+-# (The following paragraph is not intended to limit the rights granted
+-# to you to modify and distribute this software under the terms of
+-# the GNU General Public License and is only of importance to you if
+-# you choose to contribute your changes and enhancements to the
+-# community by submitting them to Best Practical Solutions, LLC.)
+-#
+-# By intentionally submitting any modifications, corrections or
+-# derivatives to this work, or any other work intended for use with
+-# Request Tracker, to Best Practical Solutions, LLC, you confirm that
+-# you are the copyright holder for those contributions and you grant
+-# Best Practical Solutions,  LLC a nonexclusive, worldwide, irrevocable,
+-# royalty-free, perpetual, license to use, copy, create derivative
+-# works based on those contributions, and sublicense and distribute
+-# those contributions and any derivatives thereof.
+-#
+-# END BPS TAGGED BLOCK }}}
+-use strict;
+-use warnings;
+-
+-$|++;
+-
+-# fix lib paths, some may be relative
+-BEGIN { # BEGIN RT CMD BOILERPLATE
+-    require File::Spec;
+-    require Cwd;
+-    my @libs = ("lib", "local/lib");
+-    my $bin_path;
+-
+-    for my $lib (@libs) {
+-        unless ( File::Spec->file_name_is_absolute($lib) ) {
+-            $bin_path ||= ( File::Spec->splitpath(Cwd::abs_path(__FILE__)) )[1];
+-            $lib = File::Spec->catfile( $bin_path, File::Spec->updir, $lib );
+-        }
+-        unshift @INC, $lib;
+-    }
+-
+-}
+-
+-BEGIN {
+-    use RT;
+-    RT::LoadConfig();
+-    RT::Init();
+-};
+-
+-eval { require RT::LDAPImport; 1; } or do {
+-    print "Unable to run rt-ldapimport without dependencies.\n";
+-    print "Rerun configure with the --enable-externalauth option.";
+-    exit 0;
+-};
+-
+-
+-my %OPT = (
+-    users  => 1,
+-    groups => 1,
+-);
+-use Getopt::Long;
+-GetOptions(
+-    \%OPT,
+-    'debug', 'help',
+-    'import', 'users!', 'groups!',
+-);
+-if ($OPT{help}) {
+-   print <<USAGE;
+-$0: [--debug] [--import] [--help]
+-     --help           This usage statement.
+-     --debug          Enable debugging.
+-     --import         Do the import.
+-     --no-users       Skip users.
+-     --no-groups      Skip groups.
+-USAGE
+-   exit 0;
+-}
+-
+-my $importer = RT::LDAPImport->new;
+-
+-if( $OPT{debug} ) {
+-    RT->Config->Set( LogToSTDERR => 'debug' );
+-} else {
+-    RT->Config->Set( LogToSTDERR => undef );
+-}
+-
+-if ($OPT{import}) {
+-    if ($OPT{users}) {
+-        print "Starting import\n";
+-        $importer->import_users(import => 1);
+-    }
+-    if ($OPT{groups}) {
+-        print "Starting group import\n";
+-        $importer->import_groups(import => 1);
+-    }
+-    print "Finished import\n";
+-} else {
+-    print <<TESTING;
+-Running test import, no data will be changed
+-Rerun command with --import to perform the import
+-Rerun command with --debug for more information
+-TESTING
+-    $importer->import_users if $OPT{users};
+-    if ($OPT{groups}) {
+-        print "Testing group import\n";
+-        $importer->import_groups();
+-    }
+-    print "Finished test\n";
+-}
 diff --git a/sbin/rt-preferences-viewer b/sbin/rt-preferences-viewer
 deleted file mode 100755
 index 205ebf3..0000000
@@ -11915,7 +12889,7 @@ index b90a709..0000000
 -
 diff --git a/sbin/rt-server b/sbin/rt-server
 deleted file mode 100755
-index 51d14ac..0000000
+index 1f49acd..0000000
 --- a/sbin/rt-server
 +++ /dev/null
 @@ -1,181 +0,0 @@
@@ -12005,8 +12979,8 @@ index 51d14ac..0000000
 -}
 -
 -require RT;
--die "Wrong version of RT $RT::VERSION found; need 4.2.*"
--    unless $RT::VERSION =~ /^4\.2\./;
+-die "Wrong version of RT $RT::VERSION found; need 4.4.*"
+-    unless $RT::VERSION =~ /^4\.4\./;
 -
 -RT->LoadConfig();
 -RT->InitPluginPaths();
@@ -12102,7 +13076,7 @@ index 51d14ac..0000000
 -    rt-server --server Starman --port 8080
 diff --git a/sbin/rt-server.fcgi b/sbin/rt-server.fcgi
 deleted file mode 100755
-index 51d14ac..0000000
+index 1f49acd..0000000
 --- a/sbin/rt-server.fcgi
 +++ /dev/null
 @@ -1,181 +0,0 @@
@@ -12192,8 +13166,8 @@ index 51d14ac..0000000
 -}
 -
 -require RT;
--die "Wrong version of RT $RT::VERSION found; need 4.2.*"
--    unless $RT::VERSION =~ /^4\.2\./;
+-die "Wrong version of RT $RT::VERSION found; need 4.4.*"
+-    unless $RT::VERSION =~ /^4\.4\./;
 -
 -RT->LoadConfig();
 -RT->InitPluginPaths();
@@ -12399,10 +13373,10 @@ index 35131bd..0000000
 -=cut
 diff --git a/sbin/rt-setup-database b/sbin/rt-setup-database
 deleted file mode 100755
-index ecea319..0000000
+index 83b6b51..0000000
 --- a/sbin/rt-setup-database
 +++ /dev/null
-@@ -1,800 +0,0 @@
+@@ -1,804 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -12758,7 +13732,11 @@ index ecea319..0000000
 -    my %args = @_;
 -    unless ($RAN_INIT) {
 -        $RT::Handle = RT::Handle->new;
--        RT::Init();
+-
+-        my $dbh = get_admin_dbh();
+-        my $has_custom_roles = grep { lc($_) eq 'customroles' } $RT::Handle->_TableNames($dbh);
+-
+-        RT::Init(SkipCustomRoles => !$has_custom_roles);
 -        $RAN_INIT++;
 -    }
 -    $log_actions = 1;
@@ -14322,10 +15300,10 @@ index 721efea..0000000
 -exit(0);
 diff --git a/sbin/rt-test-dependencies b/sbin/rt-test-dependencies
 deleted file mode 100755
-index 5d96d0e..0000000
+index ce32c86..0000000
 --- a/sbin/rt-test-dependencies
 +++ /dev/null
-@@ -1,680 +0,0 @@
+@@ -1,703 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -14405,6 +15383,9 @@ index 5d96d0e..0000000
 -    'with-DASHBOARDS',
 -    'with-USERLOGO',
 -    'with-HTML-DOC',
+-    'with-EXTERNALAUTH',
+-
+-    'with-S3', 'with-DROPBOX',
 -
 -    'list-deps',
 -    'siteinstall!',
@@ -14419,18 +15400,21 @@ index 5d96d0e..0000000
 -
 -# Set up defaults
 -my %default = (
--    'with-CORE' => 1,
--    'with-CLI' => 1,
--    'with-MAILGATE' => 1, 
--    'with-DEVELOPER' => 0,
--    'with-GPG' => 1,
--    'with-SMIME' => 1,
--    'with-ICAL' => 1,
--    'with-GRAPHVIZ' => 0,
--    'with-GD' => 0,
+-    'with-CORE'       => 1,
+-    'with-CLI'        => 1,
+-    'with-MAILGATE'   => 1,
+-    'with-DEVELOPER'  => 0,
+-    'with-GPG'        => 1,
+-    'with-SMIME'      => 1,
+-    'with-ICAL'       => 1,
+-    'with-GRAPHVIZ'   => 0,
+-    'with-GD'         => 0,
 -    'with-DASHBOARDS' => 1,
--    'with-USERLOGO' => 1,
--    'with-HTML-DOC' => 0,
+-    'with-USERLOGO'   => 1,
+-    'with-HTML-DOC'   => 0,
+-    'with-EXTERNALAUTH' => 0,
+-    'with-S3'         => (uc(q{database}) eq 'S3'),
+-    'with-DROPBOX'    => (uc(q{database}) eq 'DROPBOX'),
 -);
 -$args{$_} = $default{$_} foreach grep !exists $args{$_}, keys %default;
 -
@@ -14514,14 +15498,17 @@ index 5d96d0e..0000000
 -
 -$deps{'CORE'} = [ text_to_hash( << '.') ];
 -Apache::Session 1.53
+-Business::Hours
 -CGI 3.38
 -CGI::Cookie 1.20
 -CGI::Emulate::PSGI
 -CGI::PSGI 0.12
 -Class::Accessor::Fast
 -Crypt::Eksblowfish
+-CSS::Minifier::XS
 -CSS::Squish 0.06
 -Data::GUID
+-Data::Page::Pageset
 -Date::Extract 0.02
 -Date::Manip
 -DateTime 0.44
@@ -14544,7 +15531,7 @@ index 5d96d0e..0000000
 -File::Temp 0.19
 -HTML::Entities
 -HTML::FormatText::WithLinks 0.14
--HTML::FormatText::WithLinks::AndTables
+-HTML::FormatText::WithLinks::AndTables 0.06
 -HTML::Mason 1.43
 -HTML::Mason::PSGIHandler 0.52
 -HTML::Quoted
@@ -14552,6 +15539,7 @@ index 5d96d0e..0000000
 -HTML::Scrubber 0.08
 -HTTP::Message 6.0
 -IPC::Run3
+-JavaScript::Minifier::XS
 -JSON
 -LWP::Simple
 -List::MoreUtils
@@ -14564,7 +15552,9 @@ index 5d96d0e..0000000
 -MIME::Entity 5.504
 -Module::Refresh 0.03
 -Module::Versions::Report 1.05
+-Encode 2.64
 -Net::CIDR
+-Net::IP
 -Plack 1.0002
 -Plack::Handler::Starlet
 -Regexp::Common
@@ -14572,6 +15562,7 @@ index 5d96d0e..0000000
 -Regexp::IPv6
 -Role::Basic 0.12
 -Scalar::Util
+-Scope::Upper
 -Storable 2.08
 -Symbol::Global::Name 0.04
 -Sys::Syslog 0.16
@@ -14639,12 +15630,7 @@ index 5d96d0e..0000000
 -.
 -
 -$deps{'MODPERL1'} = [ text_to_hash( << '.') ];
--Apache::DBI 0.92
 -Apache::Request
--.
--
--$deps{'MODPERL2'} = [ text_to_hash( << '.') ];
--Apache::DBI
 -.
 -
 -$deps{'MYSQL'} = [ text_to_hash( << '.') ];
@@ -14706,9 +15692,24 @@ index 5d96d0e..0000000
 -Pod::Simple 3.24
 -.
 -
+-$deps{'EXTERNALAUTH'} = [ text_to_hash( <<'.') ];
+-Net::SSLeay
+-Net::LDAP
+-Net::LDAP::Server::Test
+-.
+-
+-$deps{'S3'} = [ text_to_hash( <<'.') ];
+-Amazon::S3
+-.
+-
+-$deps{'DROPBOX'} = [ text_to_hash( <<'.') ];
+-File::Dropbox
+-.
+-
 -my %AVOID = (
 -    'DBD::Oracle' => [qw(1.23)],
 -    'Devel::StackTrace' => [qw(1.28 1.29)],
+-    'DateTime::Locale' => [qw(1.00 1.01)]
 -);
 -
 -if ($args{'download'}) {
@@ -15387,10 +16388,10 @@ index 25d4cc3..0000000
 -=back
 diff --git a/sbin/rt-validator b/sbin/rt-validator
 deleted file mode 100755
-index 7786313..0000000
+index c691dcd..0000000
 --- a/sbin/rt-validator
 +++ /dev/null
-@@ -1,1462 +0,0 @@
+@@ -1,1478 +0,0 @@
 -#!/usr/bin/perl
 -# BEGIN BPS TAGGED BLOCK {{{
 -#
@@ -15608,7 +16609,7 @@ index 7786313..0000000
 -                }
 -                elsif ( $a eq 'c' ) {
 -                    my $principal_id = create_record( 'Principals',
--                        id => $id, PrincipalType => $type, ObjectId => $id, Disabled => 0
+-                        id => $id, PrincipalType => $type, Disabled => 0
 -                    );
 -                }
 -                else {
@@ -15642,7 +16643,7 @@ index 7786313..0000000
 -    # from user to group
 -    $res *= check_integrity(
 -        'Users', 'id' => 'Groups', 'Instance',
--        join_condition   => 't.Domain = ? AND t.Type = ?',
+-        join_condition   => 't.Domain = ? AND t.Name = ?',
 -        bind_values => [ 'ACLEquivalence',  'UserEquiv' ],
 -        action => sub {
 -            my $id = shift;
@@ -15651,14 +16652,14 @@ index 7786313..0000000
 -            );
 -
 -            my $gid = create_record( 'Groups',
--                Domain => 'ACLEquivalence', Type => 'UserEquiv', Instance => $id,
+-                Domain => 'ACLEquivalence', Name => 'UserEquiv', Instance => $id,
 -            );
 -        },
 -    );
 -    # from group to user
 -    $res *= check_integrity(
 -        'Groups', 'Instance' => 'Users', 'id',
--        condition   => 's.Domain = ? AND s.Type = ?',
+-        condition   => 's.Domain = ? AND s.Name = ?',
 -        bind_values => [ 'ACLEquivalence',  'UserEquiv' ],
 -        action => sub {
 -            my $id = shift;
@@ -15673,7 +16674,7 @@ index 7786313..0000000
 -    $res *= check_uniqueness(
 -        'Groups',
 -        columns     => ['Instance'],
--        condition   => '.Domain = ? AND .Type = ?',
+-        condition   => '.Domain = ? AND .Name = ?',
 -        bind_values => [ 'ACLEquivalence',  'UserEquiv' ],
 -    );
 -    return $res;
@@ -15734,11 +16735,11 @@ index 7786313..0000000
 -};
 -
 -# additional CHECKS on groups
--push @CHECKS, 'Role Groups (Instance, Type) uniqueness' => sub {
--    # Check that Domain, Instance and Type are unique
+-push @CHECKS, 'Role Groups (Instance, Name) uniqueness' => sub {
+-    # Check that Domain, Instance and Name are unique
 -    return check_uniqueness(
 -        'Groups',
--        columns     => ['Domain', 'Instance', 'Type'],
+-        columns     => ['Domain', 'Instance', 'Name'],
 -        condition   => '.Domain LIKE ?',
 -        bind_values => [ '%-Role' ],
 -    );
@@ -15747,7 +16748,7 @@ index 7786313..0000000
 -push @CHECKS, 'System internal group uniqueness' => sub {
 -    return check_uniqueness(
 -        'Groups',
--        columns     => ['Instance', 'Type'],
+-        columns     => ['Instance', 'Name'],
 -        condition   => '.Domain = ?',
 -        bind_values => [ 'SystemInternal' ],
 -    );
@@ -15761,7 +16762,7 @@ index 7786313..0000000
 -        condition       => '.Domain = ?',
 -        bind_values     => [ 'UserDefined' ],
 -        extra_tables    => ['Principals sp', 'Principals tp'],
--        extra_condition => join(" and ", map { "$_.id = ${_}p.ObjectId and ${_}p.PrincipalType = ? and ${_}p.Disabled != 1" } qw(s t)),
+-        extra_condition => join(" and ", map { "$_.id = ${_}p.id and ${_}p.PrincipalType = ? and ${_}p.Disabled != 1" } qw(s t)),
 -        extra_values    => ['Group', 'Group'],
 -        action          => sub {
 -            return unless prompt(
@@ -15771,6 +16772,22 @@ index 7786313..0000000
 -            my $id = shift;
 -            my %cols = @_;
 -            update_records('Groups', { id => $id }, { Name => join('-', $cols{'Name'}, $id) });
+-        },
+-    );
+-};
+-
+-push @CHECKS, 'Custom Role Name uniqueness' => sub {
+-    return check_uniqueness(
+-        'CustomRoles',
+-        columns         => ['Name'],
+-        action          => sub {
+-            return unless prompt(
+-                'Rename', "Found a custom role with a non-unique Name."
+-            );
+-
+-            my $id = shift;
+-            my %cols = @_;
+-            update_records('CustomRoles', { id => $id }, { Name => join('-', $cols{'Name'}, $id) });
 -        },
 -    );
 -};
@@ -16249,7 +17266,7 @@ index 7786313..0000000
 -    Groups g JOIN $table m ON g.id = m.$column
 -WHERE
 -    g.Domain = ?
--    AND g.Type = ?
+-    AND g.Name = ?
 -END
 -            my $action = sub {
 -                my ($gid, $uid) = @_;
@@ -16855,7 +17872,7 @@ index 7786313..0000000
 -
 diff --git a/sbin/standalone_httpd b/sbin/standalone_httpd
 deleted file mode 100755
-index 51d14ac..0000000
+index 1f49acd..0000000
 --- a/sbin/standalone_httpd
 +++ /dev/null
 @@ -1,181 +0,0 @@
@@ -16945,8 +17962,8 @@ index 51d14ac..0000000
 -}
 -
 -require RT;
--die "Wrong version of RT $RT::VERSION found; need 4.2.*"
--    unless $RT::VERSION =~ /^4\.2\./;
+-die "Wrong version of RT $RT::VERSION found; need 4.4.*"
+-    unless $RT::VERSION =~ /^4\.4\./;
 -
 -RT->LoadConfig();
 -RT->InitPluginPaths();
@@ -17168,6 +18185,132 @@ index a17d68d..0000000
 -    Plack::Handler::Apache2->preload("%%RT_SBIN_PATH%%/rt-server");
 -</Perl>
 -
+diff --git a/t/data/configs/apache2.4+fastcgi.conf b/t/data/configs/apache2.4+fastcgi.conf
+deleted file mode 100644
+index 5350a2d..0000000
+--- a/t/data/configs/apache2.4+fastcgi.conf
++++ /dev/null
+@@ -1,48 +0,0 @@
+-ServerRoot %%SERVER_ROOT%%
+-PidFile %%PID_FILE%%
+-ServerAdmin root@localhost
+-
+-%%LOAD_MODULES%%
+-
+-<IfModule !mpm_netware_module>
+-<IfModule !mpm_winnt_module>
+-User www
+-Group www
+-</IfModule>
+-</IfModule>
+-
+-ServerName localhost
+-Listen %%LISTEN%%
+-
+-ErrorLog "%%LOG_FILE%%"
+-LogLevel debug
+-
+-<Directory />
+-    Options FollowSymLinks
+-    AllowOverride None
+-    Require all denied
+-</Directory>
+-
+-AddDefaultCharset UTF-8
+-
+-FastCgiServer %%RT_SBIN_PATH%%/rt-server.fcgi \
+-    -socket %%TMP_DIR%%/socket \
+-    -processes 1 \
+-    -idle-timeout 180 \
+-    -initial-env RT_SITE_CONFIG=%%RT_SITE_CONFIG%% \
+-    -initial-env RT_TESTING=1
+-
+-ScriptAlias / %%RT_SBIN_PATH%%/rt-server.fcgi/
+-
+-DocumentRoot "%%DOCUMENT_ROOT%%"
+-<Location />
+-
+-    <RequireAll>
+-        Require all granted
+-%%BASIC_AUTH%%
+-    </RequireAll>
+-
+-    Options +ExecCGI
+-    AddHandler fastcgi-script fcgi
+-</Location>
+-
+diff --git a/t/data/configs/apache2.4+mod_perl.conf b/t/data/configs/apache2.4+mod_perl.conf
+deleted file mode 100644
+index 3917bc6..0000000
+--- a/t/data/configs/apache2.4+mod_perl.conf
++++ /dev/null
+@@ -1,66 +0,0 @@
+-<IfModule mpm_prefork_module>
+-    StartServers          1
+-    MinSpareServers       1
+-    MaxSpareServers       1
+-    MaxClients            1
+-    MaxRequestsPerChild   0
+-</IfModule>
+-
+-<IfModule mpm_worker_module>
+-    StartServers          1
+-    MinSpareThreads       1
+-    MaxSpareThreads       1
+-    ThreadLimit           1
+-    ThreadsPerChild       1
+-    MaxClients            1
+-    MaxRequestsPerChild   0
+-</IfModule>
+-
+-ServerRoot %%SERVER_ROOT%%
+-PidFile %%PID_FILE%%
+-ServerAdmin root@localhost
+-
+-%%LOAD_MODULES%%
+-
+-<IfModule !mpm_netware_module>
+-<IfModule !mpm_winnt_module>
+-User www
+-Group www
+-</IfModule>
+-</IfModule>
+-
+-ServerName localhost
+-Listen %%LISTEN%%
+-
+-ErrorLog "%%LOG_FILE%%"
+-LogLevel debug
+-
+-<Directory />
+-    Options FollowSymLinks
+-    AllowOverride None
+-    Require all denied
+-</Directory>
+-
+-AddDefaultCharset UTF-8
+-PerlSetEnv RT_SITE_CONFIG %%RT_SITE_CONFIG%%
+-
+-DocumentRoot "%%DOCUMENT_ROOT%%"
+-<Location />
+-
+-    <RequireAll>
+-        Require all granted
+-%%BASIC_AUTH%%
+-    </RequireAll>
+-
+-    SetHandler modperl
+-
+-    PerlResponseHandler Plack::Handler::Apache2
+-    PerlSetVar psgi_app %%RT_SBIN_PATH%%/rt-server
+-</Location>
+-
+-<Perl>
+-    $ENV{RT_TESTING}=1;
+-    use Plack::Handler::Apache2;
+-    Plack::Handler::Apache2->preload("%%RT_SBIN_PATH%%/rt-server");
+-</Perl>
+-
 -- 
-2.4.3
+2.5.0
 

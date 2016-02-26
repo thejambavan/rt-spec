@@ -1,7 +1,7 @@
-From 73f6a43066dd3347c17e1c4cde8e5505e52a4e4c Mon Sep 17 00:00:00 2001
+From ab17618102949ae0e4a74a85c3659c5966fe2f91 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 14:55:18 +0100
-Subject: [PATCH 4/7] Use /usr/bin/perl instead of /usr/bin/env perl.
+Subject: [PATCH 4/6] Use /usr/bin/perl instead of /usr/bin/env perl.
 
 ---
  devel/tools/change-loc-msgstr        | 2 +-
@@ -59,7 +59,7 @@ index b9d7192..4a4f20c 100755
  
  # BEGIN BPS TAGGED BLOCK {{{
 diff --git a/devel/tools/rt-apache b/devel/tools/rt-apache
-index 40aec13..f274385 100755
+index d1ab476..306ab14 100755
 --- a/devel/tools/rt-apache
 +++ b/devel/tools/rt-apache
 @@ -1,4 +1,4 @@
@@ -109,7 +109,7 @@ index c2741ab..51fec1e 100755
  #
  # COPYRIGHT:
 diff --git a/etc/upgrade/upgrade-mysql-schema.pl b/etc/upgrade/upgrade-mysql-schema.pl
-index 92d18e3..451a37c 100755
+index d9e2813..c0fdda9 100755
 --- a/etc/upgrade/upgrade-mysql-schema.pl
 +++ b/etc/upgrade/upgrade-mysql-schema.pl
 @@ -1,4 +1,4 @@
@@ -138,5 +138,5 @@ index 44c2377..ab3b912 100755
  # captures command line arguments so you can validate
  # what is being generated in sendmailpipe
 -- 
-2.1.0
+2.5.0
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2005-2015, Ralf Corsepius, Ulm, Germany.
+# Copyright (c) 2005-2016, Ralf Corsepius, Ulm, Germany.
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
@@ -38,8 +38,8 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.2.12
-Release:	2%{?dist}
+Version:	4.4.0
+Release:	1%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -61,7 +61,6 @@ Patch3: 0003-Broken-test-dependencies.patch
 Patch4: 0004-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
 Patch5: 0005-Remove-fixperms-font-install.patch
 Patch6: 0006-Fix-permissions.patch
-Patch7: 0007-Work-around-testsuite-failure.patch
 
 BuildArch:	noarch
 
@@ -71,6 +70,7 @@ Provides:	rt3 = %{version}-%{release}
 # This list is alpha sorted
 BuildRequires: perl(Apache::DBI)
 BuildRequires: perl(Apache::Session) >= 1.53
+BuildRequires: perl(Business::Hours)
 BuildRequires: perl(Cache::Simple::TimedExpiry)
 BuildRequires: perl(CGI::Cookie) >= 1.20
 BuildRequires: perl(CGI::PSGI)
@@ -81,9 +81,11 @@ BuildRequires: perl(CPAN)
 BuildRequires: perl(Crypt::Eksblowfish)
 BuildRequires: perl(Crypt::SSLeay)
 BuildRequires: perl(Crypt::X509)
+BuildRequires: perl(CSS::Minifier::XS)
 BuildRequires: perl(CSS::Squish) >= 0.06
 BuildRequires: perl(Data::GUID)
 BuildRequires: perl(Data::ICal)
+BuildRequires: perl(Data::Page::Pageset)
 BuildRequires: perl(Date::Extract) >= 0.02
 BuildRequires: perl(Date::Manip)
 BuildRequires: perl(DateTime::Format::Natural) >= 0.67
@@ -100,7 +102,7 @@ BuildRequires: perl(Digest::base)
 BuildRequires: perl(Digest::MD5) >= 2.27
 BuildRequires: perl(Email::Address)
 BuildRequires: perl(Email::Address::List) >= 0.02
-BuildRequires: perl(Encode) >= 2.39
+BuildRequires: perl(Encode) >= 2.64
 BuildRequires: perl(Errno)
 %{?with_devel_mode:BuildRequires: perl(File::Find)}
 BuildRequires: perl(File::Glob)
@@ -118,7 +120,7 @@ BuildRequires: perl(HTML::Entities)
 %{?with_devel_mode:BuildRequires: perl(HTML::Form)}
 BuildRequires: perl(HTML::FormatText)
 BuildRequires: perl(HTML::FormatText::WithLinks) >= 0.14
-BuildRequires: perl(HTML::FormatText::WithLinks::AndTables)
+BuildRequires: perl(HTML::FormatText::WithLinks::AndTables) >= 0.06
 BuildRequires: perl(HTML::Mason) >= 1.43
 BuildRequires: perl(HTML::Mason::PSGIHandler)
 BuildRequires: perl(HTML::Quoted)
@@ -133,12 +135,15 @@ BuildRequires: perl(IPC::Run3)
 BuildRequires: perl(IPC::Run::SafeHandles)
 BuildRequires: perl(JSON)
 BuildRequires: perl(JavaScript::Minifier)
+BuildRequires: perl(JavaScript::Minifier::XS)
 BuildRequires: perl(List::MoreUtils)
 BuildRequires: perl(Locale::Maketext) >= 1.06
 BuildRequires: perl(Locale::Maketext::Fuzzy) >= 0.11
 BuildRequires: perl(Locale::Maketext::Lexicon) >= 0.32
 BuildRequires: perl(Locale::PO)
 BuildRequires: perl(Log::Dispatch) >= 2.23
+# Optional, N/A in Fedora. RHBZ#1312303
+# BuildRequires: perl(Net::LDAP::Server::Test)
 %{?with_devel_mode:BuildRequires: perl(Log::Dispatch::Perl)}
 BuildRequires: perl(LWP)
 BuildRequires: perl(LWP::UserAgent)
@@ -151,6 +156,7 @@ BuildRequires: perl(Module::Versions::Report) >= 1.05
 BuildRequires: perl(Mozilla::CA)
 BuildRequires: perl(Mojo::DOM)
 BuildRequires: perl(Net::CIDR)
+BuildRequires: perl(Net::IP)
 BuildRequires: perl(Net::Server)
 BuildRequires: perl(Net::Server::PreFork)
 BuildRequires: perl(Net::SMTP)
@@ -165,6 +171,7 @@ BuildRequires: perl(Regexp::Common::net::CIDR)
 BuildRequires: perl(Regexp::IPv6)
 BuildRequires: perl(Role::Basic) >= 0.12
 BuildRequires: perl(Scalar::Util)
+BuildRequires: perl(Scope::Upper)
 BuildRequires: perl(Set::Tiny)
 BuildRequires: perl(Storable) >= 2.08
 %{?with_devel_mode:BuildRequires: perl(String::ShellQuote)}
@@ -219,6 +226,7 @@ Requires(postun): %{__rm}
 
 # rpm doesn't catch these:
 Requires: perl(Apache::Session)
+Requires: perl(Business::Hours)
 Requires: perl(Calendar::Simple)
 Requires: perl(CSS::Squish)
 Requires: perl(Data::ICal)
@@ -228,6 +236,7 @@ Requires: perl(Data::ICal::Entry::Event)
 # cf. RHBZ#1138926
 %{?with_pg:Requires: perl(DBD::Pg)}
 %{?with_pg:Conflicts: perl(DBD::Pg) == 3.3.0}
+Requires: perl(DateTime::Format::Natural) >= 0.67
 Requires: perl(Log::Dispatch::Perl)
 Requires: perl(GD::Text)
 Requires: perl(GD::Graph::bars)
@@ -252,9 +261,6 @@ Requires: perl(XML::RSS)
 
 # rpm fails to add these:
 Provides: perl(RT::Shredder::Exceptions)
-Provides: perl(RT::Shredder::Record)
-Provides: perl(RT::Shredder::Transaction)
-Provides: perl(RT::Tickets_SQL)
 
 # Split out. Technically, not actually necessary, but ... let's keep it for now.
 Requires: rt-mailgate
@@ -306,6 +312,8 @@ Requires:	perl(DBD::SQLite)
 Requires:	perl(GnuPG::Interface)
 # Bug: The testsuite unconditionally depends upon perl(GraphViz)
 Requires:	perl(GraphViz)
+# Optional, N/A in Fedora.
+# Requires:	perl(Net::LDAP::Server::Test)
 Requires:	perl(Plack::Handler::Apache2)
 Requires:	perl(Set::Tiny)
 Requires:	perl(String::ShellQuote)
@@ -357,7 +365,6 @@ sed -e 's,@RT_LOGDIR@,%{RT_LOGDIR},' %{SOURCE4} \
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -511,7 +518,6 @@ ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/generate-rtaddressregexp \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/sanity-check-stylesheets \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/shrink-cgm-table \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/shrink-transactions-table \
-${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/split-out-cf-categories \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/switch-templates-to \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/time-worked-history \
 ${RPM_BUILD_ROOT}%{_datadir}/%{name}/upgrade/upgrade-articles \
@@ -596,6 +602,12 @@ fi
 %endif
 
 %changelog
+* Fri Feb 26 2016 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.0-1
+- Update to rt-4.4.0.
+- Rebase patches.
+- Update deps.
+- Update README.fedora.in.
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 4.2.12-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
@@ -604,7 +616,7 @@ fi
 - Rebase 0001-Remove-configure-time-generated-files.patch.
 
 * Tue Aug 04 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.11-2
-- Install README* directy into %_pkgdocdir (Work-around regression introduced
+- Install README* directly into %%_pkgdocdir (Work-around regression introduced
   by rpm-4.12.90 (RHBZ#1249716).
 
 * Wed Jun 17 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.11-1

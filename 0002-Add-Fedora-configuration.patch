@@ -1,17 +1,17 @@
-From b76b490969f7e26e390c5e113ed80502595f6d96 Mon Sep 17 00:00:00 2001
+From f012f5d1160b53d0faa19309e00837cd383fbbb1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 14:44:14 +0100
-Subject: [PATCH 2/7] Add Fedora configuration.
+Subject: [PATCH 2/6] Add Fedora configuration.
 
 ---
  etc/RT_SiteConfig.pm | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/etc/RT_SiteConfig.pm b/etc/RT_SiteConfig.pm
-index 390a351..02495f6 100644
+index 9944ebe..926fc02 100644
 --- a/etc/RT_SiteConfig.pm
 +++ b/etc/RT_SiteConfig.pm
-@@ -12,11 +12,12 @@
+@@ -17,7 +17,7 @@ use utf8;
  # going to run into trouble. To check your SiteConfig file, use
  # this command:
  #
@@ -19,6 +19,10 @@ index 390a351..02495f6 100644
 +#   perl -c /etc/rt/RT_SiteConfig.pm
  #
  # You must restart your webserver after making changes to this file.
+ #
+@@ -26,7 +26,8 @@ use utf8;
+ # directory.  All files ending in ".pm" will be parsed, in alphabetical order,
+ # after this file is loaded.
  
 -Set( $rtname, 'example.com');
 +Set($rtname, 'example.com');
@@ -27,5 +31,5 @@ index 390a351..02495f6 100644
  # You must install Plugins on your own, this is only an example
  # of the correct syntax to use when activating them:
 -- 
-2.1.0
+2.5.0
 
