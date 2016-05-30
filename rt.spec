@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -602,6 +602,9 @@ fi
 %endif
 
 %changelog
+* Mon May 30 2016 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.0-2
+- Rebuild for perl-5.24 (RHBZ#1339296).
+
 * Fri Feb 26 2016 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.0-1
 - Update to rt-4.4.0.
 - Rebase patches.
