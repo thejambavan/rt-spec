@@ -68,6 +68,7 @@ Obsoletes:	rt3 < %{version}-%{release}
 Provides:	rt3 = %{version}-%{release}
 
 # This list is alpha sorted
+BuildRequires: perl-generators
 BuildRequires: perl(Apache::DBI)
 BuildRequires: perl(Apache::Session) >= 1.53
 BuildRequires: perl(Business::Hours)
