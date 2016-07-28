@@ -1,14 +1,14 @@
-From 37816b62e899abe827b185341c7d9bb466e3c312 Mon Sep 17 00:00:00 2001
+From 302d4636c8997dfa81554d4292a771dea47400f8 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 14:47:19 +0100
-Subject: [PATCH 3/7] Broken test-dependencies.
+Subject: [PATCH 2/5] Broken test-dependencies.
 
 ---
  sbin/rt-test-dependencies.in | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/sbin/rt-test-dependencies.in b/sbin/rt-test-dependencies.in
-index 363177b..0e6139f 100644
+index ef5dc09..fabbdc1 100644
 --- a/sbin/rt-test-dependencies.in
 +++ b/sbin/rt-test-dependencies.in
 @@ -190,7 +190,7 @@ CGI 3.38
@@ -21,5 +21,5 @@ index 363177b..0e6139f 100644
  CSS::Squish 0.06
  Data::GUID
 -- 
-2.1.0
+2.7.4
 

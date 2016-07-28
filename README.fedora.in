@@ -4,7 +4,7 @@ Some random notes on rt on Fedora:
 Finalizing the installation
 ===========================
 
-The default configuration is set up for a mysql based rt system.
+The default configuration is set up for a mysql/mariadb based rt system.
 It requires additional steps to be performed by the sysadmin to be
 fully functional.
 
@@ -12,10 +12,10 @@ If you have never set up rt before, proceed as follows:
 1. Log-in to the server as root
 
 2. Install a mysql server:
-# yum install mysql-server
+# dnf install mariadb-server
 
 3. Startup the mysql server:
-# systemctl start mysqld.service
+# systemctl start mariadb.service
 
 4. Set up the mysql server.
 If not already done, at minimum, you will want to set up a mysql root
@@ -58,7 +58,8 @@ Afterwards, you should be ready to create user accounts, configure
 the mail-interface etc.
 
 
-SELinux:
+SELinux
+=======
 Make sure /var/cache/rt has this SELinux context:
 # ls -lZ /var/cache/rt
 drwxr-xr-x. root root system_u:object_r:httpd_cache_t:s0 /var/cache/rt
@@ -67,5 +68,15 @@ If not, perform the following to add the required file context:
 # semanage fcontext -a -t httpd_cache_t '/var/cache/rt(/.*)?'
 # restorecon -R -v /var/cache/rt
 
-Depending on your email-setup you may also need to set:
+Depending on your email-setup, you may also need to set:
 # setsebool -P httpd_can_sendmail=1
+
+
+Mariadb/Mysql
+=============
+Should you be seeing rt related warnings from mariadb/mysql concerning
+max_allowed_packet, consider editing /etc/mycnf.cfg to increase 
+max_allowed_packet, e.g. change /etc/mycnf.cfg to contain
+
+[mysqld]
+max_allowed_packet=10M
