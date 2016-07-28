@@ -607,9 +607,6 @@ fi
 - Update README.fedora.in.
 - Misc. spec file massaging.
 
-* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 4.2.12-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
-
 * Mon Aug 17 2015 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.12-1
 - Update to rt-4.2.12.
 - Rebase 0001-Remove-configure-time-generated-files.patch.
