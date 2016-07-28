@@ -1,7 +1,7 @@
-From ab17618102949ae0e4a74a85c3659c5966fe2f91 Mon Sep 17 00:00:00 2001
+From 7fae107363808521cf239e0327450f98bbf521b6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 14:55:18 +0100
-Subject: [PATCH 4/6] Use /usr/bin/perl instead of /usr/bin/env perl.
+Subject: [PATCH 2/4] Use /usr/bin/perl instead of /usr/bin/env perl.
 
 ---
  devel/tools/change-loc-msgstr        | 2 +-
@@ -19,7 +19,7 @@ Subject: [PATCH 4/6] Use /usr/bin/perl instead of /usr/bin/env perl.
  12 files changed, 12 insertions(+), 11 deletions(-)
 
 diff --git a/devel/tools/change-loc-msgstr b/devel/tools/change-loc-msgstr
-index 85780de..68fa249 100755
+index a8cb705..9c44bd7 100755
 --- a/devel/tools/change-loc-msgstr
 +++ b/devel/tools/change-loc-msgstr
 @@ -1,4 +1,4 @@
@@ -29,7 +29,7 @@ index 85780de..68fa249 100755
  #
  # COPYRIGHT:
 diff --git a/devel/tools/cmd-boilerplate b/devel/tools/cmd-boilerplate
-index 3e8c1bf..e865822 100755
+index c4a39e2..c154a9c 100755
 --- a/devel/tools/cmd-boilerplate
 +++ b/devel/tools/cmd-boilerplate
 @@ -1,4 +1,4 @@
@@ -39,7 +39,7 @@ index 3e8c1bf..e865822 100755
  
  # BEGIN BPS TAGGED BLOCK {{{
 diff --git a/devel/tools/extract-message-catalog b/devel/tools/extract-message-catalog
-index 5dd89b8..5dbbe79 100755
+index aba2d8c..afd8222 100755
 --- a/devel/tools/extract-message-catalog
 +++ b/devel/tools/extract-message-catalog
 @@ -1,4 +1,4 @@
@@ -49,7 +49,7 @@ index 5dd89b8..5dbbe79 100755
  #
  # COPYRIGHT:
 diff --git a/devel/tools/license_tag b/devel/tools/license_tag
-index b9d7192..4a4f20c 100755
+index b66a753..003e792 100755
 --- a/devel/tools/license_tag
 +++ b/devel/tools/license_tag
 @@ -1,4 +1,4 @@
@@ -59,7 +59,7 @@ index b9d7192..4a4f20c 100755
  
  # BEGIN BPS TAGGED BLOCK {{{
 diff --git a/devel/tools/rt-apache b/devel/tools/rt-apache
-index d1ab476..306ab14 100755
+index 48e9305..cf8e63a 100755
 --- a/devel/tools/rt-apache
 +++ b/devel/tools/rt-apache
 @@ -1,4 +1,4 @@
@@ -69,7 +69,7 @@ index d1ab476..306ab14 100755
  # BEGIN BPS TAGGED BLOCK {{{
  #
 diff --git a/devel/tools/rt-attributes-editor b/devel/tools/rt-attributes-editor
-index cc69a02..72b90ed 100755
+index 9b16196..7003d03 100755
 --- a/devel/tools/rt-attributes-editor
 +++ b/devel/tools/rt-attributes-editor
 @@ -1,4 +1,4 @@
@@ -79,7 +79,7 @@ index cc69a02..72b90ed 100755
  #
  # COPYRIGHT:
 diff --git a/devel/tools/rt-message-catalog b/devel/tools/rt-message-catalog
-index f1a3158..1488993 100755
+index 3c92306..b64a112 100755
 --- a/devel/tools/rt-message-catalog
 +++ b/devel/tools/rt-message-catalog
 @@ -1,4 +1,4 @@
@@ -89,7 +89,7 @@ index f1a3158..1488993 100755
  #
  # COPYRIGHT:
 diff --git a/devel/tools/rt-static-docs b/devel/tools/rt-static-docs
-index 93362e4..4f5ba33 100755
+index dbfaf55..b89bce0 100755
 --- a/devel/tools/rt-static-docs
 +++ b/devel/tools/rt-static-docs
 @@ -1,4 +1,4 @@
@@ -99,7 +99,7 @@ index 93362e4..4f5ba33 100755
  #
  # COPYRIGHT:
 diff --git a/devel/tools/tweak-template-locstring b/devel/tools/tweak-template-locstring
-index c2741ab..51fec1e 100755
+index 8e7c808..a17fb61 100755
 --- a/devel/tools/tweak-template-locstring
 +++ b/devel/tools/tweak-template-locstring
 @@ -1,4 +1,4 @@
@@ -109,7 +109,7 @@ index c2741ab..51fec1e 100755
  #
  # COPYRIGHT:
 diff --git a/etc/upgrade/upgrade-mysql-schema.pl b/etc/upgrade/upgrade-mysql-schema.pl
-index d9e2813..c0fdda9 100755
+index 2b23017..8a4cd6c 100755
 --- a/etc/upgrade/upgrade-mysql-schema.pl
 +++ b/etc/upgrade/upgrade-mysql-schema.pl
 @@ -1,4 +1,4 @@
@@ -119,7 +119,7 @@ index d9e2813..c0fdda9 100755
  #
  # COPYRIGHT:
 diff --git a/lib/RT/Interface/Web/QueryBuilder.pm b/lib/RT/Interface/Web/QueryBuilder.pm
-index b551424..8859bb2 100644
+index 0578353..c140107 100644
 --- a/lib/RT/Interface/Web/QueryBuilder.pm
 +++ b/lib/RT/Interface/Web/QueryBuilder.pm
 @@ -1,3 +1,4 @@
@@ -138,5 +138,5 @@ index 44c2377..ab3b912 100755
  # captures command line arguments so you can validate
  # what is being generated in sendmailpipe
 -- 
-2.5.0
+2.7.4
 

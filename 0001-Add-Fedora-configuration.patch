@@ -1,7 +1,7 @@
-From f012f5d1160b53d0faa19309e00837cd383fbbb1 Mon Sep 17 00:00:00 2001
+From 99c15193f492ffc2ef1b87ff6e49ddeb21cc7b13 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 14:44:14 +0100
-Subject: [PATCH 2/6] Add Fedora configuration.
+Subject: [PATCH 1/4] Add Fedora configuration.
 
 ---
  etc/RT_SiteConfig.pm | 5 +++--
@@ -31,5 +31,5 @@ index 9944ebe..926fc02 100644
  # You must install Plugins on your own, this is only an example
  # of the correct syntax to use when activating them:
 -- 
-2.5.0
+2.7.4
 

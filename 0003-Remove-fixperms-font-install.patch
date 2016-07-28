@@ -1,14 +1,14 @@
-From 20e3827ead9175b7dbff4de5bc75b67b753bcdd9 Mon Sep 17 00:00:00 2001
+From f0f47873bb37f703a8e4755a8a97c9b345305f58 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 14:59:31 +0100
-Subject: [PATCH 5/6] Remove fixperms, font-install.
+Subject: [PATCH 3/4] Remove fixperms, font-install.
 
 ---
  Makefile.in | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index 04ccd88..678524c 100644
+index 4efc2ee..6e56922 100644
 --- a/Makefile.in
 +++ b/Makefile.in
 @@ -262,7 +262,7 @@ upgrade-instruct:
@@ -20,7 +20,7 @@ index 04ccd88..678524c 100644
  
  my_with_web_handlers= $(shell $(PERL) -e 'print join " ", map "--with-$$_", grep defined && length, split /,/, "$(WEB_HANDLER)"')
  testdeps:
-@@ -361,9 +361,9 @@ clean-mason-cache:
+@@ -359,9 +359,9 @@ clean-mason-cache:
  	rm -rf $(DESTDIR)$(MASON_DATA_PATH)/etc/*
  	rm -rf $(DESTDIR)$(MASON_DATA_PATH)/obj/*
  
@@ -33,5 +33,5 @@ index 04ccd88..678524c 100644
  config-install:
  @COMMENT_INPLACE_LAYOUT@	$(INSTALL) -m 0755 -o $(BIN_OWNER) -g $(RTGROUP) -d $(DESTDIR)$(CONFIG_FILE_PATH)
 -- 
-2.5.0
+2.7.4
 

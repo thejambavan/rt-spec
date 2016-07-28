@@ -1,7 +1,7 @@
-From 5e88a5cda940ce5f4618f0144286539b8f1a84be Mon Sep 17 00:00:00 2001
+From be7980f248f042c578025d1c8935b86b39e9ce3a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 10:00:00 +0100
-Subject: [PATCH 6/6] Fix permissions.
+Subject: [PATCH 4/4] Fix permissions.
 
 ---
  configure.ac | 0
@@ -12,5 +12,5 @@ diff --git a/configure.ac b/configure.ac
 old mode 100755
 new mode 100644
 -- 
-2.5.0
+2.7.4
 

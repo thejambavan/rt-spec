@@ -38,14 +38,14 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.4.0
-Release:	2%{?dist}
+Version:	4.4.1
+Release:	1%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
 License:	GPLv2+
-URL:		http://www.bestpractical.com/rt
-Source0:	http://www.bestpractical.com/pub/rt/release/rt-%{version}.tar.gz
+URL:		http://bestpractical.com/request-tracker
+Source0:	http://download.bestpractical.com/pub/rt/release/rt-%{version}.tar.gz
 # Notes on running the testsuite
 Source1:	README.tests
 # rt's Apache configuration
@@ -55,12 +55,10 @@ Source3:	README.fedora.in
 # rt's logrotate configuration
 Source4:	rt.logrotate.in
 
-Patch1: 0001-Remove-configure-time-generated-files.patch
-Patch2: 0002-Add-Fedora-configuration.patch
-Patch3: 0003-Broken-test-dependencies.patch
-Patch4: 0004-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
-Patch5: 0005-Remove-fixperms-font-install.patch
-Patch6: 0006-Fix-permissions.patch
+Patch1: 0001-Add-Fedora-configuration.patch
+Patch2: 0002-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
+Patch3: 0003-Remove-fixperms-font-install.patch
+Patch4: 0004-Fix-permissions.patch
 
 BuildArch:	noarch
 
@@ -164,6 +162,7 @@ BuildRequires: perl(Net::SMTP)
 BuildRequires: perl(Net::SSL)
 BuildRequires: perl(PerlIO::eol)
 BuildRequires: perl(Pod::Usage)
+BuildRequires: perl(Pod::Select)
 BuildRequires: perl(Plack)
 BuildRequires: perl(Plack::Handler::Starlet)
 %{?with_devel_mode:BuildRequires: perl(Plack::Middleware::Test::StashWarnings) >= 0.06}
@@ -360,12 +359,14 @@ sed -e 's,@RT_CACHEDIR@,%{RT_CACHEDIR},' %{SOURCE3} \
 sed -e 's,@RT_LOGDIR@,%{RT_LOGDIR},' %{SOURCE4} \
   > rt.logrotate
 
+# remove auto*generated files
+find -name '*.in' | \
+while read a; do b=$(echo "$a" | sed -e 's,\.in$,,'); rm "$b"; done
+
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
-%patch6 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -430,14 +431,18 @@ sbin/rt-dump-metadata \
 sbin/rt-email-dashboards \
 sbin/rt-email-digest \
 sbin/rt-email-group-admin \
+sbin/rt-externalize-attachments \
 sbin/rt-fulltext-indexer \
+sbin/rt-importer \
 sbin/rt-preferences-viewer \
 sbin/rt-server \
 sbin/rt-server.fcgi \
 sbin/rt-session-viewer \
 sbin/rt-setup-database \
 sbin/rt-setup-fulltext-index \
+sbin/rt-serializer \
 sbin/rt-shredder \
+sbin/rt-validate-aliases \
 sbin/rt-validator \
 sbin/standalone_httpd \
 ; do
@@ -603,6 +608,15 @@ fi
 %endif
 
 %changelog
+* Thu Jul 28 2016 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-1
+- Update to rt-4.4.1.
+- Reflect upstream URLs having changed.
+- Add man-pages for rt-importer, rt-serializer, rt-validate-aliases,
+  rt-externalize-attachments.
+- Rebase patches.
+- Update README.fedora.in.
+- Misc. spec file massaging.
+
 * Mon May 30 2016 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.0-2
 - Rebuild for perl-5.24 (RHBZ#1339296).
 
