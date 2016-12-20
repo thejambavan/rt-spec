@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -141,8 +141,7 @@ BuildRequires: perl(Locale::Maketext::Fuzzy) >= 0.11
 BuildRequires: perl(Locale::Maketext::Lexicon) >= 0.32
 BuildRequires: perl(Locale::PO)
 BuildRequires: perl(Log::Dispatch) >= 2.23
-# Optional, N/A in Fedora. RHBZ#1312303
-# BuildRequires: perl(Net::LDAP::Server::Test)
+BuildRequires: perl(Net::LDAP::Server::Test)
 %{?with_devel_mode:BuildRequires: perl(Log::Dispatch::Perl)}
 BuildRequires: perl(LWP)
 BuildRequires: perl(LWP::UserAgent)
@@ -312,8 +311,7 @@ Requires:	perl(DBD::SQLite)
 Requires:	perl(GnuPG::Interface)
 # Bug: The testsuite unconditionally depends upon perl(GraphViz)
 Requires:	perl(GraphViz)
-# Optional, N/A in Fedora.
-# Requires:	perl(Net::LDAP::Server::Test)
+Requires:	perl(Net::LDAP::Server::Test)
 Requires:	perl(Plack::Handler::Apache2)
 Requires:	perl(Set::Tiny)
 Requires:	perl(String::ShellQuote)
@@ -608,6 +606,9 @@ fi
 %endif
 
 %changelog
+* Tue Dec 20 2016 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-2
+- Add perl(Net::LDAP::Server::Test).
+
 * Thu Jul 28 2016 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-1
 - Update to rt-4.4.1.
 - Reflect upstream URLs having changed.
