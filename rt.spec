@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2005-2016, Ralf Corsepius, Ulm, Germany.
+# Copyright (c) 2005-2017, Ralf Corsepius, Ulm, Germany.
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.1
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -228,6 +228,8 @@ Requires: perl(Apache::Session)
 Requires: perl(Business::Hours)
 Requires: perl(Calendar::Simple)
 Requires: perl(CSS::Squish)
+Requires: perl(Data::Page)
+Requires: perl(Data::Page::Pageset)
 Requires: perl(Data::ICal)
 Requires: perl(Data::ICal::Entry::Event)
 %{?with_mysql:Requires: perl(DBD::mysql) >= 2.1018}
@@ -606,6 +608,9 @@ fi
 %endif
 
 %changelog
+* Tue Jan 24 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-3
+- Add R: perl(Data::Page) and R: perl(Data::Page::Pageset) (RHBZ#1415825).
+
 * Tue Dec 20 2016 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-2
 - Add perl(Net::LDAP::Server::Test).
 
