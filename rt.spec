@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.1
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -608,6 +608,9 @@ fi
 %endif
 
 %changelog
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Tue Jan 24 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-3
 - Add R: perl(Data::Page) and R: perl(Data::Page::Pageset) (RHBZ#1415825).
 
