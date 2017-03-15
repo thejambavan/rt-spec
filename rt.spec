@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.1
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -59,6 +59,7 @@ Patch1: 0001-Add-Fedora-configuration.patch
 Patch2: 0002-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
 Patch3: 0003-Remove-fixperms-font-install.patch
 Patch4: 0004-Fix-permissions.patch
+Patch5: 0005-Fix-tests-for-Mojolicious-7.0.patch
 
 BuildArch:	noarch
 
@@ -367,6 +368,7 @@ while read a; do b=$(echo "$a" | sed -e 's,\.in$,,'); rm "$b"; done
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -608,6 +610,10 @@ fi
 %endif
 
 %changelog
+* Wed Mar 15 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-5
+- Fix testsuite failure in t/web/cf_groupings.t caused by Mojolicious >= 7.0
+  incompatibilty (Add 0005-Fix-tests-for-Mojolicious-7.0.patch).
+
 * Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
