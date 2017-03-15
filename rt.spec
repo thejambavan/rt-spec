@@ -614,9 +614,6 @@ fi
 - Fix testsuite failure in t/web/cf_groupings.t caused by Mojolicious >= 7.0
   incompatibilty (Add 0005-Fix-tests-for-Mojolicious-7.0.patch).
 
-* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.1-4
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
-
 * Tue Jan 24 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-3
 - Add R: perl(Data::Page) and R: perl(Data::Page::Pageset) (RHBZ#1415825).
 
