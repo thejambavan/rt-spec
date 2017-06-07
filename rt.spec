@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.1
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -610,6 +610,9 @@ fi
 %endif
 
 %changelog
+* Wed Jun 07 2017 Jitka Plesnikova <jplesnik@redhat.com> - 4.4.1-6
+- Perl 5.26 re-rebuild of bootstrapped packages
+
 * Wed Mar 15 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-5
 - Fix testsuite failure in t/web/cf_groupings.t caused by Mojolicious >= 7.0
   incompatibilty (Add 0005-Fix-tests-for-Mojolicious-7.0.patch).
