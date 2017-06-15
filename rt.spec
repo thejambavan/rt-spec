@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.1
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -610,6 +610,9 @@ fi
 %endif
 
 %changelog
+* Thu Jun 15 2017 Jitka Plesnikova <jplesnik@redhat.com> - 4.4.1-7
+- Perl 5.26 rebuild
+
 * Wed Jun 07 2017 Jitka Plesnikova <jplesnik@redhat.com> - 4.4.1-6
 - Perl 5.26 re-rebuild of bootstrapped packages
 
