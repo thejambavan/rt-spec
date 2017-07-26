@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.1
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -372,6 +372,7 @@ while read a; do b=$(echo "$a" | sed -e 's,\.in$,,'); rm "$b"; done
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -613,6 +614,9 @@ fi
 %endif
 
 %changelog
+* Wed Jul 26 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-9
+- Add missing %%patch6.
+
 * Wed Jul 26 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-8
 - Add 0006-Apply-security-2017-06-15-rt-4.4.1.patch.patch (RHBZ#1475084).
   Supposed to address CVE-2016-6127, CVE-2017-5361, CVE-2017-5943,
