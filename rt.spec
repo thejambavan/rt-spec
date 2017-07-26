@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.2.13
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -60,6 +60,8 @@ Patch2: 0002-Broken-test-dependencies.patch
 Patch3: 0003-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
 Patch4: 0004-Remove-fixperms-font-install.patch
 Patch5: 0005-Fix-permissions.patch
+# Extracted from https://download.bestpractical.com/pub/rt/release/security-2017-06-15.tar.gz
+Patch6: 0006-Apply-security-2017-06-15-rt-4.2.13.patch.patch
 
 BuildArch:	noarch
 
@@ -96,7 +98,8 @@ BuildRequires: perl(Devel::StackTrace) >= 1.19
 BuildRequires: perl(Devel::GlobalDestruction)
 BuildRequires: perl(Digest::base)
 BuildRequires: perl(Digest::MD5) >= 2.27
-BuildRequires: perl(Email::Address)
+# Email::Address < 1.908 is vulnerable to CVE-2015-7686
+BuildRequires: perl(Email::Address) >= 1.908
 BuildRequires: perl(Email::Address::List) >= 0.02
 BuildRequires: perl(Encode) >= 2.39
 BuildRequires: perl(Errno)
@@ -358,6 +361,7 @@ while read a; do b=$(echo "$a" | sed -e 's,\.in$,,'); rm "$b"; done
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -599,6 +603,11 @@ fi
 %endif
 
 %changelog
+* Wed Jul 26 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.13-2
+- Add 0006-Apply-security-2017-06-15-rt-4.2.13.patch.patch (RHBZ#1475084).
+  Supposed to address CVE-2016-6127, CVE-2017-5361, CVE-2017-5943,
+  CVE-2017-5944.
+
 * Thu Jul 28 2016 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.2.13-1
 - Update to rt-4.2.13.
 - Reflect upstream URLs having changed.
