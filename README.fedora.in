@@ -75,8 +75,8 @@ Depending on your email-setup, you may also need to set:
 Mariadb/Mysql
 =============
 Should you be seeing rt related warnings from mariadb/mysql concerning
-max_allowed_packet, consider editing /etc/mycnf.cfg to increase 
-max_allowed_packet, e.g. change /etc/mycnf.cfg to contain
+max_allowed_packet, consider editing /etc/my.cnf to increase
+max_allowed_packet, e.g. change /etc/my.cnf to contain
 
 [mysqld]
 max_allowed_packet=10M
