@@ -38,8 +38,8 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.4.1
-Release:	9%{?dist}
+Version:	4.4.2
+Release:	1%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -59,9 +59,6 @@ Patch1: 0001-Add-Fedora-configuration.patch
 Patch2: 0002-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
 Patch3: 0003-Remove-fixperms-font-install.patch
 Patch4: 0004-Fix-permissions.patch
-Patch5: 0005-Fix-tests-for-Mojolicious-7.0.patch
-# Extracted from https://download.bestpractical.com/pub/rt/release/security-2017-06-15.tar.gz
-Patch6: 0006-Apply-security-2017-06-15-rt-4.4.1.patch.patch
 
 BuildArch:	noarch
 
@@ -371,8 +368,6 @@ while read a; do b=$(echo "$a" | sed -e 's,\.in$,,'); rm "$b"; done
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
-%patch6 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -614,6 +609,9 @@ fi
 %endif
 
 %changelog
+* Thu Jul 27 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.2-1
+- Update to rt-4.4.2.
+
 * Wed Jul 26 2017 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.1-9
 - Add missing %%patch6.
 

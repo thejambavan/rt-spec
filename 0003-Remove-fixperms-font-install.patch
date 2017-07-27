@@ -1,4 +1,4 @@
-From f0f47873bb37f703a8e4755a8a97c9b345305f58 Mon Sep 17 00:00:00 2001
+From ca5b4451bc7c7e08cb33c77dc8fecc9a2adea7af Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ralf=20Cors=C3=A9pius?= <corsepiu@fedoraproject.org>
 Date: Tue, 18 Mar 2014 14:59:31 +0100
 Subject: [PATCH 3/4] Remove fixperms, font-install.
@@ -8,7 +8,7 @@ Subject: [PATCH 3/4] Remove fixperms, font-install.
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index 4efc2ee..6e56922 100644
+index 464bda030..4617614e1 100644
 --- a/Makefile.in
 +++ b/Makefile.in
 @@ -262,7 +262,7 @@ upgrade-instruct:
@@ -33,5 +33,5 @@ index 4efc2ee..6e56922 100644
  config-install:
  @COMMENT_INPLACE_LAYOUT@	$(INSTALL) -m 0755 -o $(BIN_OWNER) -g $(RTGROUP) -d $(DESTDIR)$(CONFIG_FILE_PATH)
 -- 
-2.7.4
+2.13.3
 
