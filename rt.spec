@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.2
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -609,6 +609,9 @@ fi
 %endif
 
 %changelog
+* Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.2-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Sat Jun 30 2018 Jitka Plesnikova <jplesnik@redhat.com> - 4.4.2-3
 - Perl 5.28 rebuild
 
