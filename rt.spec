@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2005-2017, Ralf Corsepius, Ulm, Germany.
+# Copyright (c) 2005-2018, Ralf Corsepius, Ulm, Germany.
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
@@ -38,11 +38,10 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.4.2
-Release:	4%{?dist}
+Version:	4.4.3
+Release:	1%{?dist}
 Summary:	Request tracker
 
-Group:		Applications/Internet
 License:	GPLv2+
 URL:		http://bestpractical.com/request-tracker
 Source0:	http://download.bestpractical.com/pub/rt/release/rt-%{version}.tar.gz
@@ -104,7 +103,7 @@ BuildRequires: perl(Email::Address) >= 1.908
 BuildRequires: perl(Email::Address::List) >= 0.02
 BuildRequires: perl(Encode) >= 2.64
 BuildRequires: perl(Errno)
-%{?with_devel_mode:BuildRequires: perl(File::Find)}
+BuildRequires: perl(File::Find)
 BuildRequires: perl(File::Glob)
 BuildRequires: perl(File::ShareDir)
 BuildRequires: perl(File::Spec) >= 0.8
@@ -130,6 +129,7 @@ BuildRequires: perl(HTML::TreeBuilder)
 BuildRequires: perl(HTTP::Request::Common)
 BuildRequires: perl(HTTP::Server::Simple) >= 0.34
 BuildRequires: perl(HTTP::Server::Simple::Mason) >= 0.09
+BuildRequires: perl(HTTP::Status)
 BuildRequires: perl(IPC::Run)
 BuildRequires: perl(IPC::Run3)
 BuildRequires: perl(IPC::Run::SafeHandles)
@@ -289,7 +289,6 @@ by a community of users.
 
 %package mailgate
 Summary: rt's mailgate utility
-Group:	Applications/Internet
 # rpm doesn't catch these:
 Requires:	perl(Pod::Usage)
 Requires:	perl(HTML::TreeBuilder)
@@ -304,7 +303,6 @@ Provides:	rt3-mailgate = %{version}-%{release}
 %if %{with devel_mode}
 %package tests
 Summary:	Test suite for package rt
-Group:		Development/Debug
 Requires:	%{name} = %{version}-%{release}
 Requires(postun): %{__rm}
 Requires:	/usr/bin/prove
@@ -339,7 +337,6 @@ fi
 
 %package -n perl-RT-Test
 Summary: rt's test utility module
-Group:	Applications/Internet
 Requires:	rt = %{version}-%{release}
 Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 
@@ -609,6 +606,12 @@ fi
 %endif
 
 %changelog
+* Sun Jul 22 2018 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.3-1
+- Update to rt-4.4.3.
+- Modernize spec.
+- BR: perl(File::Find), perl(HTTP::Status).
+- Rebase patches.
+
 * Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.2-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
