@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2005-2017, Ralf Corsepius, Ulm, Germany.
+# Copyright (c) 2005-2018, Ralf Corsepius, Ulm, Germany.
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.2
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -59,6 +59,9 @@ Patch1: 0001-Add-Fedora-configuration.patch
 Patch2: 0002-Use-usr-bin-perl-instead-of-usr-bin-env-perl.patch
 Patch3: 0003-Remove-fixperms-font-install.patch
 Patch4: 0004-Fix-permissions.patch
+# Misc. patches cherry-picked from upstream git
+Patch5: 0005-Fix-Unescaped-left-brace-in-regex-warning-in-perl-5..patch
+Patch6: 0006-Remove-now-unnecessary-undef-m-lines.patch
 
 BuildArch:	noarch
 
@@ -368,6 +371,8 @@ while read a; do b=$(echo "$a" | sed -e 's,\.in$,,'); rm "$b"; done
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 # Propagate rpm's directories to config.layout
 cat << \EOF >> config.layout
@@ -609,6 +614,11 @@ fi
 %endif
 
 %changelog
+* Wed Nov 14 2018 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.2-3
+- Add misc. upstream fixes to testsuite bugs:
+  - 0005-Fix-Unescaped-left-brace-in-regex-warning-in-perl-5..patch.
+  - 0006-Remove-now-unnecessary-undef-m-lines.patch.
+
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 

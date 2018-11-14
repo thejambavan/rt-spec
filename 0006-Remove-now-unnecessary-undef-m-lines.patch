@@ -1,0 +1,22 @@
+From 7fdc794fe620bfbf69adc635e6a93f923d9e6108 Mon Sep 17 00:00:00 2001
+From: Alex Vandiver <alex@chmrr.net>
+Date: Tue, 7 Nov 2017 08:43:07 -0500
+Subject: [PATCH 6/6] Remove now unnecessary `undef $m` lines
+
+---
+ t/web/installer.t | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/t/web/installer.t b/t/web/installer.t
+index a690e1a22..900a4d715 100644
+--- a/t/web/installer.t
++++ b/t/web/installer.t
+@@ -102,5 +102,4 @@ diag "Walking through install screens setting defaults";
+ }
+ 
+ RT::Test::__drop_database();
+-undef $m;
+ done_testing;
+-- 
+2.19.1
+
