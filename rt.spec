@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.2
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	Request tracker
 
 Group:		Applications/Internet
@@ -577,7 +577,8 @@ fi
 %exclude %{_datadir}/%{name}/upgrade/*/*.SQLite
 %{?!with_mysql:%exclude %{_sysconfdir}/%{name}/*.mysql}
 %{?!with_mysql:%exclude %{_datadir}/%{name}/upgrade/*/*.mysql}
-%config(noreplace) %attr(0640,apache,apache) %{_sysconfdir}/%{name}/RT_*
+%attr(0750,apache,apache) %{_sysconfdir}/%{name}/RT_SiteConfig.d
+%config(noreplace) %attr(0640,apache,apache) %{_sysconfdir}/%{name}/RT_*.pm
 
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 
@@ -614,6 +615,9 @@ fi
 %endif
 
 %changelog
+* Sat Nov 24 2018 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.2-4
+- Change permissions on /etc/rt/RT_SiteConfig.d to 0750 (RHBZ#1652560).
+
 * Wed Nov 14 2018 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.2-3
 - Add misc. upstream fixes to testsuite bugs:
   - 0005-Fix-Unescaped-left-brace-in-regex-warning-in-perl-5..patch.
