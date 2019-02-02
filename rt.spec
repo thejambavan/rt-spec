@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.3
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Request tracker
 
 License:	GPLv2+
@@ -607,6 +607,9 @@ fi
 %endif
 
 %changelog
+* Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
 * Sat Nov 24 2018 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.3-2
 - Change permissions on /etc/rt/RT_SiteConfig.d to 0750 (RHBZ#1652560).
 
