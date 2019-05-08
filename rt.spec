@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2005-2018, Ralf Corsepius, Ulm, Germany.
+# Copyright (c) 2005-2019, Ralf Corsepius, Ulm, Germany.
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
@@ -38,8 +38,8 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	4.4.3
-Release:	3%{?dist}
+Version:	4.4.4
+Release:	1%{?dist}
 Summary:	Request tracker
 
 License:	GPLv2+
@@ -61,15 +61,10 @@ Patch4: 0004-Fix-permissions.patch
 
 BuildArch:	noarch
 
-Obsoletes:	rt3 < %{version}-%{release}
-Provides:	rt3 = %{version}-%{release}
-
 # This list is alpha sorted
 BuildRequires: perl-generators
-BuildRequires: perl(Apache::DBI)
 BuildRequires: perl(Apache::Session) >= 1.53
 BuildRequires: perl(Business::Hours)
-BuildRequires: perl(Cache::Simple::TimedExpiry)
 BuildRequires: perl(CGI::Cookie) >= 1.20
 BuildRequires: perl(CGI::PSGI)
 BuildRequires: perl(CGI::Emulate::PSGI)
@@ -77,14 +72,15 @@ BuildRequires: perl(Class::ReturnValue) >= 0.40
 BuildRequires: perl(Convert::Color)
 BuildRequires: perl(CPAN)
 BuildRequires: perl(Crypt::Eksblowfish)
-BuildRequires: perl(Crypt::SSLeay)
 BuildRequires: perl(Crypt::X509)
 BuildRequires: perl(CSS::Minifier::XS)
 BuildRequires: perl(CSS::Squish) >= 0.06
 BuildRequires: perl(Data::GUID)
 BuildRequires: perl(Data::ICal)
 BuildRequires: perl(Data::Page::Pageset)
+# In rt-test-dependencies, but seemingly unused
 BuildRequires: perl(Date::Extract) >= 0.02
+# In rt-test-dependencies, but seemingly unused
 BuildRequires: perl(Date::Manip)
 BuildRequires: perl(DateTime::Format::Natural) >= 0.67
 BuildRequires: perl(Date::Format)
@@ -96,12 +92,14 @@ BuildRequires: perl(DBI) >= 1.37
 BuildRequires: perl(DBIx::SearchBuilder) >= 1.59
 BuildRequires: perl(Devel::StackTrace) >= 1.19
 BuildRequires: perl(Devel::GlobalDestruction)
+# In rt-test-dependencies, but seemingly unused
 BuildRequires: perl(Digest::base)
 BuildRequires: perl(Digest::MD5) >= 2.27
-# Email::Address < 1.908 is vulnerable to CVE-2015-7686
 BuildRequires: perl(Email::Address) >= 1.908
 BuildRequires: perl(Email::Address::List) >= 0.02
 BuildRequires: perl(Encode) >= 2.64
+BuildRequires: perl(Encode::HanExtra)
+# In rt-test-dependencies, but seemingly unused
 BuildRequires: perl(Errno)
 BuildRequires: perl(File::Find)
 BuildRequires: perl(File::Glob)
@@ -116,8 +114,6 @@ BuildRequires: perl(GnuPG::Interface)
 BuildRequires: perl(GraphViz)
 BuildRequires: perl(Getopt::Long) >= 2.24
 BuildRequires: perl(HTML::Entities)
-%{?with_devel_mode:BuildRequires: perl(HTML::Form)}
-BuildRequires: perl(HTML::FormatText)
 BuildRequires: perl(HTML::FormatText::WithLinks) >= 0.14
 BuildRequires: perl(HTML::FormatText::WithLinks::AndTables) >= 0.06
 BuildRequires: perl(HTML::Mason) >= 1.43
@@ -127,14 +123,11 @@ BuildRequires: perl(HTML::RewriteAttributes) >= 0.02
 BuildRequires: perl(HTML::Scrubber) >= 0.08
 BuildRequires: perl(HTML::TreeBuilder)
 BuildRequires: perl(HTTP::Request::Common)
-BuildRequires: perl(HTTP::Server::Simple) >= 0.34
-BuildRequires: perl(HTTP::Server::Simple::Mason) >= 0.09
 BuildRequires: perl(HTTP::Status)
+# In rt-test-dependencies, but seemingly unused
 BuildRequires: perl(IPC::Run)
 BuildRequires: perl(IPC::Run3)
-BuildRequires: perl(IPC::Run::SafeHandles)
 BuildRequires: perl(JSON)
-BuildRequires: perl(JavaScript::Minifier)
 BuildRequires: perl(JavaScript::Minifier::XS)
 BuildRequires: perl(List::MoreUtils)
 BuildRequires: perl(Locale::Maketext) >= 1.06
@@ -146,24 +139,26 @@ BuildRequires: perl(Net::LDAP::Server::Test)
 %{?with_devel_mode:BuildRequires: perl(Log::Dispatch::Perl)}
 BuildRequires: perl(LWP)
 BuildRequires: perl(LWP::UserAgent)
+# In rt-test-dependencies, but seemingly unused
 BuildRequires: perl(LWP::Protocol::https)
 BuildRequires: perl(Mail::Mailer) >= 1.57
 BuildRequires: perl(MIME::Entity) >= 5.425
 BuildRequires: perl(MIME::Types)
 %{?with_devel_mode:BuildRequires: perl(Module::Refresh) >= 0.03}
 BuildRequires: perl(Module::Versions::Report) >= 1.05
+# In rt-test-dependencies, but seemingly unused
 BuildRequires: perl(Mozilla::CA)
 BuildRequires: perl(Mojo::DOM)
 BuildRequires: perl(Net::CIDR)
 BuildRequires: perl(Net::IP)
-BuildRequires: perl(Net::Server)
-BuildRequires: perl(Net::Server::PreFork)
-BuildRequires: perl(Net::SMTP)
-BuildRequires: perl(Net::SSL)
+# In rt-test-dependencies, but seemingly unused
+BuildRequires: perl(Net::SSLeay)
+# In rt-test-dependencies, but seemingly unused
 BuildRequires: perl(PerlIO::eol)
 BuildRequires: perl(Pod::Usage)
 BuildRequires: perl(Pod::Select)
 BuildRequires: perl(Plack)
+# In rt-test-dependencies, but seemingly unused
 BuildRequires: perl(Plack::Handler::Starlet)
 %{?with_devel_mode:BuildRequires: perl(Plack::Middleware::Test::StashWarnings) >= 0.06}
 BuildRequires: perl(Regexp::Common)
@@ -199,6 +194,7 @@ BuildRequires: perl(Time::HiRes)
 BuildRequires: perl(Time::ParseDate)
 BuildRequires: perl(Tree::Simple) >= 1.04
 BuildRequires: perl(UNIVERSAL::require)
+BuildRequires: perl(URI::QueryParam)
 %{?with_devel_mode:BuildRequires: perl(WWW::Mechanize)}
 BuildRequires: perl(XML::RSS) >= 1.05
 %{?with_devel_mode:BuildRequires: perl(XML::Simple)}
@@ -244,14 +240,12 @@ Requires: perl(GD::Text)
 Requires: perl(GD::Graph::bars)
 Requires: perl(GD::Graph::pie)
 Requires: perl(HTML::Quoted)
-Requires: perl(HTTP::Server::Simple::Mason)
 Requires: perl(HTML::Mason::Request)
 Requires: perl(I18N::LangTags::List)
 Requires: perl(IPC::Run3)
 Requires: perl(LWP::MediaTypes)
 Requires: perl(mod_perl2)
 Requires: perl(Module::Versions::Report)
-Requires: perl(Net::Server::PreFork)
 Requires: perl(PerlIO::eol)
 Requires: perl(Plack::Middleware::Test::StashWarnings) >= 0.06
 Requires: perl(Plack::Handler::Starlet)
@@ -261,6 +255,10 @@ Requires: perl(Time::ParseDate)
 Requires: perl(URI::URL)
 Requires: perl(XML::RSS)
 
+# optional
+Recommends:  perl(Encode::HanExtra)
+
+
 # rpm fails to add these:
 Provides: perl(RT::Shredder::Exceptions)
 
@@ -269,8 +267,6 @@ Requires: rt-mailgate
 
 %{?perl_default_filter}
 
-# Keep FCGI optional
-%global __requires_exclude %{?__requires_exclude:%__requires_exclude|}^perl\\(FCGI::ProcManager\\)
 # Work-around rpm's depgenerator defect: 
 %global __requires_exclude %{?__requires_exclude:%__requires_exclude|}^perl\\(DBIx::SearchBuilder::Handle::\\)
 
@@ -278,7 +274,6 @@ Requires: rt-mailgate
 %global __provides_exclude %{?__provides_exclude:%__provides_exclude|}^perl\\(RT\\)$
 # Filter bogus provides
 %global __provides_exclude %{?__provides_exclude:%__provides_exclude|}^perl\\(HTML::Mason
-%global __provides_exclude %{?__provides_exclude:%__provides_exclude|}^perl\\(IO::Handle::CRLF\\)$
 
 
 %description
@@ -292,9 +287,6 @@ Summary: rt's mailgate utility
 # rpm doesn't catch these:
 Requires:	perl(Pod::Usage)
 Requires:	perl(HTML::TreeBuilder)
-Requires:	perl(HTML::FormatText)
-Obsoletes:	rt3-mailgate < %{version}-%{release}
-Provides:	rt3-mailgate = %{version}-%{release}
 
 %description mailgate
 %{summary}
@@ -309,6 +301,7 @@ Requires:	/usr/bin/prove
 Requires:	perl(RT::Test)
 # rpm doesn't catch these:
 Requires:	perl(DBD::SQLite)
+Requires:       perl(Encode::HanExtra)
 Requires:	perl(GnuPG::Interface)
 # Bug: The testsuite unconditionally depends upon perl(GraphViz)
 Requires:	perl(GraphViz)
@@ -321,8 +314,6 @@ Requires:	perl(Test::Expect)
 Requires:	perl(Test::MockTime)
 Requires:	perl(Test::Warn)
 
-Obsoletes:	rt3-tests < %{version}-%{release}
-Provides:	rt3-tests = %{version}-%{release}
 
 %description tests
 %{summary}
@@ -406,7 +397,6 @@ sed -i -e 's,$(RT_ETC_PATH)/upgrade,%{_datadir}/%{name}/upgrade,g' Makefile.in
 
 %build
 %configure \
---with-apachectl=/usr/sbin/apachectl \
 --with-web-user=apache --with-web-group=apache \
 --with-db-type=%{?with_mysql:mysql}%{?with_pg:Pg} \
 --enable-layout=Fedora \
@@ -607,6 +597,13 @@ fi
 %endif
 
 %changelog
+* Wed May 08 2019 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.4-1
+- Update to rt-4.4.4.
+- Drop rt3 legacy Provides/Requires/Obsolets
+- Add deps to perl(Encode::HanExtra).
+- Add BR: perl(URI::QueryParam).
+- Rework deps.
+
 * Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
