@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.4
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Request tracker
 
 License:	GPLv2+
@@ -597,6 +597,9 @@ fi
 %endif
 
 %changelog
+* Fri May 31 2019 Jitka Plesnikova <jplesnik@redhat.com> - 4.4.4-2
+- Perl 5.30 rebuild
+
 * Wed May 08 2019 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.4-1
 - Update to rt-4.4.4.
 - Drop rt3 legacy Provides/Requires/Obsolets
