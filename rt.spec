@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.4
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Request tracker
 
 License:	GPLv2+
@@ -597,6 +597,9 @@ fi
 %endif
 
 %changelog
+* Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.4-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
 * Fri May 31 2019 Jitka Plesnikova <jplesnik@redhat.com> - 4.4.4-2
 - Perl 5.30 rebuild
 
