@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.4
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	Request tracker
 
 License:	GPLv2+
@@ -597,6 +597,9 @@ fi
 %endif
 
 %changelog
+* Thu Jan 30 2020 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.4-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.4-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
