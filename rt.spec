@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2005-2019, Ralf Corsepius, Ulm, Germany.
+# Copyright (c) 2005-2020, Ralf Corsepius, Ulm, Germany.
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.4
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	Request tracker
 
 License:	GPLv2+
@@ -208,12 +208,21 @@ BuildRequires: perl(XML::RSS) >= 1.05
 BuildRequires:	/usr/bin/pod2man
 BuildRequires:	/usr/sbin/apachectl
 
+%if 0%{fedora} > 31
+# the original sources carry bundled versions of these ...
+Requires:  /usr/share/fonts/google-droid-sans-fonts/DroidSansFallbackFull.ttf
+Requires:  /usr/share/fonts/google-droid-sans-fonts/DroidSans.ttf
+# ... we use symlinks to the system-wide versions ...
+BuildRequires:  /usr/share/fonts/google-droid-sans-fonts/DroidSansFallbackFull.ttf
+BuildRequires:  /usr/share/fonts/google-droid-sans-fonts/DroidSans.ttf
+%else
 # the original sources carry bundled versions of these ...
 Requires:  /usr/share/fonts/google-droid/DroidSansFallback.ttf
 Requires:  /usr/share/fonts/google-droid/DroidSans.ttf
 # ... we use symlinks to the system-wide versions ...
 BuildRequires:	/usr/share/fonts/google-droid/DroidSansFallback.ttf
 BuildRequires:	/usr/share/fonts/google-droid/DroidSans.ttf
+%endif
 
 Requires:	perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires:	%{_sysconfdir}/httpd/conf.d
@@ -474,9 +483,13 @@ install -m 644 rt.logrotate ${RPM_BUILD_ROOT}%{_sysconfdir}/logrotate.d/%{name}
 ln -s %{_datadir}/%{name}/upgrade ${RPM_BUILD_ROOT}%{_sysconfdir}/%{name}/upgrade
 
 install -d -m755 ${RPM_BUILD_ROOT}%{RT_FONTSDIR}
-ln -s /usr/share/fonts/google-droid/DroidSans.ttf ${RPM_BUILD_ROOT}%{RT_FONTSDIR}
-ln -s /usr/share/fonts/google-droid/DroidSansFallback.ttf ${RPM_BUILD_ROOT}%{RT_FONTSDIR}
-
+%if 0%{fedora} > 31
+ln -s /usr/share/fonts/google-droid-sans-fonts/DroidSans.ttf ${RPM_BUILD_ROOT}%{RT_FONTSDIR}/DroidSans.ttf
+ln -s /usr/share/fonts/google-droid-sans-fonts/DroidSansFallbackFull.ttf ${RPM_BUILD_ROOT}%{RT_FONTSDIR}/DroidSansFallback.ttf
+%else
+ln -s /usr/share/fonts/google-droid/DroidSans.ttf ${RPM_BUILD_ROOT}%{RT_FONTSDIR}/DroidSans.ttf
+ln -s /usr/share/fonts/google-droid/DroidSansFallback.ttf ${RPM_BUILD_ROOT}%{RT_FONTSDIR}/DroidSansFallback.ttf
+%endif
 install -d -m755 ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}
 cp -R t ${RPM_BUILD_ROOT}%{perl_testdir}/%{name}
 
@@ -597,6 +610,9 @@ fi
 %endif
 
 %changelog
+* Mon Mar 09 2020 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.4-5
+- Reflect changes to google-droid fonts dirs (RHBZ#1811541).
+
 * Thu Jan 30 2020 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.4-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
