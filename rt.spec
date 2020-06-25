@@ -39,7 +39,7 @@
 
 Name:		rt
 Version:	4.4.4
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	Request tracker
 
 License:	GPLv2+
@@ -610,6 +610,9 @@ fi
 %endif
 
 %changelog
+* Thu Jun 25 2020 Jitka Plesnikova <jplesnik@redhat.com> - 4.4.4-6
+- Perl 5.32 rebuild
+
 * Mon Mar 09 2020 Ralf Corsépius <corsepiu@fedoraproject.org> - 4.4.4-5
 - Reflect changes to google-droid fonts dirs (RHBZ#1811541).
 
