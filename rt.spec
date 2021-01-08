@@ -62,6 +62,7 @@ Patch4: 0004-Fix-permissions.patch
 BuildArch:	noarch
 
 # This list is alpha sorted
+BuildRequires: make
 BuildRequires: perl-generators
 BuildRequires: perl(Apache::Session) >= 1.53
 BuildRequires: perl(Business::Hours)
