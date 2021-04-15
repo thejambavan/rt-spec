@@ -38,7 +38,7 @@
 %global RT_STATICDIR		%{_datadir}/%{name}/static
 
 Name:		rt
-Version:	5.0.0
+Version:	5.0.1
 Release:	8%{?dist}
 Summary:	Request tracker
 
@@ -611,8 +611,8 @@ fi
 %endif
 
 %changelog
-* Thu Apr 15 2021 Seth Tunstall <seth.tunstall@unipart.io> - 5.0.0
-- Attempt to build an RPM for RT 5.0.0 on el7
+* Thu Apr 15 2021 Seth Tunstall <seth.tunstall@unipart.io> - 5.0.1
+- Attempt to build an RPM for RT 5.0.1 on el7
 
 * Wed Jan 27 2021 Fedora Release Engineering <releng@fedoraproject.org> - 4.4.4-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
